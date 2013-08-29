@@ -1,0 +1,221 @@
+<html>
+<head>
+<title>AppData Specification</title>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<meta name="robots" content="index,follow">
+<link rel="stylesheet" type="text/css" charset="utf-8" media="all" href="common.css">
+</head>
+<body>
+
+<center><img src="long-description.png"/></center>
+
+<h1>Introduction:</h1>
+<p>
+Every software center that exists allows the user to look at screenshots
+and a long description of the application before it is installed.
+For most users it allows them to answer the question <i>Do I want to install this...</i>
+</p>
+<p>
+In Linux, we have <b>none</b> of this data for the vast majority of our desktop
+user-installable applications.
+What we need to do is define a new data file, which the upstream project can
+optionally translate using the same technique as GSetting schemas or
+<a href="http://standards.freedesktop.org/desktop-entry-spec/latest/‎">Desktop files</a>.
+Rather than create a new schema from scratch, we'll be using a subset of the
+<a href="http://www.freedesktop.org/wiki/Distributions/AppStream/">AppStream</a>
+metadata proposal.
+</p>
+<p>
+Since this data is per-application, rather than per-project or per-package we
+can use the .desktop name as the ID for the data.
+This means we can extract this data and add it to any AppStream-or-similar
+metadata consumed by the software center.
+</p>
+
+<h1>Proposal:</h1>
+<p>
+Applications wishing to have long descriptions, screenshots and other useful things
+are required to ship one or more files in <code>/usr/share/appdata/%{id}.appdata.xml</code>.
+The <code>%{id}</code> is the same name as the installed .desktop file for the
+application. This file will contain something like this:
+</p>
+<pre>
+&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;application&gt;
+ &lt;id type="desktop"&gt;gnome-power-statistics.desktop&lt;/id&gt;
+ &lt;licence&gt;CC0&lt;/licence&gt;
+ &lt;name&gt;Power Statistics&lt;/name&gt;
+ &lt;summary&gt;Observe power management&lt;/summary&gt;
+ &lt;description&gt;
+  &lt;p&gt;
+   Power Statistics is a program used to view historical and current battery
+   information and will show programs running on your computer using power.
+  &lt;/p&gt;
+  &lt;p&gt;Example list:&lt;/p&gt;
+  &lt;ul&gt;
+   &lt;li&gt;First item&lt;/li&gt;
+   &lt;li&gt;Second item&lt;/li&gt;
+  &lt;/ul&gt;
+  &lt;p&gt;
+  You probably only need to install this application if you are having problems
+  with your laptop battery, or are trying to work out what programs are using
+  significant amounts of power.
+  &lt;/p&gt;
+ &lt;/description&gt;
+ &lt;screenshots&gt;
+  &lt;screenshot type="default" width="800" height="600"&gt;http://www.hughsie.com/en_US/main.png&lt;/screenshot&gt;
+  &lt;screenshot width="800" height="600"&gt;http://www.hughsie.com/en_US/preferences.png&lt;/screenshot&gt;
+ &lt;/screenshots&gt;
+ &lt;url type="homepage"&gt;http://www.gnome.org/projects/en_US/gnome-power-manager&lt;/url&gt;
+ &lt;updatecontact&gt;gnome-power-manager-list@gnome.org&lt;/updatecontact&gt;
+&lt;/application&gt;
+</pre>
+
+<h1>Questions:</h1>
+<h3>What format should the description be?</h3>
+<p>Important things to consider when writing the application description:</p>
+<ul>
+<li>Include 2-3 paragraphs of interesting easy to read prose.</li>
+<li>Ensure you provide a description of what the application actually does.</li>
+<li>Describe any important features.</li>
+<li>Do not use possily trademarked product names when refering to competitors.</li>
+<li>Break down each paragraph into easily translated paragraphs.</li>
+<li>Use lists sparingly.</li>
+<li>Never refer to installable items as packages.</li>
+<li>Never start the first sentance with <i>This application...</i></li>
+<li>Try not use more than 100 words.</li>
+<li>Do not be too geeky. Aim for an intelligent semi-technical reader.</li>
+<li>Do not assume the format is HTML. Only paragraph, ordered list and unordered list are supported at this time.</li>
+</ul>
+
+<h3>Why include Name and Summary data if it's already in the .desktop file?</h3>
+<p>
+ You can omit the <code>&lt;name&gt</code> and <code>&lt;summary&gt</code> tags if
+ you want the software center to have the same strings as the desktop menu.
+ In some cases it might be required to have a different name in the app-store,
+ but most <code>appdata.xml</code> files will not need these tags.
+</p>
+
+<h3>How do I translate this data?</h3>
+<p>
+ If you ship an <code>.xml.in</code> file rather than an <code>.xml</code> file,
+ you can use a tool like itstool to translate the data.
+ We've provided a <a href="appdata.its"><code>appdata.its</code></a> file
+ for convenience.
+</p>
+<p>
+ Translated descriptions are a really nice feature, as only a fraction of the
+ userbase installing application will be able to understand English text,
+ but for the technical preview we'll probably only be including the en_US text.
+</p>
+
+<h3>What format are the screenshots?</h3>
+<p>
+ Screenshots are only fetched by the software center when the long description
+ is shown.
+ Only translate these if a corresponding translated screenshot exists.
+ Screenshots should typically be ~800px wide and should not exceed 1Mb in
+ size.
+ Either a lossy format '.jpg' or lossless '.png' format is permitted.
+</p>
+
+<h3>Are screenshots required?</h3>
+<p>
+ No, but we'd really hope you could ship at least one.
+ A screenshot is a really good way of <i>previewing</i> the application before
+ it is installed and a really good way of increasing your userbase.
+</p>
+
+<h3>Why not just use the package description?</h3>
+<p>
+ Different distros cut and join different source packages in different ways,
+ plus, it's not typically translated.
+</p>
+
+<h3>Why not just use the DOAP description?</h3>
+<p>
+ This is one file per-project and is not suitable when one tarball will install
+ several applications. It's also not translatable.
+</p>
+
+<h3>Why not just use a centralized web service?</h3>
+<p>
+ Put simply, we don't have the resources to moderate, check and translate each
+ string for every application. We don't have the legal framework so that
+ non-free applications could also ship application data.
+</p>
+<p>
+ The upstream project is in a much better place to describe itself, and the
+ upstream project is able to use it's existing localization and translation teams.
+ Also, things like the screenshot will change as the project is updated, and
+ not all distros ship the same version of an application.
+ We also want the long description to come up immediately, and be searchable,
+ so we can't really use a web service in that case.
+ Additionally, different distros have different policies on trademarks.
+</p>
+
+<h3>What happens if I don't ship this file?</h3>
+<p>
+ The GNOME Software Center currently shows a nag message that the upstream project
+ doesn't ship the additional data.
+ Additionally, we will penalize apps that do not ship the extra metadata by showing
+ them lower in the search results.
+</p>
+
+<h3>What other data should I include in the file?</h3>
+<p>
+ At this moment we're trying to do the bare minimum for a software center technical
+ preview.
+ In the future I can totally see this file being used to express what portals
+ are required (i.e. <i>Firefox needs access to your addressbook</i>) and other
+ useful things.
+ I'll update this page when we've got some more concrete use-cases.
+</p>
+
+<h3>What is <code>updatecontact</code> used for?</h3>
+<p>
+ AppData is a new standard, and we'll likely be adding extra metadata in the
+ future. If you include the <code>&lt;updatecontact&gt;</code> tag then someone
+ will send an email when the standard is updated, detailing the new fields that
+ you may or may not want to add to your <code>appdata.xml</code> file.
+ We're not expecting to do this more than 4 times a year, so don't expect a
+ deluge of email.
+</p>
+<p>
+ <b>TIP:</b>Use <code>_at_</code> rather than <code>@</code> if you're worried
+ about the email address being harvested.
+</p>
+
+<h3>Why XML and not JSON/other?</h3>
+<p>
+ AppData is a subset of the AppStream schema, which is also XML.
+</p>
+
+<h3>Is the <code>licence</code> tag supposed to be my project licence?</h3>
+<p>
+ No. The <code>&lt;licence&gt;</code> tag is indicating the licence that you
+ are releasing the AppData text as.
+ By ommitting the licence value would probably mean your data would not be
+ incorporated into the AppStream metadata. Permissible licences include:
+</p>
+<ul>
+<li>CC0</li>
+<li>CC BY</li>
+<li>CC BY-SA</li>
+</ul>
+
+<h3>Where will this data be used?</h3>
+<p>
+ We will scrape this data when building and composing distributions, and depending
+ on the implementation will either use an OCS server or directly copy the AppData
+ data into the AppStream metadata.
+</p>
+
+<p class="footer">
+ This page is managed by <a href="mailto:richard@hughsie.com">Richard Hughes</a>
+ and is <a href="http://validator.w3.org/check/referer" target="_blank">optimized</a>
+ for <a href="http://www.w3.org/" target="_blank">standards</a>.
+</p>
+
+</body>
+</html>

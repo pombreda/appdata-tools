@@ -211,6 +211,22 @@ application. This file will contain something like this:
  data into the AppStream metadata.
 </p>
 
+<h3>How do I know if my appdata XML is correct?</h3>
+<p>
+ You can validate it using a <a href="http://relaxng.org/">RELAX NG</a> schema
+ available in <a href="appdata.rng">XML syntax</a> and 
+ <a href="appdata.rnc">compact syntax</a> form.  This can be used with tools like
+ <a href="http://xmlsoft.org/xmllint.html">xmllint</a>,
+ <a href="http://www.thaiopensource.com/relaxng/jing.html">Jing</a> and the 
+ instantly validating
+ <a href="http://www.thaiopensource.com/nxml-mode/">nXML-mode</a> for Emacs.
+</p>
+<p>
+ Note: This is available as a possibly helpful tool, it should not be seen
+ as normative.  It is possible that the validation schema is too strict or too lax,
+ and it might fail to be updated as the Appdata project evolves. 
+</p>
+ 
 <p class="footer">
  This page is managed by <a href="mailto:richard@hughsie.com">Richard Hughes</a>
  and is <a href="http://validator.w3.org/check/referer" target="_blank">optimized</a>

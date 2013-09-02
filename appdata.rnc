@@ -1,0 +1,70 @@
+# RELAX NG schema for http://people.freedesktop.org/~hughsient/appdata/
+#
+# Written by Simon Kågedal Reimer 2013 <skagedal@gmail.com>
+# Released as Public Domain (CC0 1.0)
+#
+# appdata.rnc is the source; appdata.rng is generated with trang.
+# Don't edit appdata.rng. 
+
+start = application
+
+application = 
+  element application { 
+    id 
+    & licence 
+    & name? 
+    & summary? 
+    & description 
+    & screenshots? 
+    & url* 
+    & updatecontact?
+  }
+
+id = 
+  element id {
+    # Other types?
+    attribute type { string "desktop" },
+    text 
+  }
+
+# Other licences?  Worth restricting this at all, or use free content?
+licence =  element licence { 
+  string "CC0" 
+  | string "CC BY" 
+  | string "CC BY-SA" 
+}
+
+name =  element name { text }
+
+summary =  element summary { text }
+
+description = 
+  element description {
+    (p | ul | ol)*
+  }
+
+p = element p { text }
+
+ul = element ul { Entries }
+
+ol = element ol { Entries }
+
+Entries = element li { text }+
+
+screenshots = element screenshots { screenshot+ }
+
+screenshot = element screenshot 
+  { 
+    attribute type { string "default" }?,    # Other types?
+    attribute width { xsd:integer },
+    attribute height { xsd:integer },
+    (xsd:anyURI - "")
+  }
+
+url = element url 
+  { 
+    attribute type { string "homepage" }?,     # Other types?
+    (xsd:anyURI - "")
+  }
+
+updatecontact =  element updatecontact { text }

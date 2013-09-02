@@ -1,13 +1,17 @@
-<html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <title>AppData Specification</title>
-<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
-<meta name="robots" content="index,follow">
-<link rel="stylesheet" type="text/css" charset="utf-8" media="all" href="common.css">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta name="keywords" content="AppStream, AppData, Metadata, Linux, Applications" />
+<meta name="description" content="AppData Specification" />
+<meta name="author" content="Richard Hughes" />
+<meta name="robots" content="index,follow" />
+<link rel="stylesheet" type="text/css" charset="utf-8" media="all" href="common.css" />
 </head>
 <body>
 
-<center><img src="long-description.png"/></center>
+<center><img src="long-description.png" alt="[Screenshot of GNOME Software]"/></center>
 
 <h1>Introduction:</h1>
 <p>
@@ -91,7 +95,7 @@ application. This file will contain something like this:
 
 <h3>Why include Name and Summary data if it's already in the .desktop file?</h3>
 <p>
- You can omit the <code>&lt;name&gt</code> and <code>&lt;summary&gt</code> tags if
+ You can omit the <code>&lt;name&gt;</code> and <code>&lt;summary&gt;</code> tags if
  you want the software center to have the same strings as the desktop menu.
  In some cases it might be required to have a different name in the app-store,
  but most <code>appdata.xml</code> files will not need these tags.

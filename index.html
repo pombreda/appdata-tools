@@ -77,7 +77,7 @@ application. This file will contain something like this:
 </pre>
 
 <h1>Questions:</h1>
-<h3>What format should the description be?</h3>
+<a name="description-format"/><h3>What format should the description be?</h3>
 <p>Important things to consider when writing the application description:</p>
 <ul>
 <li>Include 2-3 paragraphs of interesting easy to read prose.</li>
@@ -95,7 +95,7 @@ application. This file will contain something like this:
 <li>Do not assume the format is HTML. Only paragraph, ordered list and unordered list are supported at this time.</li>
 </ul>
 
-<h3>Why include Name and Summary data if it's already in the .desktop file?</h3>
+<a name="duplicate-name"/><h3>Why include Name and Summary data if it's already in the .desktop file?</h3>
 <p>
  You can omit the <code>&lt;name&gt;</code> and <code>&lt;summary&gt;</code> tags if
  you want the software center to have the same strings as the desktop menu.
@@ -103,7 +103,7 @@ application. This file will contain something like this:
  but most <code>appdata.xml</code> files will not need these tags.
 </p>
 
-<h3>How do I translate this data?</h3>
+<a name="translation"/><h3>How do I translate this data?</h3>
 <p>
  If you ship an <code>.xml.in</code> file rather than an <code>.xml</code> file,
  you can use a tool like itstool to translate the data.
@@ -116,7 +116,7 @@ application. This file will contain something like this:
  but for the technical preview we'll probably only be including the en_US text.
 </p>
 
-<h3>What format are the screenshots?</h3>
+<a name="screenshot-format"/><h3>What format are the screenshots?</h3>
 <p>
  Screenshots are only fetched by the software center when the long description
  is shown.
@@ -126,26 +126,26 @@ application. This file will contain something like this:
  Either a lossy format '.jpg' or lossless '.png' format is permitted.
 </p>
 
-<h3>Are screenshots required?</h3>
+<a name="screenshots"/><h3>Are screenshots required?</h3>
 <p>
  No, but we'd really hope you could ship at least one.
  A screenshot is a really good way of <i>previewing</i> the application before
  it is installed and a really good way of increasing your userbase.
 </p>
 
-<h3>Why not just use the package description?</h3>
+<a name="package"/><h3>Why not just use the package description?</h3>
 <p>
  Different distros cut and join different source packages in different ways,
  plus, it's not typically translated.
 </p>
 
-<h3>Why not just use the DOAP description?</h3>
+<a name="doap"/><h3>Why not just use the DOAP description?</h3>
 <p>
  This is one file per-project and is not suitable when one tarball will install
  several applications. It's also not translatable.
 </p>
 
-<h3>Why not just use a centralized web service?</h3>
+<a name="web-service"/><h3>Why not just use a centralized web service?</h3>
 <p>
  Put simply, we don't have the resources to moderate, check and translate each
  string for every application. We don't have the legal framework so that
@@ -161,7 +161,7 @@ application. This file will contain something like this:
  Additionally, different distros have different policies on trademarks.
 </p>
 
-<h3>What happens if I don't ship this file?</h3>
+<a name="how-about-no"/><h3>What happens if I don't ship this file?</h3>
 <p>
  The GNOME Software Center currently shows a nag message that the upstream project
  doesn't ship the additional data.
@@ -169,7 +169,7 @@ application. This file will contain something like this:
  them lower in the search results.
 </p>
 
-<h3>What other data should I include in the file?</h3>
+<a name="other-data"/><h3>What other data should I include in the file?</h3>
 <p>
  At this moment we're trying to do the bare minimum for a software center technical
  preview.
@@ -179,7 +179,7 @@ application. This file will contain something like this:
  I'll update this page when we've got some more concrete use-cases.
 </p>
 
-<h3>What is <code>updatecontact</code> used for?</h3>
+<a name="updatecontact"/><h3>What is <code>updatecontact</code> used for?</h3>
 <p>
  AppData is a new standard, and we'll likely be adding extra metadata in the
  future. If you include the <code>&lt;updatecontact&gt;</code> tag then someone
@@ -193,13 +193,13 @@ application. This file will contain something like this:
  about the email address being harvested.
 </p>
 
-<h3>Why XML and not JSON/other?</h3>
+<a name="why-xml"/><h3>Why XML and not JSON/other?</h3>
 <p>
  AppData is a subset of the <a href="http://www.freedesktop.org/wiki/Distributions/AppStream/">AppStream</a>
  schema, which is also XML.
 </p>
 
-<h3>Is the <code>licence</code> tag supposed to be my project licence?</h3>
+<a name="licence"/><h3>Is the <code>licence</code> tag supposed to be my project licence?</h3>
 <p>
  No. The <code>&lt;licence&gt;</code> tag is indicating the licence that you
  are releasing the AppData text as.
@@ -212,14 +212,14 @@ application. This file will contain something like this:
 <li>CC BY-SA</li>
 </ul>
 
-<h3>Where will this data be used?</h3>
+<a name="use"/><h3>Where will this data be used?</h3>
 <p>
  We will scrape this data when building and composing distributions, and depending
  on the implementation will either use an OCS server or directly copy the AppData
  data into the AppStream metadata.
 </p>
 
-<h3>How do I know if my appdata XML is correct?</h3>
+<a name="validate"/><h3>How do I know if my appdata XML is correct?</h3>
 <p>
  You can validate it using a <a href="http://relaxng.org/">RELAX NG</a> schema
  available in <a href="appdata.rng">XML syntax</a> and 
@@ -235,7 +235,7 @@ application. This file will contain something like this:
  and it might fail to be updated as the Appdata project evolves. 
 </p>
  
-<h3>Have you got a real world example?</h3>
+<a name="example"/><h3>Have you got a real world example?</h3>
 <p>
  See the commit that added the AppData metadata to
  <a href="https://mail.gnome.org/archives/commits-list/2013-August/msg11178.html">gnome-power-manager</a>.
@@ -246,6 +246,9 @@ application. This file will contain something like this:
  and is <a href="http://validator.w3.org/check/referer" target="_blank">optimized</a>
  for <a href="http://www.w3.org/" target="_blank">standards</a>.
 </p>
+
+<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
 
 </body>
 </html>

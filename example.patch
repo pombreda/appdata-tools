@@ -1,0 +1,53 @@
+commit 6b64257572cd403e4ac5aded16e338c72d5ea0ff
+Author: Richard Hughes <richard hughsie com>
+Date:   Thu Aug 29 20:41:34 2013 +0100
+
+    Add an AppData description for gnome-power-statistics
+    
+    See http://people.freedesktop.org/~hughsient/appdata/ for more details.
+
+ data/Makefile.am                        |    3 +++
+ data/gnome-power-statistics.appdata.xml |   21 +++++++++++++++++++++
+ 2 files changed, 25 insertions(+), 0 deletions(-)
+---
+diff --git a/data/Makefile.am b/data/Makefile.am
+index fbc5768..a6b59b3 100644
+--- a/data/Makefile.am
++++ b/data/Makefile.am
+@@ -5,6 +5,9 @@ desktopdir = $(datadir)/applications
+ desktop_in_files = gnome-power-statistics.desktop.in
+ desktop_DATA = $(desktop_in_files:.desktop.in=.desktop)
+ 
++appdatadir = $(datadir)/appdata
++dist_appdata_DATA = gnome-power-statistics.appdata.xml
++
+ @GSETTINGS_RULES@
+ @INTLTOOL_XML_NOMERGE_RULE@
+ gsettings_schemas_in_files = org.gnome.power-manager.gschema.xml.in
+diff --git a/data/gnome-power-statistics.appdata.xml b/data/gnome-power-statistics.appdata.xml
+new file mode 100644
+index 0000000..5f3d47c
+--- /dev/null
++++ b/data/gnome-power-statistics.appdata.xml
+@@ -0,0 +1,21 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<application>
++  <id type="desktop">gnome-power-statistics.desktop</id>
++  <licence>CC0</licence>
++  <description>
++    <p>
++      Power Statistics can show historical and current battery information and
++      programs waking up that use power.
++    </p>
++    <p>
++      You probably only need to install this application if you are having
++      problems with your laptop battery, or are trying to work out what programs
++      are using significant amounts of power.
++    </p>
++  </description>
++  <screenshots>
++    <screenshot type="default" width="335" height="134">https://projects.gnome.org/gnome-power-manager/images/gpm-low-batt.png</screenshot>
++  </screenshots>
++  <url type="homepage">http://www.gnome.org/projects/gnome-power-manager/</url>
++  <updatecontact>richard_at_hughsie.com</updatecontact>
++</application>

@@ -34,22 +34,40 @@ licence =  element licence {
   | string "CC BY-SA" 
 }
 
-name =  element name { text }
+name =  element name {
+  XmlLang?,
+  text
+}
 
-summary =  element summary { text }
+summary =  element summary {
+  XmlLang?,
+  text
+}
 
 description = 
   element description {
     (p | ul | ol)*
   }
 
-p = element p { text }
+p = element p {
+  XmlLang?,
+  text
+}
 
-ul = element ul { Entries }
+ul = element ul {
+  XmlLang?,
+  Entries
+}
 
-ol = element ol { Entries }
+ol = element ol {
+  XmlLang?,
+  Entries
+}
 
-Entries = element li { text }+
+Entries = element li {
+  XmlLang?,
+  text
+}+
 
 screenshots = element screenshots { screenshot+ }
 
@@ -58,6 +76,7 @@ screenshot = element screenshot
     attribute type { string "default" }?,    # Other types?
     attribute width { xsd:integer },
     attribute height { xsd:integer },
+    XmlLang?,
     (xsd:anyURI - "")
   }
 
@@ -68,3 +87,5 @@ url = element url
   }
 
 updatecontact =  element updatecontact { text }
+
+XmlLang = attribute xml:lang { text }

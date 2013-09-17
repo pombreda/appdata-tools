@@ -482,6 +482,9 @@ appdata_text_fn (GMarkupParseContext *context,
 		temp = g_strstrip (g_strndup (text, text_len));
 		if (strlen (temp) < 50)
 			appdata_add_problem (helper->problems, "<p> is too short");
+		if (g_str_has_prefix (temp, "This application")) {
+			appdata_add_problem (helper->problems, "<p> should not start with 'This application'");
+		}
 		g_free (temp);
 		helper->number_paragraphs++;
 		break;

@@ -1,0 +1,38 @@
+appdata-tools Release Notes
+
+1. Write NEWS entries for appdata_tools in the same format as usual.
+
+git shortlog appdata_tools_0_0_0.. | grep -i -v trivial | grep -v Merge > NEWS.new
+
+--------------------------------------------------------------------------------
+Version 0.1.0
+~~~~~~~~~~~~~
+Released: 2013-xx-xx
+
+Notes:
+
+New Features:
+
+Bugfixes:
+--------------------------------------------------------------------------------
+
+4. Commit changes in appdata-ps	tools git:
+
+git commit -a -m "Release version 0.1.0"
+git tag -s -f -m "Release 0.1.0" appdata_tools_0_1_0
+<gpg password>
+git push --tags
+git push
+
+5. run 'make dist'
+
+6. Upload tarball to:
+
+scp *.tar.* hughsient@people.freedesktop.org:~/public_html/appdata/releases
+
+7. Do post release version bump in configure.ac
+
+8. Commit trivial changes:
+
+git commit -a -m "trivial: post release version bump"
+git push

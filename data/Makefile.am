@@ -1,7 +1,33 @@
 
 -include $(top_srcdir)/git.mk
 
+man_MANS =
+if ENABLE_MAN
+man_MANS += appdata-validate.1
+endif
+
+XSLTPROC_FLAGS = \
+	--nonet \
+	--stringparam man.output.quietly 1 \
+	--stringparam funcsynopsis.style ansi \
+	--stringparam man.th.extra1.suppress 1 \
+	--stringparam man.authors.section.enabled 0 \
+	--stringparam man.copyright.section.enabled 0
+
+appdata-validate.1: appdata-validate.xml
+	$(AM_V_GEN) $(XSLTPROC) $(XSLTPROC_FLAGS) http://docbook.sourceforge.net/release/xsl/current/manpages/docbook.xsl $<
+
 EXTRA_DIST =					\
+	appdata-validate.xml			\
 	broken.appdata.xml			\
 	success.appdata.xml			\
 	wrong-extension.xml
+
+clean-local:
+	rm -f *~
+	rm -f *.1
+	rm -f manpage.*
+
+CLEANFILES =						\
+	appdata-validate.1				\
+	manpage.*

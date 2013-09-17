@@ -26,6 +26,21 @@ AC_DEFINE_UNQUOTED([GETTEXT_PACKAGE],["$GETTEXT_PACKAGE"],[gettext domain])
 
 PKG_CHECK_MODULES(GLIB, glib-2.0 >= 2.14.0 gobject-2.0 gthread-2.0)
 
+AC_ARG_ENABLE(man,
+              [AS_HELP_STRING([--enable-man],
+                              [generate man pages [default=auto]])],,
+              enable_man=maybe)
+AS_IF([test "$enable_man" != no], [
+  AC_PATH_PROG([XSLTPROC], [xsltproc])
+  AS_IF([test -z "$XSLTPROC"], [
+    AS_IF([test "$enable_man" = yes], [
+      AC_MSG_ERROR([xsltproc is required for --enable-man])
+    ])
+    enable_man=no
+  ])
+])
+AM_CONDITIONAL(ENABLE_MAN, test "$enable_man" != no)
+
 dnl ---------------------------------------------------------------------------
 dnl - Makefiles, etc.
 dnl ---------------------------------------------------------------------------

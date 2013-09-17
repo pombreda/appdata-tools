@@ -2,6 +2,8 @@
 <application>
   <id type="desktop">gnome-power-statistics.desktop</id>
   <licence>CC0</licence>
+  <name>Power Statistics</name>
+  <summary>Observe power management</summary>
   <description>
     <p>
       Power Statistics can show historical and current battery information and

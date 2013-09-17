@@ -132,6 +132,8 @@ appdata_add_problem (GList **problems, const gchar *str)
 typedef struct {
 	AppdataSection	 section;
 	gchar		*id;
+	gchar		*name;
+	gchar		*summary;
 	gchar		*licence;
 	gchar		*updatecontact;
 	gchar		*url;
@@ -203,6 +205,8 @@ appdata_start_element_fn (GMarkupParseContext *context,
 				appdata_add_problem (helper->problems, "<url> has invalid type attribute");
 			helper->section = new;
 			break;
+		case APPDATA_SECTION_NAME:
+		case APPDATA_SECTION_SUMMARY:
 		case APPDATA_SECTION_LICENCE:
 		case APPDATA_SECTION_DESCRIPTION:
 		case APPDATA_SECTION_SCREENSHOTS:
@@ -375,6 +379,22 @@ appdata_end_element_fn (GMarkupParseContext *context,
 		return;
 	}
 
+	/* </name> */
+	if (helper->section == APPDATA_SECTION_NAME &&
+	    new == APPDATA_SECTION_NAME) {
+		/* valid */
+		helper->section = APPDATA_SECTION_APPLICATION;
+		return;
+	}
+
+	/* </summary> */
+	if (helper->section == APPDATA_SECTION_SUMMARY &&
+	    new == APPDATA_SECTION_SUMMARY) {
+		/* valid */
+		helper->section = APPDATA_SECTION_APPLICATION;
+		return;
+	}
+
 	/* </updatecontact> */
 	if (helper->section == APPDATA_SECTION_UPDATECONTACT &&
 	    new == APPDATA_SECTION_UPDATECONTACT) {
@@ -431,6 +451,18 @@ appdata_text_fn (GMarkupParseContext *context,
 			appdata_add_problem (helper->problems, "<updatecontact> is still set to a dummy value");
 		if (strlen (helper->updatecontact) < 6)
 			appdata_add_problem (helper->problems, "<updatecontact> is too short");
+		break;
+	case APPDATA_SECTION_NAME:
+		helper->name = g_strndup (text, text_len);
+		g_strchomp (helper->name);
+		if (strlen (helper->name) < 4)
+			appdata_add_problem (helper->problems, "<name> is too short");
+		break;
+	case APPDATA_SECTION_SUMMARY:
+		helper->summary = g_strndup (text, text_len);
+		g_strchomp (helper->summary);
+		if (strlen (helper->summary) < 8)
+			appdata_add_problem (helper->problems, "<summary> is too short");
 		break;
 	case APPDATA_SECTION_DESCRIPTION_PARA:
 		temp = g_strndup (text, text_len);
@@ -512,11 +544,16 @@ appdata_check_file_for_problems (const gchar *filename, AppdataCheck check)
 		appdata_add_problem (&problems, "Not enough <p> tags for a good description");
 	if (helper->number_screenshots < 1)
 		appdata_add_problem (&problems, "Not enough <screenshot> tags");
+	if (helper->summary != NULL && helper->name != NULL &&
+	    strlen (helper->summary) < strlen (helper->name))
+		appdata_add_problem (&problems, "<summary> is shorter than <name>");
 out:
 	if (helper != NULL) {
 		g_free (helper->id);
 		g_free (helper->licence);
 		g_free (helper->url);
+		g_free (helper->name);
+		g_free (helper->summary);
 		g_free (helper->updatecontact);
 	}
 	g_free (helper);

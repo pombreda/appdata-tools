@@ -1,0 +1,42 @@
+%define alphatag                        #ALPHATAG#
+
+Summary:   Tools for AppData files
+Name:      appdata-tools
+Version:   #VERSION#
+Release:   0.#BUILD#%{?alphatag}%{?dist}
+License:   GPLv2+
+Group:     Applications/System
+URL:       http://people.freedesktop.org/~hughsient/appdata/
+Source0:   http://people.freedesktop.org/~hughsient/appdata/releases/%{name}-%{version}.tar.xz
+
+BuildRequires: gettext
+BuildRequires: intltool
+BuildRequires: libxslt
+BuildRequires: docbook-style-xsl
+BuildRequires: glib2-devel >= 2.25.9-2
+
+%description
+appdata-tools is a set of applications designed to create and validate AppData
+application descriptions.
+
+%prep
+%setup -q
+
+%build
+%configure
+make %{?_smp_mflags}
+
+%install
+%make_install
+
+%find_lang %name
+
+%files -f %{name}.lang
+%doc AUTHORS COPYING NEWS README
+%{_bindir}/appdata-validate
+%{_mandir}/man1/appdata-validate.1.gz
+
+%changelog
+* #LONGDATE# Richard Hughes <richard@hughsie.com> #VERSION#-0.#BUILD##ALPHATAG#
+- Update from GIT
+

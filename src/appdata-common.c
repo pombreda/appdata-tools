@@ -424,8 +424,7 @@ appdata_text_fn (GMarkupParseContext *context,
 
 	switch (helper->section) {
 	case APPDATA_SECTION_ID:
-		helper->id = g_strndup (text, text_len);
-		g_strchomp (helper->id);
+		helper->id = g_strstrip (g_strndup (text, text_len));
 		if (!g_str_has_suffix (helper->id, ".desktop"))
 			appdata_add_problem (helper->problems, "<id> does not end in 'desktop'");
 		break;
@@ -434,8 +433,7 @@ appdata_text_fn (GMarkupParseContext *context,
 			g_free (helper->licence);
 			appdata_add_problem (helper->problems, "<licence> is duplicated");
 		}
-		helper->licence = g_strndup (text, text_len);
-		g_strchomp (helper->licence);
+		helper->licence = g_strstrip (g_strndup (text, text_len));
 		if (g_strcmp0 (helper->licence, "CC0") != 0 &&
 		    g_strcmp0 (helper->licence, "CC BY") != 0 &&
 		    g_strcmp0 (helper->licence, "CC BY-SA") != 0)
@@ -446,8 +444,7 @@ appdata_text_fn (GMarkupParseContext *context,
 			g_free (helper->url);
 			appdata_add_problem (helper->problems, "<url> is duplicated");
 		}
-		helper->url = g_strndup (text, text_len);
-		g_strchomp (helper->url);
+		helper->url = g_strstrip (g_strndup (text, text_len));
 		if (!g_str_has_prefix (helper->url, "http://") &&
 		    !g_str_has_prefix (helper->url, "https://"))
 			appdata_add_problem (helper->problems, "<url> does not start with 'http://'");
@@ -457,8 +454,7 @@ appdata_text_fn (GMarkupParseContext *context,
 			g_free (helper->updatecontact);
 			appdata_add_problem (helper->problems, "<updatecontact> is duplicated");
 		}
-		helper->updatecontact = g_strndup (text, text_len);
-		g_strchomp (helper->updatecontact);
+		helper->updatecontact = g_strstrip (g_strndup (text, text_len));
 		if (g_strcmp0 (helper->updatecontact, "someone_who_cares@upstream_project.org") == 0)
 			appdata_add_problem (helper->problems, "<updatecontact> is still set to a dummy value");
 		if (strlen (helper->updatecontact) < 6)
@@ -469,8 +465,7 @@ appdata_text_fn (GMarkupParseContext *context,
 			g_free (helper->name);
 			appdata_add_problem (helper->problems, "<name> is duplicated");
 		}
-		helper->name = g_strndup (text, text_len);
-		g_strchomp (helper->name);
+		helper->name = g_strstrip (g_strndup (text, text_len));
 		if (strlen (helper->name) < 4)
 			appdata_add_problem (helper->problems, "<name> is too short");
 		break;
@@ -479,22 +474,19 @@ appdata_text_fn (GMarkupParseContext *context,
 			g_free (helper->summary);
 			appdata_add_problem (helper->problems, "<summary> is duplicated");
 		}
-		helper->summary = g_strndup (text, text_len);
-		g_strchomp (helper->summary);
+		helper->summary = g_strstrip (g_strndup (text, text_len));
 		if (strlen (helper->summary) < 8)
 			appdata_add_problem (helper->problems, "<summary> is too short");
 		break;
 	case APPDATA_SECTION_DESCRIPTION_PARA:
-		temp = g_strndup (text, text_len);
-		g_strchomp (temp);
+		temp = g_strstrip (g_strndup (text, text_len));
 		if (strlen (temp) < 50)
 			appdata_add_problem (helper->problems, "<p> is too short");
 		g_free (temp);
 		helper->number_paragraphs++;
 		break;
 	case APPDATA_SECTION_DESCRIPTION_UL_LI:
-		temp = g_strndup (text, text_len);
-		g_strchomp (temp);
+		temp = g_strstrip (g_strndup (text, text_len));
 		if (strlen (temp) < 25)
 			appdata_add_problem (helper->problems, "<li> is too short");
 		g_free (temp);

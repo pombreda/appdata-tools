@@ -11,7 +11,7 @@ snapshot:
 MAINTAINERCLEANFILES =					\
 	*~						\
 	aclocal.m4					\
-	appdata-tools-*.tar.gz				\
+	appdata-tools-*.tar.xz				\
 	ChangeLog					\
 	compile						\
 	config.guess					\
@@ -25,7 +25,8 @@ MAINTAINERCLEANFILES =					\
 	ltmain.sh					\
 	Makefile.in					\
 	missing						\
-	mkinstalldirs
+	mkinstalldirs					\
+	test-driver
 
 EXTRA_DIST =						\
 	COPYING						\

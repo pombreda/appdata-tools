@@ -11,7 +11,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -23,6 +23,44 @@
 
 #include <glib/gi18n.h>
 #include <glib.h>
+#include <locale.h>
+
+#include "appdata-common.h"
+
+#define EXIT_CODE_SUCCESS	0
+#define EXIT_CODE_USAGE		1
+#define EXIT_CODE_WARNINGS	2
+
+/**
+ * appdata_validate_and_show_results:
+ **/
+static gint
+appdata_validate_and_show_results (const gchar *filename)
+{
+	gint retval;
+	GList *l;
+	GList *problems = NULL;
+
+	/* scan file for problems */
+	problems = app_data_check_file_for_problems (filename);
+	if (problems == NULL) {
+		retval = EXIT_CODE_SUCCESS;
+		g_print ("%s %s\n", filename, _("validated."));
+		goto out;
+	}
+
+	/* print problems */
+	retval = EXIT_CODE_WARNINGS;
+	g_print ("%s %i %s\n", 
+		 filename,
+		 g_list_length (problems),
+		 _("problems detected:"));
+	for (l = problems; l != NULL; l = l->next)
+		g_print ("• %s\n", l->data);
+out:
+	g_list_free_full (problems, g_free);
+	return retval;
+}
 
 /**
  * main:
@@ -30,5 +68,27 @@
 int
 main (int argc, char *argv[])
 {
-	return 0;
+	gint retval_tmp;
+	gint retval = EXIT_CODE_SUCCESS;
+	guint i;
+
+	setlocale (LC_ALL, "");
+	bindtextdomain (GETTEXT_PACKAGE, PACKAGE_LOCALE_DIR);
+	bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
+	textdomain (GETTEXT_PACKAGE);
+
+	if (argc < 2) {
+		retval = EXIT_CODE_USAGE;
+		g_print ("Usage: %s <file>\n", argv[0]);
+		goto out;
+	}
+
+	/* validate each file */
+	for (i = 1; i < argc; i++) {
+		retval_tmp = appdata_validate_and_show_results (argv[i]);
+		if (retval_tmp != EXIT_CODE_SUCCESS)
+			retval = retval_tmp;
+	}
+out:
+	return retval;
 }

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<application>
+  <id type="desktop">gnome-power-statistics.desktop</id>
+  <licence>CC0</licence>
+  <description>
+    <p>
+      Power Statistics can show historical and current battery information and
+      programs waking up that use power.
+    </p>
+    <p>
+      You probably only need to install this application if you are having
+      problems with your laptop battery, or are trying to work out what programs
+      are using significant amounts of power.
+    </p>
+    <ul>
+     <li>This is a feature in a bullet point</li>
+     <li>This is another feature in a bullet point</li>
+    </ul>
+    <ul>
+     <li>This is a new set of features in a new set of bullet points</li>
+     <li>This is another feature in a bullet point</li>
+    </ul>
+  </description>
+  <screenshots>
+    <screenshot type="default" width="335" height="134">https://projects.gnome.org/gnome-power-manager/images/gpm-low-batt.png</screenshot>
+  </screenshots>
+  <url type="homepage">http://www.gnome.org/projects/gnome-power-manager/</url>
+  <updatecontact>richard_at_hughsie.com</updatecontact>
+</application>

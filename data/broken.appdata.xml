@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<application>
+  <id type="unknown">gnome-power-statistics</id>
+  <licence>GPLv3+</licence>
+  <description>
+    <ul>
+     <li>One</li>
+     <li>Two</li>
+    </ul>
+    <p>
+      This application is awesome.
+    </p>
+  </description>
+  <url type="bugtracker">www.dave.org</url>
+  <updatecontact></updatecontact>
+</application>

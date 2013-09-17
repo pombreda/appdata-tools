@@ -28,7 +28,7 @@ git push
 
 6. Upload tarball to:
 
-scp *.tar.* hughsient@people.freedesktop.org:~/public_html/appdata/releases
+scp *.tar.* hughsient@people.freedesktop.org:~/public_html/releases
 
 7. Do post release version bump in configure.ac
 

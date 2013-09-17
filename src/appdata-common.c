@@ -430,6 +430,10 @@ appdata_text_fn (GMarkupParseContext *context,
 			appdata_add_problem (helper->problems, "<id> does not end in 'desktop'");
 		break;
 	case APPDATA_SECTION_LICENCE:
+		if (helper->licence != NULL) {
+			g_free (helper->licence);
+			appdata_add_problem (helper->problems, "<licence> is duplicated");
+		}
 		helper->licence = g_strndup (text, text_len);
 		g_strchomp (helper->licence);
 		if (g_strcmp0 (helper->licence, "CC0") != 0 &&
@@ -438,6 +442,10 @@ appdata_text_fn (GMarkupParseContext *context,
 			appdata_add_problem (helper->problems, "<licence> is not valid");
 		break;
 	case APPDATA_SECTION_URL:
+		if (helper->url != NULL) {
+			g_free (helper->url);
+			appdata_add_problem (helper->problems, "<url> is duplicated");
+		}
 		helper->url = g_strndup (text, text_len);
 		g_strchomp (helper->url);
 		if (!g_str_has_prefix (helper->url, "http://") &&
@@ -445,6 +453,10 @@ appdata_text_fn (GMarkupParseContext *context,
 			appdata_add_problem (helper->problems, "<url> does not start with 'http://'");
 		break;
 	case APPDATA_SECTION_UPDATECONTACT:
+		if (helper->updatecontact != NULL) {
+			g_free (helper->updatecontact);
+			appdata_add_problem (helper->problems, "<updatecontact> is duplicated");
+		}
 		helper->updatecontact = g_strndup (text, text_len);
 		g_strchomp (helper->updatecontact);
 		if (g_strcmp0 (helper->updatecontact, "someone_who_cares@upstream_project.org") == 0)
@@ -453,12 +465,20 @@ appdata_text_fn (GMarkupParseContext *context,
 			appdata_add_problem (helper->problems, "<updatecontact> is too short");
 		break;
 	case APPDATA_SECTION_NAME:
+		if (helper->name != NULL) {
+			g_free (helper->name);
+			appdata_add_problem (helper->problems, "<name> is duplicated");
+		}
 		helper->name = g_strndup (text, text_len);
 		g_strchomp (helper->name);
 		if (strlen (helper->name) < 4)
 			appdata_add_problem (helper->problems, "<name> is too short");
 		break;
 	case APPDATA_SECTION_SUMMARY:
+		if (helper->summary != NULL) {
+			g_free (helper->summary);
+			appdata_add_problem (helper->problems, "<summary> is duplicated");
+		}
 		helper->summary = g_strndup (text, text_len);
 		g_strchomp (helper->summary);
 		if (strlen (helper->summary) < 8)

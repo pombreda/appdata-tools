@@ -133,6 +133,7 @@ appdata_broken_func (void)
 	g_assert (ensure_failure (list, "<ul> cannot start a description"));
 	g_assert (ensure_failure (list, "<url> has invalid type attribute"));
 	g_assert (ensure_failure (list, "Not enough <screenshot> tags"));
+	g_assert (ensure_failure (list, "<licence> is duplicated"));
 	g_assert_cmpint (g_list_length (list), >, 0);
 
 	g_list_free_full (list, g_free);

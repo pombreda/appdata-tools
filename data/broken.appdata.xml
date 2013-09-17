@@ -2,6 +2,7 @@
 <application>
   <id type="unknown">gnome-power-statistics</id>
   <licence>GPLv3+</licence>
+  <licence>BSD</licence>
   <description>
     <ul>
      <li>One</li>

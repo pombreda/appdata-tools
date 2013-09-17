@@ -21,4 +21,11 @@
 
 #include <glib.h>
 
-GList	*app_data_check_file_for_problems	(const gchar *filename);
+typedef enum {
+	APPDATA_CHECK_DEFAULT				= 0,
+	APPDATA_CHECK_ALLOW_MISSING_CONTACTDETAILS	= 1,
+	APPDATA_CHECK_LAST,
+} AppdataCheck;
+
+GList	*appdata_check_file_for_problems	(const gchar	*filename,
+						 AppdataCheck	 check);

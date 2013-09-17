@@ -454,10 +454,10 @@ appdata_text_fn (GMarkupParseContext *context,
 }
 
 /**
- * app_data_check_file_for_problems:
+ * appdata_check_file_for_problems:
  */
 GList *
-app_data_check_file_for_problems (const gchar *filename)
+appdata_check_file_for_problems (const gchar *filename, AppdataCheck check)
 {
 	gchar *data;
 	gboolean ret;
@@ -501,7 +501,8 @@ app_data_check_file_for_problems (const gchar *filename)
 	/* check for things that have to exist */
 	if (helper->id == NULL)
 		appdata_add_problem (&problems, "<id> is not present");
-	if (helper->updatecontact == NULL)
+	if ((check & APPDATA_CHECK_ALLOW_MISSING_CONTACTDETAILS) == 0 &&
+	    helper->updatecontact == NULL)
 		appdata_add_problem (&problems, "<updatecontact> is not present");
 	if (helper->url == NULL)
 		appdata_add_problem (&problems, "<url> is not present");

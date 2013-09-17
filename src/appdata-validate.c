@@ -35,14 +35,14 @@
  * appdata_validate_and_show_results:
  **/
 static gint
-appdata_validate_and_show_results (const gchar *filename)
+appdata_validate_and_show_results (const gchar *filename, AppdataCheck check)
 {
 	gint retval;
 	GList *l;
 	GList *problems = NULL;
 
 	/* scan file for problems */
-	problems = app_data_check_file_for_problems (filename);
+	problems = appdata_check_file_for_problems (filename, check);
 	if (problems == NULL) {
 		retval = EXIT_CODE_SUCCESS;
 		g_print ("%s %s\n", filename, _("validated."));
@@ -71,6 +71,7 @@ main (int argc, char *argv[])
 	gint retval_tmp;
 	gint retval = EXIT_CODE_SUCCESS;
 	guint i;
+	AppdataCheck check = APPDATA_CHECK_DEFAULT;
 
 	setlocale (LC_ALL, "");
 	bindtextdomain (GETTEXT_PACKAGE, PACKAGE_LOCALE_DIR);
@@ -83,9 +84,13 @@ main (int argc, char *argv[])
 		goto out;
 	}
 
+	/* relax some checks */
+	if (g_getenv ("RELAX") != NULL)
+		check += APPDATA_CHECK_ALLOW_MISSING_CONTACTDETAILS;
+
 	/* validate each file */
 	for (i = 1; i < argc; i++) {
-		retval_tmp = appdata_validate_and_show_results (argv[i]);
+		retval_tmp = appdata_validate_and_show_results (argv[i], check);
 		if (retval_tmp != EXIT_CODE_SUCCESS)
 			retval = retval_tmp;
 	}

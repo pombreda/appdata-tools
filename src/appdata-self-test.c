@@ -87,7 +87,7 @@ appdata_success_func (void)
 	GList *list;
 
 	filename = appdata_test_get_data_file ("success.appdata.xml");
-	list = app_data_check_file_for_problems (filename);
+	list = appdata_check_file_for_problems (filename, APPDATA_CHECK_DEFAULT);
 	print_failures (list);
 	g_assert_cmpint (g_list_length (list), ==, 0);
 
@@ -102,7 +102,7 @@ appdata_wrong_extension_func (void)
 	GList *list;
 
 	filename = appdata_test_get_data_file ("wrong-extension.xml");
-	list = app_data_check_file_for_problems (filename);
+	list = appdata_check_file_for_problems (filename, APPDATA_CHECK_DEFAULT);
 	g_assert (ensure_failure (list, "incorrect extension, expected '.appdata.xml'"));
 	g_assert (ensure_failure (list, "<id> is not present"));
 	g_assert (ensure_failure (list, "<url> is not present"));
@@ -121,7 +121,7 @@ appdata_broken_func (void)
 	GList *list;
 
 	filename = appdata_test_get_data_file ("broken.appdata.xml");
-	list = app_data_check_file_for_problems (filename);
+	list = appdata_check_file_for_problems (filename, APPDATA_CHECK_DEFAULT);
 	g_assert (ensure_failure (list, "<updatecontact> is too short"));
 	g_assert (ensure_failure (list, "<url> does not start with 'http://'"));
 	g_assert (ensure_failure (list, "<licence> is not valid"));

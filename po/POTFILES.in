@@ -1,1 +1,2 @@
 src/appdata-validate.c
+src/appdata-problem.c

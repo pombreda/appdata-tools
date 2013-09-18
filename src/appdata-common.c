@@ -22,6 +22,7 @@
 #include <string.h>
 
 #include "appdata-common.h"
+#include "appdata-problem.h"
 
 typedef enum {
 	APPDATA_SECTION_UNKNOWN,
@@ -115,18 +116,23 @@ appdata_selection_to_string (AppdataSection section)
  * appdata_add_problem:
  */
 static void
-appdata_add_problem (GList **problems, const gchar *str)
+appdata_add_problem (GList **problems, AppdataProblemKind kind, const gchar *str)
 {
 	GList *l;
+	AppdataProblem *problem;
 
 	/* find if it's already been added */
 	for (l = *problems; l != NULL; l = l->next) {
-		if (g_strcmp0 (str, l->data) == 0)
+		problem = l->data;
+		if (g_strcmp0 (str, problem->description) == 0)
 			return;
 	}
 
 	/* add new problem to list */
-	*problems = g_list_prepend (*problems, g_strdup (str));
+	problem = appdata_problem_new ();
+	problem->kind = kind;
+	problem->description = g_strdup (str);
+	*problems = g_list_prepend (*problems, problem);
 }
 
 typedef struct {
@@ -185,10 +191,16 @@ appdata_start_element_fn (GMarkupParseContext *context,
 					break;
 				}
 			}
-			if (tmp == NULL)
-				appdata_add_problem (helper->problems, "no type attribute in <id>");
-			if (g_strcmp0 (tmp, "desktop") != 0)
-				appdata_add_problem (helper->problems, "<id> has invalid type attribute");
+			if (tmp == NULL) {
+				appdata_add_problem (helper->problems,
+						     APPDATA_PROBLEM_KIND_ATTRIBUTE_MISSING,
+						     "no type attribute in <id>");
+			}
+			if (g_strcmp0 (tmp, "desktop") != 0) {
+				appdata_add_problem (helper->problems,
+						     APPDATA_PROBLEM_KIND_ATTRIBUTE_INVALID,
+						     "<id> has invalid type attribute");
+			}
 			helper->section = new;
 			break;
 		case APPDATA_SECTION_URL:
@@ -199,10 +211,16 @@ appdata_start_element_fn (GMarkupParseContext *context,
 					break;
 				}
 			}
-			if (tmp == NULL)
-				appdata_add_problem (helper->problems, "no type attribute in <url>");
-			if (g_strcmp0 (tmp, "homepage") != 0)
-				appdata_add_problem (helper->problems, "<url> has invalid type attribute");
+			if (tmp == NULL) {
+				appdata_add_problem (helper->problems,
+						     APPDATA_PROBLEM_KIND_ATTRIBUTE_MISSING,
+						     "no type attribute in <url>");
+			}
+			if (g_strcmp0 (tmp, "homepage") != 0) {
+				appdata_add_problem (helper->problems,
+						     APPDATA_PROBLEM_KIND_ATTRIBUTE_INVALID,
+						     "<url> has invalid type attribute");
+			}
 			helper->section = new;
 			break;
 		case APPDATA_SECTION_NAME:
@@ -231,8 +249,11 @@ appdata_start_element_fn (GMarkupParseContext *context,
 			break;
 		case APPDATA_SECTION_DESCRIPTION_UL:
 			/* ul without a leading para */
-			if (helper->number_paragraphs < 1)
-				appdata_add_problem (helper->problems, "<ul> cannot start a description");
+			if (helper->number_paragraphs < 1) {
+				appdata_add_problem (helper->problems,
+						     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
+						     "<ul> cannot start a description");
+			}
 			helper->section = new;
 			break;
 		default:
@@ -425,73 +446,111 @@ appdata_text_fn (GMarkupParseContext *context,
 	switch (helper->section) {
 	case APPDATA_SECTION_ID:
 		helper->id = g_strstrip (g_strndup (text, text_len));
-		if (!g_str_has_suffix (helper->id, ".desktop"))
-			appdata_add_problem (helper->problems, "<id> does not end in 'desktop'");
+		if (!g_str_has_suffix (helper->id, ".desktop")) {
+			appdata_add_problem (helper->problems,
+					     APPDATA_PROBLEM_KIND_MARKUP_INVALID,
+					     "<id> does not end in 'desktop'");
+		}
 		break;
 	case APPDATA_SECTION_LICENCE:
 		if (helper->licence != NULL) {
 			g_free (helper->licence);
-			appdata_add_problem (helper->problems, "<licence> is duplicated");
+			appdata_add_problem (helper->problems,
+					     APPDATA_PROBLEM_KIND_TAG_DUPLICATED,
+					     "<licence> is duplicated");
 		}
 		helper->licence = g_strstrip (g_strndup (text, text_len));
 		if (g_strcmp0 (helper->licence, "CC0") != 0 &&
 		    g_strcmp0 (helper->licence, "CC BY") != 0 &&
 		    g_strcmp0 (helper->licence, "CC BY-SA") != 0)
-			appdata_add_problem (helper->problems, "<licence> is not valid");
+			appdata_add_problem (helper->problems,
+					     APPDATA_PROBLEM_KIND_TAG_INVALID,
+					     "<licence> is not valid");
 		break;
 	case APPDATA_SECTION_URL:
 		if (helper->url != NULL) {
 			g_free (helper->url);
-			appdata_add_problem (helper->problems, "<url> is duplicated");
+			appdata_add_problem (helper->problems,
+					     APPDATA_PROBLEM_KIND_TAG_DUPLICATED,
+					     "<url> is duplicated");
 		}
 		helper->url = g_strstrip (g_strndup (text, text_len));
 		if (!g_str_has_prefix (helper->url, "http://") &&
 		    !g_str_has_prefix (helper->url, "https://"))
-			appdata_add_problem (helper->problems, "<url> does not start with 'http://'");
+			appdata_add_problem (helper->problems,
+					     APPDATA_PROBLEM_KIND_TAG_INVALID,
+					     "<url> does not start with 'http://'");
 		break;
 	case APPDATA_SECTION_UPDATECONTACT:
 		if (helper->updatecontact != NULL) {
 			g_free (helper->updatecontact);
-			appdata_add_problem (helper->problems, "<updatecontact> is duplicated");
+			appdata_add_problem (helper->problems,
+					     APPDATA_PROBLEM_KIND_TAG_DUPLICATED,
+					     "<updatecontact> is duplicated");
 		}
 		helper->updatecontact = g_strstrip (g_strndup (text, text_len));
-		if (g_strcmp0 (helper->updatecontact, "someone_who_cares@upstream_project.org") == 0)
-			appdata_add_problem (helper->problems, "<updatecontact> is still set to a dummy value");
-		if (strlen (helper->updatecontact) < 6)
-			appdata_add_problem (helper->problems, "<updatecontact> is too short");
+		if (g_strcmp0 (helper->updatecontact,
+			       "someone_who_cares@upstream_project.org") == 0) {
+			appdata_add_problem (helper->problems,
+					     APPDATA_PROBLEM_KIND_TAG_INVALID,
+					     "<updatecontact> is still set to a dummy value");
+		}
+		if (strlen (helper->updatecontact) < 6) {
+			appdata_add_problem (helper->problems,
+					     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
+					     "<updatecontact> is too short");
+		}
 		break;
 	case APPDATA_SECTION_NAME:
 		if (helper->name != NULL) {
 			g_free (helper->name);
-			appdata_add_problem (helper->problems, "<name> is duplicated");
+			appdata_add_problem (helper->problems,
+					     APPDATA_PROBLEM_KIND_TAG_DUPLICATED,
+					     "<name> is duplicated");
 		}
 		helper->name = g_strstrip (g_strndup (text, text_len));
-		if (strlen (helper->name) < 4)
-			appdata_add_problem (helper->problems, "<name> is too short");
+		if (strlen (helper->name) < 4) {
+			appdata_add_problem (helper->problems,
+					     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
+					     "<name> is too short");
+		}
 		break;
 	case APPDATA_SECTION_SUMMARY:
 		if (helper->summary != NULL) {
 			g_free (helper->summary);
-			appdata_add_problem (helper->problems, "<summary> is duplicated");
+			appdata_add_problem (helper->problems,
+					     APPDATA_PROBLEM_KIND_TAG_DUPLICATED,
+					     "<summary> is duplicated");
 		}
 		helper->summary = g_strstrip (g_strndup (text, text_len));
-		if (strlen (helper->summary) < 8)
-			appdata_add_problem (helper->problems, "<summary> is too short");
+		if (strlen (helper->summary) < 8) {
+			appdata_add_problem (helper->problems,
+					     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
+					     "<summary> is too short");
+		}
 		break;
 	case APPDATA_SECTION_DESCRIPTION_PARA:
 		temp = g_strstrip (g_strndup (text, text_len));
-		if (strlen (temp) < 50)
-			appdata_add_problem (helper->problems, "<p> is too short");
+		if (strlen (temp) < 50) {
+			appdata_add_problem (helper->problems,
+					     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
+					     "<p> is too short");
+		}
 		if (g_str_has_prefix (temp, "This application")) {
-			appdata_add_problem (helper->problems, "<p> should not start with 'This application'");
+			appdata_add_problem (helper->problems,
+					     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
+					     "<p> should not start with 'This application'");
 		}
 		g_free (temp);
 		helper->number_paragraphs++;
 		break;
 	case APPDATA_SECTION_DESCRIPTION_UL_LI:
 		temp = g_strstrip (g_strndup (text, text_len));
-		if (strlen (temp) < 25)
-			appdata_add_problem (helper->problems, "<li> is too short");
+		if (strlen (temp) < 25) {
+			appdata_add_problem (helper->problems,
+					     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
+					     "<li> is too short");
+		}
 		g_free (temp);
 		break;
 	default:
@@ -523,12 +582,16 @@ appdata_check_file_for_problems (const gchar *filename, AppdataCheck check)
 	g_return_val_if_fail (filename != NULL, NULL);
 
 	/* check file has the correct ending */
-	if (!g_str_has_suffix (filename, ".appdata.xml"))
-		appdata_add_problem (&problems, "incorrect extension, expected '.appdata.xml'");
-
+	if (!g_str_has_suffix (filename, ".appdata.xml")) {
+		appdata_add_problem (&problems,
+				     APPDATA_PROBLEM_KIND_FILENAME_INVALID,
+				     "incorrect extension, expected '.appdata.xml'");
+	}
 	ret = g_file_get_contents (filename, &data, &data_len, &error);
 	if (!ret) {
-		appdata_add_problem (&problems, error->message);
+		appdata_add_problem (&problems,
+				     APPDATA_PROBLEM_KIND_FAILED_TO_OPEN,
+				     error->message);
 		g_error_free (error);
 		goto out;
 	}
@@ -540,28 +603,51 @@ appdata_check_file_for_problems (const gchar *filename, AppdataCheck check)
 	context = g_markup_parse_context_new (&parser, 0, helper, NULL);
 	ret = g_markup_parse_context_parse (context, data, data_len, &error);
 	if (!ret) {
-		appdata_add_problem (&problems, error->message);
+		appdata_add_problem (&problems,
+				     APPDATA_PROBLEM_KIND_MARKUP_INVALID,
+				     error->message);
 		g_error_free (error);
 		goto out;
 	}
 
 	/* check for things that have to exist */
-	if (helper->id == NULL)
-		appdata_add_problem (&problems, "<id> is not present");
+	if (helper->id == NULL) {
+		appdata_add_problem (&problems,
+				     APPDATA_PROBLEM_KIND_TAG_MISSING,
+				     "<id> is not present");
+	}
 	if ((check & APPDATA_CHECK_ALLOW_MISSING_CONTACTDETAILS) == 0 &&
-	    helper->updatecontact == NULL)
-		appdata_add_problem (&problems, "<updatecontact> is not present");
-	if (helper->url == NULL)
-		appdata_add_problem (&problems, "<url> is not present");
-	if (helper->licence == NULL)
-		appdata_add_problem (&problems, "<licence> is not present");
-	if (helper->number_paragraphs < 2)
-		appdata_add_problem (&problems, "Not enough <p> tags for a good description");
-	if (helper->number_screenshots < 1)
-		appdata_add_problem (&problems, "Not enough <screenshot> tags");
+	    helper->updatecontact == NULL) {
+		appdata_add_problem (&problems,
+				     APPDATA_PROBLEM_KIND_TAG_MISSING,
+				     "<updatecontact> is not present");
+	}
+	if (helper->url == NULL) {
+		appdata_add_problem (&problems,
+				     APPDATA_PROBLEM_KIND_TAG_MISSING,
+				     "<url> is not present");
+	}
+	if (helper->licence == NULL) {
+		appdata_add_problem (&problems,
+				     APPDATA_PROBLEM_KIND_TAG_MISSING,
+				     "<licence> is not present");
+	}
+	if (helper->number_paragraphs < 2) {
+		appdata_add_problem (&problems,
+				     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
+				     "Not enough <p> tags for a good description");
+	}
+	if (helper->number_screenshots < 1) {
+		appdata_add_problem (&problems,
+				     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
+				     "Not enough <screenshot> tags");
+	}
 	if (helper->summary != NULL && helper->name != NULL &&
-	    strlen (helper->summary) < strlen (helper->name))
-		appdata_add_problem (&problems, "<summary> is shorter than <name>");
+	    strlen (helper->summary) < strlen (helper->name)) {
+		appdata_add_problem (&problems,
+				     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
+				     "<summary> is shorter than <name>");
+	}
 out:
 	if (helper != NULL) {
 		g_free (helper->id);

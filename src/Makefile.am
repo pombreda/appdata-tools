@@ -9,6 +9,8 @@ bin_PROGRAMS =						\
 appdata_validate_SOURCES =				\
 	appdata-common.c				\
 	appdata-common.h				\
+	appdata-problem.c				\
+	appdata-problem.h				\
 	appdata-validate.c
 
 appdata_validate_LDADD =				\
@@ -23,6 +25,8 @@ check_PROGRAMS =					\
 appdata_self_test_SOURCES =				\
 	appdata-common.c				\
 	appdata-common.h				\
+	appdata-problem.c				\
+	appdata-problem.h				\
 	appdata-self-test.c
 
 appdata_self_test_LDADD =				\

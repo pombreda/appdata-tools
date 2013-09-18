@@ -24,6 +24,7 @@
 #include <glib.h>
 
 #include "appdata-common.h"
+#include "appdata-problem.h"
 
 /**
  * appdata_test_get_data_file:
@@ -62,18 +63,24 @@ out:
 static void
 print_failures (GList *failures)
 {
+	AppdataProblem *p;
 	GList *l;
+
 	for (l = failures; l != NULL; l = l->next) {
-		g_print ("%s\n", l->data);
+		p = l->data;
+		g_print ("%s\n", p->description);
 	}
 }
 
 static gboolean
 ensure_failure (GList *failures, const gchar *description)
 {
+	AppdataProblem *p;
 	GList *l;
+
 	for (l = failures; l != NULL; l = l->next) {
-		if (g_strcmp0 (description, l->data) == 0)
+		p = l->data;
+		if (g_strcmp0 (description, p->description) == 0)
 			return TRUE;
 	}
 	print_failures (failures);
@@ -91,7 +98,7 @@ appdata_success_func (void)
 	print_failures (list);
 	g_assert_cmpint (g_list_length (list), ==, 0);
 
-	g_list_free_full (list, g_free);
+	g_list_free_full (list, (GDestroyNotify) appdata_problem_free);
 	g_free (filename);
 }
 
@@ -110,7 +117,7 @@ appdata_wrong_extension_func (void)
 	g_assert (ensure_failure (list, "<licence> is not present"));
 	g_assert_cmpint (g_list_length (list), >, 0);
 
-	g_list_free_full (list, g_free);
+	g_list_free_full (list, (GDestroyNotify) appdata_problem_free);
 	g_free (filename);
 }
 
@@ -137,7 +144,7 @@ appdata_broken_func (void)
 	g_assert (ensure_failure (list, "<p> should not start with 'This application'"));
 	g_assert_cmpint (g_list_length (list), >, 0);
 
-	g_list_free_full (list, g_free);
+	g_list_free_full (list, (GDestroyNotify) appdata_problem_free);
 	g_free (filename);
 }
 

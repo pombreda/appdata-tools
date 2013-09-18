@@ -26,6 +26,7 @@
 #include <locale.h>
 
 #include "appdata-common.h"
+#include "appdata-problem.h"
 
 #define EXIT_CODE_SUCCESS	0
 #define EXIT_CODE_USAGE		1
@@ -37,15 +38,20 @@
 static gint
 appdata_validate_and_show_results (const gchar *filename, AppdataCheck check)
 {
+	AppdataProblem *problem;
+	const gchar *tmp;
 	gint retval;
 	GList *l;
 	GList *problems = NULL;
+	guint i;
 
 	/* scan file for problems */
 	problems = appdata_check_file_for_problems (filename, check);
 	if (problems == NULL) {
 		retval = EXIT_CODE_SUCCESS;
-		g_print ("%s %s\n", filename, _("validated."));
+		/* TRANSLATORS: the file is valid */
+		g_print (_("%s validated OK."), filename);
+		g_print ("\n", filename, _("File validated."));
 		goto out;
 	}
 
@@ -55,10 +61,16 @@ appdata_validate_and_show_results (const gchar *filename, AppdataCheck check)
 		 filename,
 		 g_list_length (problems),
 		 _("problems detected:"));
-	for (l = problems; l != NULL; l = l->next)
-		g_print ("• %s\n", l->data);
+	for (l = problems; l != NULL; l = l->next) {
+		problem = l->data;
+		tmp = appdata_problem_kind_to_string (problem->kind);
+		g_print ("• %s ", tmp);
+		for (i = strlen (tmp); i < 20; i++)
+			g_print (" ");
+		g_print (" : %s\n", problem->description);
+	}
 out:
-	g_list_free_full (problems, g_free);
+	g_list_free_full (problems, (GDestroyNotify) appdata_problem_free);
 	return retval;
 }
 

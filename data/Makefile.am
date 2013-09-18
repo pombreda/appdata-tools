@@ -24,6 +24,7 @@ EXTRA_DIST =					\
 	appdata-validate.xml			\
 	broken.appdata.xml			\
 	success.appdata.xml			\
+	translated.appdata.xml			\
 	wrong-extension.xml
 
 clean-local:

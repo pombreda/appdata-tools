@@ -8,7 +8,7 @@
      <li>One</li>
      <li>Two</li>
     </ul>
-    <p>
+    <p xml:lang="C">
       This application is awesome.
     </p>
   </description>

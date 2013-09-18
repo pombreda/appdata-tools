@@ -142,6 +142,22 @@ appdata_broken_func (void)
 	g_assert (ensure_failure (list, "Not enough <screenshot> tags"));
 	g_assert (ensure_failure (list, "<licence> is duplicated"));
 	g_assert (ensure_failure (list, "<p> should not start with 'This application'"));
+	g_assert (ensure_failure (list, "xml:lang should never be 'C'"));
+	g_assert_cmpint (g_list_length (list), >, 0);
+
+	g_list_free_full (list, (GDestroyNotify) appdata_problem_free);
+	g_free (filename);
+}
+
+static void
+appdata_translated_func (void)
+{
+	gchar *filename;
+	GList *list;
+
+	filename = appdata_test_get_data_file ("translated.appdata.xml");
+	list = appdata_check_file_for_problems (filename, APPDATA_CHECK_DEFAULT);
+	g_assert (ensure_failure (list, "Not enough <p> tags for a good description"));
 	g_assert_cmpint (g_list_length (list), >, 0);
 
 	g_list_free_full (list, (GDestroyNotify) appdata_problem_free);
@@ -162,6 +178,7 @@ main (int argc, char **argv)
 	g_test_add_func ("/appdata/success", appdata_success_func);
 	g_test_add_func ("/appdata/wrong-extension", appdata_wrong_extension_func);
 	g_test_add_func ("/appdata/broken", appdata_broken_func);
+	g_test_add_func ("/appdata/translated", appdata_translated_func);
 
 	/* go go go! */
 	retval = g_test_run ();

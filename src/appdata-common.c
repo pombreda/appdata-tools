@@ -146,6 +146,7 @@ typedef struct {
 	GList		**problems;
 	guint		 number_paragraphs;
 	guint		 number_screenshots;
+	gboolean	 tag_translated;
 } AppdataHelper;
 
 /**
@@ -165,6 +166,21 @@ appdata_start_element_fn (GMarkupParseContext *context,
 	guint i;
 
 	new = appdata_selection_from_string (element_name);
+
+	/* all tags are untranslated until found otherwise */
+	helper->tag_translated = FALSE;
+	for (i = 0; attribute_names[i] != NULL; i++) {
+		if (g_strcmp0 (attribute_names[i], "xml:lang") == 0) {
+			tmp = attribute_values[i];
+			if (g_strcmp0 (tmp, "C") == 0) {
+				appdata_add_problem (helper->problems,
+						     APPDATA_PROBLEM_KIND_ATTRIBUTE_INVALID,
+						     "xml:lang should never be 'C'");
+			}
+			helper->tag_translated = TRUE;
+			break;
+		}
+	}
 
 	/* unknown -> application */
 	if (helper->section == APPDATA_SECTION_UNKNOWN) {
@@ -542,7 +558,10 @@ appdata_text_fn (GMarkupParseContext *context,
 					     "<p> should not start with 'This application'");
 		}
 		g_free (temp);
-		helper->number_paragraphs++;
+
+		/* translated paragraphs do not count */
+		if (helper->tag_translated == FALSE)
+			helper->number_paragraphs++;
 		break;
 	case APPDATA_SECTION_DESCRIPTION_UL_LI:
 		temp = g_strstrip (g_strndup (text, text_len));

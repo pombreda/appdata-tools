@@ -6,6 +6,9 @@ if ENABLE_MAN
 man_MANS += appdata-validate.1
 endif
 
+xmlschemadir = $(datadir)/appdata/schema
+dist_xmlschema_DATA = appdata.xsd
+
 XSLTPROC_FLAGS = \
 	--nonet \
 	--stringparam man.output.quietly 1 \

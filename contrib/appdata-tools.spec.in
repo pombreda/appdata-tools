@@ -35,6 +35,8 @@ make %{?_smp_mflags}
 %doc AUTHORS COPYING NEWS README
 %{_bindir}/appdata-validate
 %{_mandir}/man1/appdata-validate.1.gz
+%dir %{_datadir}/appdata/schema
+%{_datadir}/appdata/schema/appdata.xsd
 
 %changelog
 * #LONGDATE# Richard Hughes <richard@hughsie.com> #VERSION#-0.#BUILD##ALPHATAG#

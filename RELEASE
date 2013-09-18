@@ -5,7 +5,7 @@ appdata-tools Release Notes
 git shortlog appdata_tools_0_1_0.. | grep -i -v trivial | grep -v Merge > NEWS.new
 
 --------------------------------------------------------------------------------
-Version 0.1.1
+Version 0.1.2
 ~~~~~~~~~~~~~
 Released: 2013-xx-xx
 
@@ -18,8 +18,8 @@ Bugfixes:
 
 4. Commit changes in appdata-ps	tools git:
 
-git commit -a -m "Release version 0.1.1"
-git tag -s -f -m "Release 0.1.1" appdata_tools_0_1_1
+git commit -a -m "Release version 0.1.2"
+git tag -s -f -m "Release 0.1.2" appdata_tools_0_1_2
 <gpg password>
 git push --tags
 git push

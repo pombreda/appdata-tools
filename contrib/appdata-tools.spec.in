@@ -5,9 +5,8 @@ Name:      appdata-tools
 Version:   #VERSION#
 Release:   0.#BUILD#%{?alphatag}%{?dist}
 License:   GPLv2+
-Group:     Applications/System
 URL:       http://people.freedesktop.org/~hughsient/appdata/
-Source0:   http://people.freedesktop.org/~hughsient/appdata/releases/%{name}-%{version}.tar.xz
+Source0:   http://people.freedesktop.org/~hughsient/releases/%{name}-%{version}.tar.xz
 
 BuildRequires: gettext
 BuildRequires: intltool
@@ -16,8 +15,8 @@ BuildRequires: docbook-style-xsl
 BuildRequires: glib2-devel >= 2.25.9-2
 
 %description
-appdata-tools is a set of applications designed to create and validate AppData
-application descriptions.
+appdata-tools contains a command line program designed to validate AppData
+application descriptions for standards compliance and to the style guide.
 
 %prep
 %setup -q

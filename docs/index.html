@@ -17,32 +17,28 @@
 <p>
 Every software center that exists allows the user to look at screenshots
 and a long description of the application before it is installed.
-For most users it allows them to answer the question <i>Do I want to install this...</i>
+For most users it allows them to answer the question <i>Do I want to install this application?</i>
 </p>
 <p>
-In Linux, we have <b>none</b> of this data for the vast majority of our desktop
-user-installable applications.
-What we need to do is define a new data file, which the upstream project can
+Traditionally in Linux distributions, we have <b>none</b> of this data for the
+vast majority of our desktop user-installable applications.
+To solve this, we have defined a new data file, which the upstream project can
 optionally translate using the same technique as GSetting schemas or
-<a href="http://standards.freedesktop.org/desktop-entry-spec/latest/‎">Desktop files</a>.
+<a href="http://standards.freedesktop.org/desktop-entry-spec/latest/">Desktop files</a>.
 Rather than create a new schema from scratch, we'll be using a subset of the
 <a href="http://www.freedesktop.org/wiki/Distributions/AppStream/">AppStream</a>
 metadata proposal.
 </p>
-<p>
-Since this data is per-application, rather than per-project or per-package we
-can use the .desktop name as the ID for the data.
-This means we can extract this data and add it to any
-<a href="http://www.freedesktop.org/wiki/Distributions/AppStream/">AppStream</a>-or-similar
-metadata consumed by the software center.
-</p>
 
-<h1>Specification:</h1>
 <p>
 Applications wishing to have long descriptions, screenshots and other useful things
 are required to ship one or more files in <code>/usr/share/appdata/%{id}.appdata.xml</code>.
-The <code>%{id}</code> is the same name as the installed .desktop file for the
-application. This file will contain something like this:
+</p>
+
+<h1>File specification</h1>
+<h2>Sample file</h2>
+<p>
+The file should contain something like this:
 </p>
 <pre>
 &lt;?xml version="1.0" encoding="UTF-8"?&gt;
@@ -76,9 +72,51 @@ application. This file will contain something like this:
 &lt;/application&gt;
 </pre>
 
-<h1>Questions:</h1>
-<a name="description-format"/><h3>What format should the description be?</h3>
-<p>Important things to consider when writing the application description:</p>
+<a name="id"/><h2><code>&lt;id/&gt</code></h2>
+<p>
+The <code>%{id}</code> is the same name as the installed .desktop file for the
+application.
+</p>
+
+<a name="licence"/><h2><code>&lt;licence/&gt</code></h2>
+<p>
+The <code>&lt;licence&gt;</code> tag is indicating the content licence that you
+are releasing the one AppData text file as.
+<b>This is not typically the same as the project licence.</b>
+By ommitting the licence value would probably mean your data would not be
+incorporated into the distribution metadata.
+Permissible licences include:
+</p>
+<ul>
+<li><code>CC0</code></li>
+<li><code>CC BY</code></li>
+<li><code>CC BY-SA</code></li>
+</ul>
+</p>
+
+<a name="name"/><h2><code>&lt;name/&gt</code></h2>
+<p>
+You can omit this tag if you want the software center to have the same strings
+as the desktop menu.
+In some cases it might be required to have a different name in the app-store,
+but most <code>appdata.xml</code> files will not need this.
+</p>
+
+
+<a name="summary"/><h2><code>&lt;summary/&gt</code></h2>
+<p>
+You can omit this tag if you want the software center to have the same strings
+as the desktop menu.
+In some cases it might be required to have a different name in the app-store,
+but most <code>appdata.xml</code> files will not need this.
+</p>
+
+
+<a name="description"/><h2><code>&lt;description/&gt</code></h2>
+<p>
+The long description is an important part of the file.
+Important things to consider when writing the application description:
+</p>
 <ul>
 <li>Include 2-3 paragraphs of interesting easy to read prose.</li>
 <li>Ensure you provide a description of what the application actually does.</li>
@@ -92,50 +130,59 @@ application. This file will contain something like this:
 <li>Do not be too geeky. Aim for an intelligent semi-technical reader.</li>
 <li>Don't mention what language an application is written in, users don't care</li>
 <li>Only mention what the application can do now, rather than what is planned</li>
-<li>Do not assume the format is HTML. Only paragraph, ordered list and unordered list are supported at this time.</li>
 </ul>
-
-<a name="duplicate-name"/><h3>Why include Name and Summary data if it's already in the .desktop file?</h3>
 <p>
- You can omit the <code>&lt;name&gt;</code> and <code>&lt;summary&gt;</code> tags if
- you want the software center to have the same strings as the desktop menu.
- In some cases it might be required to have a different name in the app-store,
- but most <code>appdata.xml</code> files will not need these tags.
+Do not assume the format is HTML. Only paragraph, ordered list and unordered list are supported at this time.
 </p>
+
+<a name="screenshots"/><h2><code>&lt;screenshots/&gt</code></h2>
+<p>
+A screenshot is a really good way of <i>previewing</i> the application before
+it is installed and a really good way of increasing your userbase.
+Screenshots are only fetched by the software center when the long description
+is shown.
+Screenshots should typically be ~800px wide and should not exceed 1Mb in
+size.
+Either a lossy format '.jpg' or lossless '.png' format is permitted.
+</p>
+<p>
+Only translate these if a corresponding translated screenshot exists.
+</p>
+
+<a name="url"/><h2><code>&lt;url/&gt</code></h2>
+<p>
+Links of type <code>homepage</code> should be a link to the upstream homepage
+for the application.
+</p>
+
+<a name="updatecontact"/><h2><code>&lt;updatecontact/&gt</code></h2>
+<p>
+AppData is a new standard, and we'll likely be adding extra metadata in the
+future.
+If you include the <code>&lt;updatecontact&gt;</code> tag then someone
+will send an email when the standard is updated, detailing the new fields that
+you may or may not want to add to your <code>appdata.xml</code> file.
+We're not expecting to do this more than 4 times a year, so don't expect a
+deluge of email.
+</p>
+<p>
+<b>TIP:</b>Use <code>_at_</code> rather than <code>@</code> if you're worried
+about the email address being harvested by spammers.
+</p>
+
+<h1>Questions:</h1>
+</ul>
 
 <a name="translation"/><h3>How do I translate this data?</h3>
 <p>
  If you ship an <code>.xml.in</code> file rather than an <code>.xml</code> file,
- you can use a tool like itstool to translate the data.
- We've provided a <a href="appdata.its"><code>appdata.its</code></a> file
- for convenience.
+ you can use intltool to translate the data.
+ You can also use itstool to translate the data, and we've provided a
+ <a href="appdata.its"><code>appdata.its</code></a> file for convenience.
 </p>
 <p>
  Translated descriptions are a really nice feature, as only a fraction of the
- userbase installing application will be able to understand English text,
- but for the technical preview we'll probably only be including the en_US text.
-</p>
-<p>
- After GNOME 3.10 (when most projects can add new strings) I'll be contacting
- people who have already added AppData files with more detailed instructions on
- how to setup the files for translation.
-</p>
-
-<a name="screenshot-format"/><h3>What format are the screenshots?</h3>
-<p>
- Screenshots are only fetched by the software center when the long description
- is shown.
- Only translate these if a corresponding translated screenshot exists.
- Screenshots should typically be ~800px wide and should not exceed 1Mb in
- size.
- Either a lossy format '.jpg' or lossless '.png' format is permitted.
-</p>
-
-<a name="screenshots"/><h3>Are screenshots required?</h3>
-<p>
- No, but we'd really hope you could ship at least one.
- A screenshot is a really good way of <i>previewing</i> the application before
- it is installed and a really good way of increasing your userbase.
+ userbase installing application will be able to understand English text.
 </p>
 
 <a name="package"/><h3>Why not just use the package description?</h3>
@@ -184,38 +231,11 @@ application. This file will contain something like this:
  I'll update this page when we've got some more concrete use-cases.
 </p>
 
-<a name="updatecontact"/><h3>What is <code>updatecontact</code> used for?</h3>
-<p>
- AppData is a new standard, and we'll likely be adding extra metadata in the
- future. If you include the <code>&lt;updatecontact&gt;</code> tag then someone
- will send an email when the standard is updated, detailing the new fields that
- you may or may not want to add to your <code>appdata.xml</code> file.
- We're not expecting to do this more than 4 times a year, so don't expect a
- deluge of email.
-</p>
-<p>
- <b>TIP:</b>Use <code>_at_</code> rather than <code>@</code> if you're worried
- about the email address being harvested.
-</p>
-
 <a name="why-xml"/><h3>Why XML and not JSON/other?</h3>
 <p>
  AppData is a subset of the <a href="http://www.freedesktop.org/wiki/Distributions/AppStream/">AppStream</a>
  schema, which is also XML.
 </p>
-
-<a name="licence"/><h3>Is the <code>licence</code> tag supposed to be my project licence?</h3>
-<p>
- No. The <code>&lt;licence&gt;</code> tag is indicating the licence that you
- are releasing the AppData text as.
- By ommitting the licence value would probably mean your data would not be
- incorporated into the AppStream metadata. Permissible licences include:
-</p>
-<ul>
-<li>CC0</li>
-<li>CC BY</li>
-<li>CC BY-SA</li>
-</ul>
 
 <a name="use"/><h3>Where will this data be used?</h3>
 <p>
@@ -226,31 +246,19 @@ application. This file will contain something like this:
 
 <a name="validate"/><h3>How do I know if my appdata XML is correct?</h3>
 <p>
- You can validate it using a <a href="http://relaxng.org/">RELAX NG</a> schema
- available in <a href="appdata.rng">XML syntax</a> and 
- <a href="appdata.rnc">compact syntax</a> form.  This can be used with tools like
- <a href="http://xmlsoft.org/xmllint.html">xmllint</a>,
- <a href="http://www.thaiopensource.com/relaxng/jing.html">Jing</a> and the 
- instantly validating
- <a href="http://www.thaiopensource.com/nxml-mode/">nXML-mode</a> for Emacs.
+There are several ways to validate the data:
 </p>
-<p>
- Note: This is available as a possibly helpful tool, it should not be seen
- as normative.  It is possible that the validation schema is too strict or too lax,
- and it might fail to be updated as the Appdata project evolves. 
-</p>
+<ul>
+<li>Using the appdata-validate command available in <a href="https://github.com/hughsie/appdata-tools">appdata-tools</a></li>
+<li>Using a XSD schema <a href="https://raw.github.com/hughsie/appdata-tools/master/data/appdata.xsd">available online</a> or installed in <code>/usr/share/appdata/schema</code> when is appdata-tools is installed.
+<li>Using a RELAX NG schema available in <a href="appdata.rng">XML syntax</a> and
+<a href="appdata.rnc">compact syntax</a> form.</li>
+</ul>
  
 <a name="example"/><h3>Have you got a real world example?</h3>
 <p>
  See the commit that added the AppData metadata to
  <a href="example.patch">gnome-power-manager</a>.
-</p>
-
-<a name="install-appdata"/><h3>Should I install the appdata files?</h3>
-<p>
- You should install the your appdata file to <code>/usr/share/appdata/</code>.
- This is the standard search path that application installer tools use when
- there is no distro-specific appstream metadata available.
 </p>
 
 <p class="footer">

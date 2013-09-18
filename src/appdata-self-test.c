@@ -158,6 +158,7 @@ appdata_translated_func (void)
 	filename = appdata_test_get_data_file ("translated.appdata.xml");
 	list = appdata_check_file_for_problems (filename, APPDATA_CHECK_DEFAULT);
 	g_assert (ensure_failure (list, "Not enough <p> tags for a good description"));
+	g_assert (!ensure_failure (list, "<name> is duplicated"));
 	g_assert_cmpint (g_list_length (list), >, 0);
 
 	g_list_free_full (list, (GDestroyNotify) appdata_problem_free);

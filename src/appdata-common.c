@@ -459,6 +459,10 @@ appdata_text_fn (GMarkupParseContext *context,
 	AppdataHelper *helper = (AppdataHelper *) user_data;
 	gchar *temp;
 
+	/* ignore translations */
+	if (helper->tag_translated)
+		return;
+
 	switch (helper->section) {
 	case APPDATA_SECTION_ID:
 		helper->id = g_strstrip (g_strndup (text, text_len));
@@ -558,10 +562,7 @@ appdata_text_fn (GMarkupParseContext *context,
 					     "<p> should not start with 'This application'");
 		}
 		g_free (temp);
-
-		/* translated paragraphs do not count */
-		if (helper->tag_translated == FALSE)
-			helper->number_paragraphs++;
+		helper->number_paragraphs++;
 		break;
 	case APPDATA_SECTION_DESCRIPTION_UL_LI:
 		temp = g_strstrip (g_strndup (text, text_len));

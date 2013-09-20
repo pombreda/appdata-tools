@@ -3,16 +3,18 @@
   <id type="unknown">gnome-power-statistics</id>
   <licence>GPLv3+</licence>
   <licence>BSD</licence>
+  <name>Power Statistics.</name>
+  <summary>Observe power management.</summary>
   <description>
     <ul>
      <li>One</li>
      <li>Two</li>
     </ul>
     <p xml:lang="C">
-      This application is awesome.
+      This application is awesome
     </p>
     <p>
-      This application is awesome.
+      This application is awesome
     </p>
   </description>
   <url type="bugtracker">www.dave.org</url>

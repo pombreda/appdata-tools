@@ -480,6 +480,7 @@ appdata_text_fn (GMarkupParseContext *context,
 	AppdataHelper *helper = (AppdataHelper *) user_data;
 	gchar *temp;
 	guint len;
+	guint str_len;
 
 	/* ignore translations */
 	if (helper->tag_translated)
@@ -557,7 +558,8 @@ appdata_text_fn (GMarkupParseContext *context,
 		len = g_key_file_get_integer (helper->config,
 					      APPDATA_TOOLS_VALIDATE_GROUP_NAME,
 					      "LengthNameMin", NULL);
-		if (strlen (helper->name) < len) {
+		str_len = strlen (helper->name);
+		if (str_len < len) {
 			appdata_add_problem (helper->problems,
 					     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
 					     "<name> is too short");
@@ -565,10 +567,15 @@ appdata_text_fn (GMarkupParseContext *context,
 		len = g_key_file_get_integer (helper->config,
 					      APPDATA_TOOLS_VALIDATE_GROUP_NAME,
 					      "LengthNameMax", NULL);
-		if (strlen (helper->name) > len) {
+		if (str_len > len) {
 			appdata_add_problem (helper->problems,
 					     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
 					     "<name> is too long");
+		}
+		if (helper->name[str_len - 1] == '.') {
+			appdata_add_problem (helper->problems,
+					     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
+					     "<name> cannot end in '.'");
 		}
 		break;
 	case APPDATA_SECTION_SUMMARY:
@@ -582,7 +589,8 @@ appdata_text_fn (GMarkupParseContext *context,
 		len = g_key_file_get_integer (helper->config,
 					      APPDATA_TOOLS_VALIDATE_GROUP_NAME,
 					      "LengthSummaryMin", NULL);
-		if (strlen (helper->summary) < len) {
+		str_len = strlen (helper->summary);
+		if (str_len < len) {
 			appdata_add_problem (helper->problems,
 					     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
 					     "<summary> is too short");
@@ -590,10 +598,15 @@ appdata_text_fn (GMarkupParseContext *context,
 		len = g_key_file_get_integer (helper->config,
 					      APPDATA_TOOLS_VALIDATE_GROUP_NAME,
 					      "LengthSummaryMax", NULL);
-		if (strlen (helper->summary) > len) {
+		if (str_len > len) {
 			appdata_add_problem (helper->problems,
 					     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
 					     "<summary> is too long");
+		}
+		if (helper->summary[str_len - 1] == '.') {
+			appdata_add_problem (helper->problems,
+					     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
+					     "<summary> cannot end in '.'");
 		}
 		break;
 	case APPDATA_SECTION_DESCRIPTION_PARA:
@@ -609,7 +622,8 @@ appdata_text_fn (GMarkupParseContext *context,
 		len = g_key_file_get_integer (helper->config,
 					      APPDATA_TOOLS_VALIDATE_GROUP_NAME,
 					      "LengthParaMax", NULL);
-		if (strlen (temp) > len) {
+		str_len = strlen (temp);
+		if (str_len > len) {
 			appdata_add_problem (helper->problems,
 					     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
 					     "<p> is too long");
@@ -619,6 +633,13 @@ appdata_text_fn (GMarkupParseContext *context,
 					     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
 					     "<p> should not start with 'This application'");
 		}
+		if (temp[str_len - 1] != '.' &&
+		    temp[str_len - 1] != '!' &&
+		    temp[str_len - 1] != ':') {
+			appdata_add_problem (helper->problems,
+					     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
+					     "<p> does not end in '.|:|!'");
+		}
 		g_free (temp);
 		helper->number_paragraphs++;
 		break;
@@ -627,7 +648,8 @@ appdata_text_fn (GMarkupParseContext *context,
 		len = g_key_file_get_integer (helper->config,
 					      APPDATA_TOOLS_VALIDATE_GROUP_NAME,
 					      "LengthListItemMin", NULL);
-		if (strlen (temp) < len) {
+		str_len = strlen (temp);
+		if (str_len < len) {
 			appdata_add_problem (helper->problems,
 					     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
 					     "<li> is too short");
@@ -635,7 +657,7 @@ appdata_text_fn (GMarkupParseContext *context,
 		len = g_key_file_get_integer (helper->config,
 					      APPDATA_TOOLS_VALIDATE_GROUP_NAME,
 					      "LengthListItemMax", NULL);
-		if (strlen (temp) > len) {
+		if (str_len > len) {
 			appdata_add_problem (helper->problems,
 					     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
 					     "<li> is too long");

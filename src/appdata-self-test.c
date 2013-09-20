@@ -189,6 +189,9 @@ appdata_broken_func (void)
 	g_assert (ensure_failure (list, "<licence> is duplicated"));
 	g_assert (ensure_failure (list, "<p> should not start with 'This application'"));
 	g_assert (ensure_failure (list, "xml:lang should never be 'C'"));
+	g_assert (ensure_failure (list, "<p> does not end in '.|:|!'"));
+	g_assert (ensure_failure (list, "<name> cannot end in '.'"));
+	g_assert (ensure_failure (list, "<summary> cannot end in '.'"));
 	g_assert_cmpint (g_list_length (list), >, 0);
 
 	g_list_free_full (list, (GDestroyNotify) appdata_problem_free);

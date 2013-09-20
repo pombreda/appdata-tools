@@ -2,7 +2,7 @@ appdata-tools Release Notes
 
 1. Write NEWS entries for appdata_tools in the same format as usual.
 
-git shortlog appdata_tools_0_1_0.. | grep -i -v trivial | grep -v Merge > NEWS.new
+git shortlog appdata_tools_0_1_1.. | grep -i -v trivial | grep -v Merge > NEWS.new
 
 --------------------------------------------------------------------------------
 Version 0.1.2

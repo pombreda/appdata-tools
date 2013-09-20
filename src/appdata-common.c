@@ -192,7 +192,7 @@ appdata_start_element_fn (GMarkupParseContext *context,
 			return;
 		}
 		g_set_error (error, 1, 0,
-			     "start tag '%s' not allowed from section '%s'",
+			     "start tag <%s> not allowed from section <%s>",
 			     element_name,
 			     appdata_selection_to_string (helper->section));
 		return;
@@ -252,7 +252,7 @@ appdata_start_element_fn (GMarkupParseContext *context,
 			break;
 		default:
 			g_set_error (error, 1, 0,
-				     "start tag '%s' not allowed from section '%s'",
+				     "start tag <%s> not allowed from section <%s>",
 				     element_name,
 				     appdata_selection_to_string (helper->section));
 		}
@@ -287,7 +287,7 @@ appdata_start_element_fn (GMarkupParseContext *context,
 			break;
 		default:
 			g_set_error (error, 1, 0,
-				     "start tag '%s' not allowed from section '%s'",
+				     "start tag <%s> not allowed from section <%s>",
 				     element_name,
 				     appdata_selection_to_string (helper->section));
 		}
@@ -303,7 +303,7 @@ appdata_start_element_fn (GMarkupParseContext *context,
 			break;
 		default:
 			g_set_error (error, 1, 0,
-				     "start tag '%s' not allowed from section '%s'",
+				     "start tag <%s> not allowed from section <%s>",
 				     element_name,
 				     appdata_selection_to_string (helper->section));
 		}
@@ -319,14 +319,14 @@ appdata_start_element_fn (GMarkupParseContext *context,
 			return;
 		}
 		g_set_error (error, 1, 0,
-			     "start tag '%s' not allowed from section '%s'",
+			     "start tag <%s> not allowed from section <%s>",
 			     element_name,
 			     appdata_selection_to_string (helper->section));
 		return;
 	}
 
 	g_set_error (error, 1, 0,
-		     "start tag '%s' not allowed from section '%s'",
+		     "start tag <%s> not allowed from section <%s>",
 		     element_name,
 		     appdata_selection_to_string (helper->section));
 }
@@ -351,7 +351,7 @@ appdata_end_element_fn (GMarkupParseContext *context,
 			return;
 		}
 		g_set_error (error, 1, 0,
-			     "end tag '%s' not allowed from section '%s'",
+			     "end tag <%s> not allowed from section <%s>",
 			     element_name,
 			     appdata_selection_to_string (helper->section));
 		return;
@@ -462,7 +462,7 @@ appdata_end_element_fn (GMarkupParseContext *context,
 	}
 
 	g_set_error (error, 1, 0,
-		     "end tag '%s' not allowed from section '%s'",
+		     "end tag <%s> not allowed from section <%s>",
 		     element_name,
 		     appdata_selection_to_string (helper->section));
 }

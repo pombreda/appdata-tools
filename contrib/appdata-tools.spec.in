@@ -8,6 +8,8 @@ License:   GPLv2+
 URL:       http://people.freedesktop.org/~hughsient/appdata/
 Source0:   http://people.freedesktop.org/~hughsient/releases/%{name}-%{version}.tar.xz
 
+Requires: emacs-filesystem
+
 BuildRequires: gettext
 BuildRequires: intltool
 BuildRequires: libxslt
@@ -38,6 +40,9 @@ make %{?_smp_mflags}
 %{_mandir}/man1/appdata-validate.1.gz
 %dir %{_datadir}/appdata/schema
 %{_datadir}/appdata/schema/appdata.xsd
+%{_datadir}/appdata/schema/appdata.rnc
+%{_datadir}/appdata/schema/schemas.xml
+%{_emacs_sitestartdir}/appdata-rng-init.el
 
 %changelog
 * #LONGDATE# Richard Hughes <richard@hughsie.com> #VERSION#-0.#BUILD##ALPHATAG#

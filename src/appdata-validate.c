@@ -24,6 +24,8 @@
 #include <glib/gi18n.h>
 #include <glib.h>
 #include <locale.h>
+#include <stdio.h>
+#include <unistd.h>
 
 #include "appdata-common.h"
 #include "appdata-problem.h"
@@ -75,29 +77,117 @@ out:
 }
 
 /**
+ * appdata_validate_log_ignore_cb:
+ **/
+static void
+appdata_validate_log_ignore_cb (const gchar *log_domain, GLogLevelFlags log_level,
+				const gchar *message, gpointer user_data)
+{
+}
+
+/**
+ * appdata_validate_log_handler_cb:
+ **/
+static void
+appdata_validate_log_handler_cb (const gchar *log_domain, GLogLevelFlags log_level,
+				 const gchar *message, gpointer user_data)
+{
+	/* not a console */
+	if (isatty (fileno (stdout)) == 0) {
+		g_print ("%s\n", message);
+		return;
+	}
+
+	/* critical is also in red */
+	if (log_level == G_LOG_LEVEL_CRITICAL ||
+	    log_level == G_LOG_LEVEL_WARNING ||
+	    log_level == G_LOG_LEVEL_ERROR) {
+		g_print ("%c[%dm%s\n%c[%dm", 0x1B, 31, message, 0x1B, 0);
+	} else {
+		/* debug in blue */
+		g_print ("%c[%dm%s\n%c[%dm", 0x1B, 34, message, 0x1B, 0);
+	}
+}
+
+/**
  * main:
  **/
 int
 main (int argc, char *argv[])
 {
-	gint retval_tmp;
-	gint retval = EXIT_CODE_SUCCESS;
-	guint i;
 	AppdataCheck check = APPDATA_CHECK_DEFAULT;
+	gboolean relax = FALSE;
+	gboolean ret;
+	gboolean verbose = FALSE;
+	gboolean version = FALSE;
+	GError *error = NULL;
+	gint retval = EXIT_CODE_SUCCESS;
+	gint retval_tmp;
+	GOptionContext *context;
+	guint i;
+	const GOptionEntry options[] = {
+		{ "relax", 'r', 0, G_OPTION_ARG_NONE, &relax,
+			/* TRANSLATORS: this is the --relax argument */
+			_("Be less strict when checking files"), NULL },
+		{ "verbose", 'v', 0, G_OPTION_ARG_NONE, &verbose,
+			/* TRANSLATORS: this is the --verbose argument */
+			_("Show extra debugging information"), NULL },
+		{ "version", '\0', 0, G_OPTION_ARG_NONE, &version,
+			/* TRANSLATORS: this is the --version argument */
+			_("Show the version number and then quit"), NULL },
+		{ NULL}
+	};
 
 	setlocale (LC_ALL, "");
 	bindtextdomain (GETTEXT_PACKAGE, PACKAGE_LOCALE_DIR);
 	bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
 	textdomain (GETTEXT_PACKAGE);
 
+	g_type_init ();
+
+	context = g_option_context_new ("AppData Validation Program");
+	g_option_context_add_main_entries (context, options, NULL);
+	ret = g_option_context_parse (context, &argc, &argv, &error);
+	if (!ret) {
+		/* TRANSLATORS: this is where the user used unknown command
+		 * line switches -- the exact error follows */
+		g_print ("%s %s\n", _("Failed to parse command line:"), error->message);
+		g_error_free (error);
+		goto out;
+	}
+
+	/* just show the version */
+	if (version) {
+		g_print ("%s\n", PACKAGE_VERSION);
+		goto out;
+	}
+
+	/* verbose? */
+	if (verbose) {
+		g_log_set_fatal_mask (NULL, G_LOG_LEVEL_ERROR | G_LOG_LEVEL_CRITICAL);
+		g_log_set_handler ("AppDataTools",
+				   G_LOG_LEVEL_ERROR |
+				   G_LOG_LEVEL_CRITICAL |
+				   G_LOG_LEVEL_DEBUG |
+				   G_LOG_LEVEL_WARNING,
+				   appdata_validate_log_handler_cb, NULL);
+	} else {
+		/* hide all debugging */
+		g_log_set_fatal_mask (NULL, G_LOG_LEVEL_ERROR | G_LOG_LEVEL_CRITICAL);
+		g_log_set_handler ("AppDataTools",
+				   G_LOG_LEVEL_DEBUG,
+				   appdata_validate_log_ignore_cb, NULL);
+	}
+
 	if (argc < 2) {
 		retval = EXIT_CODE_USAGE;
-		g_print ("Usage: %s <file>\n", argv[0]);
+		/* TRANSLATORS: this is explaining how to use the tool */
+		g_print ("%s %s %s\n", _("Usage:"), argv[0], _("<file>"));
 		goto out;
 	}
 
 	/* relax some checks */
-	if (g_getenv ("RELAX") != NULL)
+	if (relax || g_getenv ("RELAX") != NULL)
 		check += APPDATA_CHECK_ALLOW_MISSING_CONTACTDETAILS;
 
 	/* validate each file */
@@ -107,5 +197,6 @@ main (int argc, char *argv[])
 			retval = retval_tmp;
 	}
 out:
+	g_option_context_free (context);
 	return retval;
 }

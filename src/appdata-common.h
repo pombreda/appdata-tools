@@ -21,11 +21,7 @@
 
 #include <glib.h>
 
-typedef enum {
-	APPDATA_CHECK_DEFAULT				= 0,
-	APPDATA_CHECK_ALLOW_MISSING_CONTACTDETAILS	= 1,
-	APPDATA_CHECK_LAST,
-} AppdataCheck;
+#define	APPDATA_TOOLS_VALIDATE_GROUP_NAME	"AppdataToolsValidate"
 
-GList	*appdata_check_file_for_problems	(const gchar	*filename,
-						 AppdataCheck	 check);
+GList	*appdata_check_file_for_problems	(GKeyFile	*config,
+						 const gchar	*filename);

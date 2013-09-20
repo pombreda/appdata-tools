@@ -148,6 +148,7 @@ typedef struct {
 	guint		 number_screenshots;
 	gboolean	 tag_translated;
 	gboolean	 previous_para_was_short;
+	GKeyFile	*config;
 } AppdataHelper;
 
 /**
@@ -478,6 +479,7 @@ appdata_text_fn (GMarkupParseContext *context,
 {
 	AppdataHelper *helper = (AppdataHelper *) user_data;
 	gchar *temp;
+	guint len;
 
 	/* ignore translations */
 	if (helper->tag_translated)
@@ -535,7 +537,10 @@ appdata_text_fn (GMarkupParseContext *context,
 					     APPDATA_PROBLEM_KIND_TAG_INVALID,
 					     "<updatecontact> is still set to a dummy value");
 		}
-		if (strlen (helper->updatecontact) < 6) {
+		len = g_key_file_get_integer (helper->config,
+					      APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+					      "LengthUpdatecontactMin", NULL);
+		if (strlen (helper->updatecontact) < len) {
 			appdata_add_problem (helper->problems,
 					     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
 					     "<updatecontact> is too short");
@@ -549,10 +554,21 @@ appdata_text_fn (GMarkupParseContext *context,
 					     "<name> is duplicated");
 		}
 		helper->name = g_strstrip (g_strndup (text, text_len));
-		if (strlen (helper->name) < 4) {
+		len = g_key_file_get_integer (helper->config,
+					      APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+					      "LengthNameMin", NULL);
+		if (strlen (helper->name) < len) {
 			appdata_add_problem (helper->problems,
 					     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
 					     "<name> is too short");
+		}
+		len = g_key_file_get_integer (helper->config,
+					      APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+					      "LengthNameMax", NULL);
+		if (strlen (helper->name) > len) {
+			appdata_add_problem (helper->problems,
+					     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
+					     "<name> is too long");
 		}
 		break;
 	case APPDATA_SECTION_SUMMARY:
@@ -563,18 +579,40 @@ appdata_text_fn (GMarkupParseContext *context,
 					     "<summary> is duplicated");
 		}
 		helper->summary = g_strstrip (g_strndup (text, text_len));
-		if (strlen (helper->summary) < 8) {
+		len = g_key_file_get_integer (helper->config,
+					      APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+					      "LengthSummaryMin", NULL);
+		if (strlen (helper->summary) < len) {
 			appdata_add_problem (helper->problems,
 					     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
 					     "<summary> is too short");
 		}
+		len = g_key_file_get_integer (helper->config,
+					      APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+					      "LengthSummaryMax", NULL);
+		if (strlen (helper->summary) > len) {
+			appdata_add_problem (helper->problems,
+					     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
+					     "<summary> is too long");
+		}
 		break;
 	case APPDATA_SECTION_DESCRIPTION_PARA:
 		temp = g_strstrip (g_strndup (text, text_len));
-		if (strlen (temp) < 50) {
+		len = g_key_file_get_integer (helper->config,
+					      APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+					      "LengthParaMin", NULL);
+		if (strlen (temp) < len) {
 			/* we don't add the problem now, as we allow a short
 			 * paragraph as an introduction to a list */
 			helper->previous_para_was_short = TRUE;
+		}
+		len = g_key_file_get_integer (helper->config,
+					      APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+					      "LengthParaMax", NULL);
+		if (strlen (temp) > len) {
+			appdata_add_problem (helper->problems,
+					     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
+					     "<p> is too long");
 		}
 		if (g_str_has_prefix (temp, "This application")) {
 			appdata_add_problem (helper->problems,
@@ -586,10 +624,21 @@ appdata_text_fn (GMarkupParseContext *context,
 		break;
 	case APPDATA_SECTION_DESCRIPTION_UL_LI:
 		temp = g_strstrip (g_strndup (text, text_len));
-		if (strlen (temp) < 25) {
+		len = g_key_file_get_integer (helper->config,
+					      APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+					      "LengthListItemMin", NULL);
+		if (strlen (temp) < len) {
 			appdata_add_problem (helper->problems,
 					     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
 					     "<li> is too short");
+		}
+		len = g_key_file_get_integer (helper->config,
+					      APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+					      "LengthListItemMax", NULL);
+		if (strlen (temp) > len) {
+			appdata_add_problem (helper->problems,
+					     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
+					     "<li> is too long");
 		}
 		g_free (temp);
 		break;
@@ -603,15 +652,17 @@ appdata_text_fn (GMarkupParseContext *context,
  * appdata_check_file_for_problems:
  */
 GList *
-appdata_check_file_for_problems (const gchar *filename, AppdataCheck check)
+appdata_check_file_for_problems (GKeyFile *config,
+				 const gchar *filename)
 {
-	gchar *data;
-	gboolean ret;
-	gsize data_len;
-	GList *problems = NULL;
-	GError *error = NULL;
 	AppdataHelper *helper = NULL;
+	gboolean ret;
+	gchar *data;
+	GError *error = NULL;
+	GList *problems = NULL;
 	GMarkupParseContext *context = NULL;
+	gsize data_len;
+	guint len;
 	const GMarkupParser parser = {
 		appdata_start_element_fn,
 		appdata_end_element_fn,
@@ -640,6 +691,7 @@ appdata_check_file_for_problems (const gchar *filename, AppdataCheck check)
 	helper = g_new0 (AppdataHelper, 1);
 	helper->problems = &problems;
 	helper->section = APPDATA_SECTION_UNKNOWN;
+	helper->config = config;
 	context = g_markup_parse_context_new (&parser, 0, helper, NULL);
 	ret = g_markup_parse_context_parse (context, data, data_len, &error);
 	if (!ret) {
@@ -656,13 +708,16 @@ appdata_check_file_for_problems (const gchar *filename, AppdataCheck check)
 				     APPDATA_PROBLEM_KIND_TAG_MISSING,
 				     "<id> is not present");
 	}
-	if ((check & APPDATA_CHECK_ALLOW_MISSING_CONTACTDETAILS) == 0 &&
-	    helper->updatecontact == NULL) {
+	ret = g_key_file_get_boolean (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+				      "RequireContactdetails", NULL);
+	if (ret && helper->updatecontact == NULL) {
 		appdata_add_problem (&problems,
 				     APPDATA_PROBLEM_KIND_TAG_MISSING,
 				     "<updatecontact> is not present");
 	}
-	if (helper->url == NULL) {
+	ret = g_key_file_get_boolean (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+				      "RequireUrl", NULL);
+	if (ret && helper->url == NULL) {
 		appdata_add_problem (&problems,
 				     APPDATA_PROBLEM_KIND_TAG_MISSING,
 				     "<url> is not present");
@@ -672,15 +727,37 @@ appdata_check_file_for_problems (const gchar *filename, AppdataCheck check)
 				     APPDATA_PROBLEM_KIND_TAG_MISSING,
 				     "<licence> is not present");
 	}
-	if (helper->number_paragraphs < 2) {
+	len = g_key_file_get_integer (helper->config,
+				      APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+				      "NumberParaMin", NULL);
+	if (helper->number_paragraphs < len) {
 		appdata_add_problem (&problems,
 				     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
 				     "Not enough <p> tags for a good description");
 	}
-	if (helper->number_screenshots < 1) {
+	len = g_key_file_get_integer (helper->config,
+				      APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+				      "NumberParaMax", NULL);
+	if (helper->number_paragraphs > len) {
+		appdata_add_problem (&problems,
+				     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
+				     "Too many <p> tags for a good description");
+	}
+	len = g_key_file_get_integer (helper->config,
+				      APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+				      "NumberScreenshotsMin", NULL);
+	if (helper->number_screenshots < len) {
 		appdata_add_problem (&problems,
 				     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
 				     "Not enough <screenshot> tags");
+	}
+	len = g_key_file_get_integer (helper->config,
+				      APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+				      "NumberScreenshotsMax", NULL);
+	if (helper->number_screenshots > len) {
+		appdata_add_problem (&problems,
+				     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
+				     "Too many <screenshot> tags");
 	}
 	if (helper->summary != NULL && helper->name != NULL &&
 	    strlen (helper->summary) < strlen (helper->name)) {

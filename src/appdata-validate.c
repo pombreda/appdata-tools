@@ -38,7 +38,7 @@
  * appdata_validate_and_show_results:
  **/
 static gint
-appdata_validate_and_show_results (const gchar *filename, AppdataCheck check)
+appdata_validate_and_show_results (GKeyFile *config, const gchar *filename)
 {
 	AppdataProblem *problem;
 	const gchar *tmp;
@@ -48,7 +48,7 @@ appdata_validate_and_show_results (const gchar *filename, AppdataCheck check)
 	guint i;
 
 	/* scan file for problems */
-	problems = appdata_check_file_for_problems (filename, check);
+	problems = appdata_check_file_for_problems (config, filename);
 	if (problems == NULL) {
 		retval = EXIT_CODE_SUCCESS;
 		/* TRANSLATORS: the file is valid */
@@ -115,14 +115,15 @@ appdata_validate_log_handler_cb (const gchar *log_domain, GLogLevelFlags log_lev
 int
 main (int argc, char *argv[])
 {
-	AppdataCheck check = APPDATA_CHECK_DEFAULT;
 	gboolean relax = FALSE;
 	gboolean ret;
 	gboolean verbose = FALSE;
 	gboolean version = FALSE;
+	gchar *config_dump = NULL;
 	GError *error = NULL;
 	gint retval = EXIT_CODE_SUCCESS;
 	gint retval_tmp;
+	GKeyFile *config = NULL;
 	GOptionContext *context;
 	guint i;
 	const GOptionEntry options[] = {
@@ -186,17 +187,84 @@ main (int argc, char *argv[])
 		goto out;
 	}
 
-	/* relax some checks */
-	if (relax || g_getenv ("RELAX") != NULL)
-		check += APPDATA_CHECK_ALLOW_MISSING_CONTACTDETAILS;
+	/* set some config values */
+	config = g_key_file_new ();
+	if (relax || g_getenv ("RELAX") != NULL) {
+		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+					"LengthUpdatecontactMin", 6);
+		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+					"LengthNameMin", 4);
+		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+					"LengthNameMax", 100);
+		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+					"LengthSummaryMin", 8);
+		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+					"LengthSummaryMax", 200);
+		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+					"LengthParaMin", 10);
+		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+					"LengthParaMax", 1000);
+		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+					"LengthListItemMin", 4);
+		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+					"LengthListItemMax", 1000);
+		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+					"NumberParaMin", 1);
+		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+					"NumberParaMax", 10);
+		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+					"NumberScreenshotsMin", 0);
+		g_key_file_set_boolean (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+					"RequireContactdetails", FALSE);
+		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+					"NumberScreenshotsMax", 10);
+		g_key_file_set_boolean (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+					"RequireUrl", FALSE);
+	} else {
+		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+					"LengthUpdatecontactMin", 6);
+		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+					"LengthNameMin", 4);
+		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+					"LengthNameMax", 30);
+		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+					"LengthSummaryMin", 8);
+		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+					"LengthSummaryMax", 100);
+		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+					"LengthParaMin", 50);
+		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+					"LengthParaMax", 600);
+		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+					"LengthListItemMin", 20);
+		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+					"LengthListItemMax", 100);
+		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+					"NumberParaMin", 2);
+		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+					"NumberParaMax", 4);
+		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+					"NumberScreenshotsMin", 1);
+		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+					"NumberScreenshotsMax", 5);
+		g_key_file_set_boolean (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+					"RequireContactdetails", TRUE);
+		g_key_file_set_boolean (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+					"RequireUrl", TRUE);
+	}
+	config_dump = g_key_file_to_data (config, NULL, &error);
+	g_debug ("%s", config_dump);
 
 	/* validate each file */
 	for (i = 1; i < argc; i++) {
-		retval_tmp = appdata_validate_and_show_results (argv[i], check);
+		retval_tmp = appdata_validate_and_show_results (config, argv[i]);
 		if (retval_tmp != EXIT_CODE_SUCCESS)
 			retval = retval_tmp;
 	}
 out:
+	if (config != NULL)
+		g_key_file_free (config);
+	g_free (config_dump);
 	g_option_context_free (context);
 	return retval;
 }

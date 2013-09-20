@@ -147,6 +147,7 @@ typedef struct {
 	guint		 number_paragraphs;
 	guint		 number_screenshots;
 	gboolean	 tag_translated;
+	gboolean	 previous_para_was_short;
 } AppdataHelper;
 
 /**
@@ -262,6 +263,14 @@ appdata_start_element_fn (GMarkupParseContext *context,
 		switch (new) {
 		case APPDATA_SECTION_DESCRIPTION_PARA:
 			helper->section = new;
+
+			/* previous paragraph wasn't long enough */
+			if (helper->previous_para_was_short) {
+				appdata_add_problem (helper->problems,
+						     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
+						     "<p> is too short [p]");
+			}
+			helper->previous_para_was_short = FALSE;
 			break;
 		case APPDATA_SECTION_DESCRIPTION_UL:
 			/* ul without a leading para */
@@ -270,6 +279,9 @@ appdata_start_element_fn (GMarkupParseContext *context,
 						     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
 						     "<ul> cannot start a description");
 			}
+			/* we allow the previous paragraph to be short to
+			 * introduce the list */
+			helper->previous_para_was_short = FALSE;
 			helper->section = new;
 			break;
 		default:
@@ -387,6 +399,14 @@ appdata_end_element_fn (GMarkupParseContext *context,
 	/* </description> */
 	if (helper->section == APPDATA_SECTION_DESCRIPTION &&
 	    new == APPDATA_SECTION_DESCRIPTION) {
+
+		/* previous paragraph wasn't long enough */
+		if (helper->previous_para_was_short) {
+			appdata_add_problem (helper->problems,
+					     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
+					     "<p> is too short");
+		}
+
 		/* valid */
 		helper->section = APPDATA_SECTION_APPLICATION;
 		return;
@@ -552,9 +572,9 @@ appdata_text_fn (GMarkupParseContext *context,
 	case APPDATA_SECTION_DESCRIPTION_PARA:
 		temp = g_strstrip (g_strndup (text, text_len));
 		if (strlen (temp) < 50) {
-			appdata_add_problem (helper->problems,
-					     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
-					     "<p> is too short");
+			/* we don't add the problem now, as we allow a short
+			 * paragraph as an introduction to a list */
+			helper->previous_para_was_short = TRUE;
 		}
 		if (g_str_has_prefix (temp, "This application")) {
 			appdata_add_problem (helper->problems,

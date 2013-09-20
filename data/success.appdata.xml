@@ -14,6 +14,10 @@
       problems with your laptop battery, or are trying to work out what programs
       are using significant amounts of power.
     </p>
+    <!-- NOTE: this paragraph can be short as it introduces the list -->
+    <p>
+      Features supported by the application:
+    </p>
     <ul>
      <li>This is a feature in a bullet point</li>
      <li>This is another feature in a bullet point</li>

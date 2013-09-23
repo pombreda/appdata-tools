@@ -53,7 +53,7 @@ appdata_validate_and_show_results (GKeyFile *config, const gchar *filename)
 		retval = EXIT_CODE_SUCCESS;
 		/* TRANSLATORS: the file is valid */
 		g_print (_("%s validated OK."), filename);
-		g_print ("\n", filename, _("File validated."));
+		g_print ("\n");
 		goto out;
 	}
 

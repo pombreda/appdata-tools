@@ -178,7 +178,7 @@ appdata_broken_func (void)
 	g_assert (ensure_failure (list, "<updatecontact> is too short"));
 	g_assert (ensure_failure (list, "<url> does not start with 'http://'"));
 	g_assert (ensure_failure (list, "<licence> is not valid"));
-	g_assert (ensure_failure (list, "<id> does not end in 'desktop'"));
+	g_assert (ensure_failure (list, "<id> does not have correct extension for kind"));
 	g_assert (ensure_failure (list, "<id> has invalid type attribute"));
 	g_assert (ensure_failure (list, "<p> is too short"));
 	g_assert (ensure_failure (list, "Not enough <p> tags for a good description"));

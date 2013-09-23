@@ -135,9 +135,18 @@ appdata_add_problem (GList **problems, AppdataProblemKind kind, const gchar *str
 	*problems = g_list_prepend (*problems, problem);
 }
 
+typedef enum {
+	APPDATA_KIND_UNKNOWN,
+	APPDATA_KIND_DESKTOP,
+	APPDATA_KIND_FONT,
+	APPDATA_KIND_INPUTMETHOD,
+	APPDATA_KIND_LAST
+} AppdataKind;
+
 typedef struct {
 	AppdataSection	 section;
 	gchar		*id;
+	AppdataKind	 kind;
 	gchar		*name;
 	gchar		*summary;
 	gchar		*licence;
@@ -150,6 +159,21 @@ typedef struct {
 	gboolean	 previous_para_was_short;
 	GKeyFile	*config;
 } AppdataHelper;
+
+/**
+ * appdata_id_type_from_string:
+ */
+static gboolean
+appdata_id_type_from_string (const gchar *id_type)
+{
+	if (g_strcmp0 (id_type, "desktop") == 0)
+		return APPDATA_KIND_DESKTOP;
+	if (g_strcmp0 (id_type, "font") == 0)
+		return APPDATA_KIND_FONT;
+	if (g_strcmp0 (id_type, "inputmethod") == 0)
+		return APPDATA_KIND_INPUTMETHOD;
+	return APPDATA_KIND_UNKNOWN;
+}
 
 /**
  * appdata_start_element_fn:
@@ -210,14 +234,17 @@ appdata_start_element_fn (GMarkupParseContext *context,
 				}
 			}
 			if (tmp == NULL) {
+				helper->kind = APPDATA_KIND_DESKTOP;
 				appdata_add_problem (helper->problems,
 						     APPDATA_PROBLEM_KIND_ATTRIBUTE_MISSING,
 						     "no type attribute in <id>");
-			}
-			if (g_strcmp0 (tmp, "desktop") != 0) {
-				appdata_add_problem (helper->problems,
-						     APPDATA_PROBLEM_KIND_ATTRIBUTE_INVALID,
-						     "<id> has invalid type attribute");
+			} else {
+				helper->kind = appdata_id_type_from_string (tmp);
+				if (helper->kind == APPDATA_KIND_UNKNOWN) {
+					appdata_add_problem (helper->problems,
+							     APPDATA_PROBLEM_KIND_ATTRIBUTE_INVALID,
+							     "<id> has invalid type attribute");
+				}
 			}
 			helper->section = new;
 			break;
@@ -468,6 +495,23 @@ appdata_end_element_fn (GMarkupParseContext *context,
 }
 
 /**
+ * appdata_check_id_for_kind:
+ */
+static gboolean
+appdata_check_id_for_kind (const gchar *id, AppdataKind kind)
+{
+	if (kind == APPDATA_KIND_DESKTOP)
+		return g_str_has_suffix (id, ".desktop");
+	if (kind == APPDATA_KIND_FONT)
+		return g_str_has_suffix (id, ".ttf") ||
+			g_str_has_suffix (id, ".odf");
+	if (kind == APPDATA_KIND_INPUTMETHOD)
+		return g_str_has_suffix (id, ".xml") ||
+			g_str_has_suffix (id, ".db");
+	return FALSE;
+}
+
+/**
  * appdata_text_fn:
  */
 static void
@@ -481,6 +525,7 @@ appdata_text_fn (GMarkupParseContext *context,
 	gchar *temp;
 	guint len;
 	guint str_len;
+	gboolean ret;
 
 	/* ignore translations */
 	if (helper->tag_translated)
@@ -489,10 +534,11 @@ appdata_text_fn (GMarkupParseContext *context,
 	switch (helper->section) {
 	case APPDATA_SECTION_ID:
 		helper->id = g_strstrip (g_strndup (text, text_len));
-		if (!g_str_has_suffix (helper->id, ".desktop")) {
+		ret = appdata_check_id_for_kind (helper->id, helper->kind);
+		if (!ret) {
 			appdata_add_problem (helper->problems,
 					     APPDATA_PROBLEM_KIND_MARKUP_INVALID,
-					     "<id> does not end in 'desktop'");
+					     "<id> does not have correct extension for kind");
 		}
 		break;
 	case APPDATA_SECTION_LICENCE:

@@ -733,6 +733,11 @@ appdata_text_fn (GMarkupParseContext *context,
 					     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
 					     "<li> is too long");
 		}
+		if (appdata_has_fullstop_ending (temp)) {
+			appdata_add_problem (helper->problems,
+					     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
+					     "<li> cannot end in '.'");
+		}
 		g_free (temp);
 		break;
 	default:

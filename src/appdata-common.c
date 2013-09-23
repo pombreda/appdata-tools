@@ -512,6 +512,31 @@ appdata_check_id_for_kind (const gchar *id, AppdataKind kind)
 }
 
 /**
+ * appdata_has_fullstop_ending:
+ *
+ * Returns %TRUE if the string ends in a full stop, unless the string contains
+ * multiple dots. This allows names such as "0 A.D." and summaries to end
+ * with "..."
+ */
+static gboolean
+appdata_has_fullstop_ending (const gchar *tmp)
+{
+	guint cnt = 0;
+	guint i;
+	guint str_len;
+
+	for (i = 0; tmp[i] != '\0'; i++)
+		if (tmp[i] == '.')
+			cnt++;
+	if (cnt++ > 1)
+		return FALSE;
+	str_len = strlen (tmp);
+	if (str_len == 0)
+		return FALSE;
+	return tmp[str_len - 1] == '.';
+}
+
+/**
  * appdata_text_fn:
  */
 static void
@@ -618,7 +643,7 @@ appdata_text_fn (GMarkupParseContext *context,
 					     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
 					     "<name> is too long");
 		}
-		if (helper->name[str_len - 1] == '.') {
+		if (appdata_has_fullstop_ending (helper->name)) {
 			appdata_add_problem (helper->problems,
 					     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
 					     "<name> cannot end in '.'");
@@ -649,7 +674,7 @@ appdata_text_fn (GMarkupParseContext *context,
 					     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
 					     "<summary> is too long");
 		}
-		if (helper->summary[str_len - 1] == '.') {
+		if (appdata_has_fullstop_ending (helper->summary)) {
 			appdata_add_problem (helper->problems,
 					     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
 					     "<summary> cannot end in '.'");

@@ -61,6 +61,23 @@ AS_IF([test "$enable_schemas" != no], [
     ])
     enable_schemas=no
   ])
+  AM_PATH_PYTHON(,[
+    AC_MSG_CHECKING([for lxml])
+    AS_IF([eval test -d $pythondir/lxml], [
+      AC_MSG_RESULT([yes])
+    ], [
+      AC_MSG_RESULT([no])
+      AS_IF([test "$enable_schemas" = yes], [
+        AC_MSG_ERROR([lxml $pythondir is required for --enable-schemas])
+      ])
+      enable_schemas=no
+    ])
+  ], [
+    AS_IF([test "$enable_schemas" = yes], [
+      AC_MSG_ERROR([python is required for --enable-schemas])
+      enable_schemas=no
+    ])
+  ])
 ])
 AM_CONDITIONAL(ENABLE_SCHEMAS, test "$enable_schemas" != no)
 

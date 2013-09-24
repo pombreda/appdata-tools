@@ -1,10 +1,13 @@
 # RELAX NG schema for http://people.freedesktop.org/~hughsient/appdata/
 #
-# Written by Simon Kågedal Reimer 2013 <skagedal@gmail.com>
+# Written by Simon Kågedal Reimer 2013 <skagedal@gmail.com>, Peter
+# Oliver <git@mavit.org.uk>.
 # Released as Public Domain (CC0 1.0)
 #
 # appdata.rnc is the source; appdata.rng is generated with trang.
 # Don't edit appdata.rng. 
+
+namespace sch = "http://purl.oclc.org/dsdl/schematron"
 
 start = application
 
@@ -39,10 +42,38 @@ name =  element name {
   text
 }
 
+sch:pattern [
+   sch:rule [
+      context = "/application"
+      sch:assert [
+         test = "count(name[not(@xml:lang)]) < 2"
+         "Excluding translations, at most one name element is permitted."
+      ]
+      sch:assert [
+         test = "count(name) = count(name[not(@xml:lang=preceding-sibling::name/@xml:lang)])"
+         "At most one name element is permitted per language."
+      ]
+   ]
+]
+
 summary =  element summary {
   XmlLang?,
   text
 }
+
+sch:pattern [
+   sch:rule [
+      context = "/application"
+      sch:assert [
+         test = "count(summary[not(@xml:lang)]) < 2"
+         "Excluding translations, at most one summary element is permitted."
+      ]
+      sch:assert [
+         test = "count(summary) = count(summary[not(@xml:lang=preceding-sibling::summary/@xml:lang)])"
+         "At most one summary element is permitted per language."
+      ]
+   ]
+]
 
 description = 
   element description {

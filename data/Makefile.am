@@ -12,11 +12,16 @@ dist_xmlschema_DATA = 				\
 	schema-locating-rules.xml		\
 	appdata.rnc
 if ENABLE_SCHEMAS
-dist_xmlschema_DATA += appdata.rng
+dist_xmlschema_DATA += appdata.rng appdata.sch
 endif
 
 %.rng: %.rnc
 	$(TRANG) $< $@
+
+# Some validators (e.g., jing) can't handle Schematron embedded in RELAX
+# NG, so extract it for use separately:
+%.sch: %.rng
+	$(PYTHON) -c 'import sys; from lxml import isoschematron, etree; print isoschematron.extract_rng(etree.parse(sys.argv[-1]).getroot())' $< > $@
 
 XSLTPROC_FLAGS = \
 	--nonet \
@@ -57,9 +62,11 @@ clean-local:
 	rm -f manpage.*
 	rm -f *.el
 	rm -f *.rng
+	rm -f *.sch
 
 CLEANFILES =						\
 	*.rng						\
+	*.sch						\
 	appdata-rng-init.el				\
 	appdata-validate.1				\
 	manpage.*

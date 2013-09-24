@@ -10,7 +10,13 @@ xmlschemadir = $(datadir)/appdata/schema
 dist_xmlschema_DATA = 				\
 	appdata.xsd				\
 	schemas.xml				\
-	../docs/appdata.rnc
+	appdata.rnc
+if ENABLE_SCHEMAS
+dist_xmlschema_DATA += appdata.rng
+endif
+
+%.rng: %.rnc
+	$(TRANG) $< $@
 
 XSLTPROC_FLAGS = \
 	--nonet \
@@ -50,8 +56,10 @@ clean-local:
 	rm -f *.1
 	rm -f manpage.*
 	rm -f *.el
+	rm -f *.rng
 
 CLEANFILES =						\
+	*.rng						\
 	appdata-rng-init.el				\
 	appdata-validate.1				\
 	manpage.*

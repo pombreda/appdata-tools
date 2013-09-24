@@ -17,6 +17,7 @@ BuildRequires: docbook-style-xsl
 BuildRequires: glib2-devel >= 2.25.9-2
 BuildRequires: libsoup-devel
 BuildRequires: gdk-pixbuf2-devel
+BuildRequires: trang
 
 %description
 appdata-tools contains a command line program designed to validate AppData
@@ -41,6 +42,7 @@ make %{?_smp_mflags}
 %dir %{_datadir}/appdata/schema
 %{_datadir}/appdata/schema/appdata.xsd
 %{_datadir}/appdata/schema/appdata.rnc
+%{_datadir}/appdata/schema/appdata.rng
 %{_datadir}/appdata/schema/schemas.xml
 %{_emacs_sitestartdir}/appdata-rng-init.el
 

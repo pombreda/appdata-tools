@@ -1,3 +1,6 @@
+<!-- This file is used by Emacs nxml-mode to determine that it should -->
+<!-- validate AppData files with the AppData RELAX NG schema -->
+
 <!-- Copyright (C) 2013 Peter Oliver <git@mavit.org.uk> -->
 
 <!-- Licensed under the GNU General Public License Version 2 -->

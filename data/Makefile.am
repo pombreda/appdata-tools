@@ -9,7 +9,7 @@ endif
 xmlschemadir = $(datadir)/appdata/schema
 dist_xmlschema_DATA = 				\
 	appdata.xsd				\
-	schemas.xml				\
+	schema-locating-rules.xml		\
 	appdata.rnc
 if ENABLE_SCHEMAS
 dist_xmlschema_DATA += appdata.rng

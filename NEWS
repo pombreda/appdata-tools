@@ -1,3 +1,15 @@
+Version 0.1.3
+~~~~~~~~~~~~~
+Released: 2013-09-24
+
+New Features:
+ - Add a rule that <li> tags should not end with a full stop (Richard Hughes)
+ - Detect if <application> is used more that once (Richard Hughes)
+
+Bugfixes:
+ - Support AppData files of other kinds (Richard Hughes)
+ - Allow names and sumaries to end with '.' if there are multiple dots (Richard Hughes)
+
 Version 0.1.2
 ~~~~~~~~~~~~~
 Released: 2013-09-20

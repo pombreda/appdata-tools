@@ -1,0 +1,78 @@
+From 076a6cbdabae75fda4f71b757e9e7d580dc32c3a Mon Sep 17 00:00:00 2001
+From: Richard Hughes <richard@hughsie.com>
+Date: Thu, 29 Aug 2013 20:52:35 +0100
+Subject: [PATCH] Add an AppData description for gcm-viewer
+
+See http://people.freedesktop.org/~hughsient/appdata/ for more details.
+---
+ data/Makefile.am               |  6 ++++++
+ data/gcm-viewer.appdata.xml.in | 21 +++++++++++++++++++++
+ po/POTFILES.in                 |  1 +
+ 3 files changed, 28 insertions(+)
+ create mode 100644 data/gcm-viewer.appdata.xml.in
+
+diff --git a/data/Makefile.am b/data/Makefile.am
+index 68de590..dea6f4b 100644
+--- a/data/Makefile.am
++++ b/data/Makefile.am
+@@ -14,12 +14,18 @@ desktop_in_files =					\
+ 	gcm-import.desktop.in
+ desktop_DATA = $(desktop_in_files:.desktop.in=.desktop)
+ 
++@INTLTOOL_XML_NOMERGE_RULE@
++appdatadir = $(datadir)/appdata
++dist_appdata_DATA = $(appdata_in_files:.xml.in=.xml)
++appdata_in_files = gcm-viewer.appdata.xml.in
++
+ UI_FILES =						\
+ 	gcm-picker.ui					\
+ 	gcm-viewer.ui
+ 
+ EXTRA_DIST =						\
+ 	$(service_in_files)				\
++	$(appdata_in_files)				\
+ 	$(autostart_in_files)				\
+ 	$(desktop_in_files)				\
+ 	$(UI_FILES)
+diff --git a/data/gcm-viewer.appdata.xml.in b/data/gcm-viewer.appdata.xml.in
+new file mode 100644
+index 0000000..58d88f5
+--- /dev/null
++++ b/data/gcm-viewer.appdata.xml.in
+@@ -0,0 +1,21 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<application>
++  <id type="desktop">gcm-viewer.desktop</id>
++  <licence>CC0</licence>
++  <description>
++    <_p>
++      GNOME Color Profile Viewer shows installed color profiles on your system
++      and allows you to calibrate displays, printers and cameras using a
++      wizard.
++    </_p>
++    <_p>
++      This functionality is typically used by GNOME Control Center from the color
++      panel although can be used on it's own.
++    </_p>
++  </description>
++  <screenshots>
++    <screenshot type="default" width="1033" height="452">https://projects.gnome.org/gnome-color-manager/images/gcm-viewer-cie.png</screenshot>
++  </screenshots>
++  <url type="homepage">https://projects.gnome.org/gnome-color-manager/</url>
++  <updatecontact>richard_at_hughsie.com</updatecontact>
++</application>
+diff --git a/po/POTFILES.in b/po/POTFILES.in
+index 3c617c0..21474ef 100644
+--- a/po/POTFILES.in
++++ b/po/POTFILES.in
+@@ -2,6 +2,7 @@ data/gcm-calibrate.desktop.in
+ data/gcm-import.desktop.in
+ data/gcm-picker.desktop.in
+ [type: gettext/glade]data/gcm-picker.ui
++data/gcm-viewer.appdata.xml.in
+ data/gcm-viewer.desktop.in
+ [type: gettext/glade]data/gcm-viewer.ui
+ src/gcm-calibrate-argyll.c
+-- 
+1.8.3.1
+

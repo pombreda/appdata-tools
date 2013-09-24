@@ -157,6 +157,7 @@ typedef struct {
 	guint		 number_screenshots;
 	gboolean	 tag_translated;
 	gboolean	 previous_para_was_short;
+	gboolean	 seen_application;
 	GKeyFile	*config;
 } AppdataHelper;
 
@@ -213,6 +214,12 @@ appdata_start_element_fn (GMarkupParseContext *context,
 		if (new == APPDATA_SECTION_APPLICATION) {
 			/* valid */
 			helper->section = new;
+			if (helper->seen_application) {
+				appdata_add_problem (helper->problems,
+						     APPDATA_PROBLEM_KIND_MARKUP_INVALID,
+						     "<application> used more than once");
+			}
+			helper->seen_application = TRUE;
 			return;
 		}
 		g_set_error (error, 1, 0,

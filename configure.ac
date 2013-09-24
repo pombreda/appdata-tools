@@ -1,6 +1,6 @@
 AC_PREREQ(2.63)
 
-AC_INIT([appdata-tools],[0.1.3])
+AC_INIT([appdata-tools],[0.1.4])
 AC_CONFIG_SRCDIR(src)
 AM_INIT_AUTOMAKE([1.9 no-dist-gzip dist-xz tar-ustar])
 AC_CONFIG_HEADERS([config.h])

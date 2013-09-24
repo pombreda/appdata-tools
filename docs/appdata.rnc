@@ -12,8 +12,8 @@ application =
   element application { 
     id 
     & licence 
-    & name? 
-    & summary? 
+    & name* 
+    & summary* 
     & description 
     & screenshots? 
     & url* 

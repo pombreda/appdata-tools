@@ -777,12 +777,7 @@ appdata_check_file_for_problems (GKeyFile *config,
 
 	g_return_val_if_fail (filename != NULL, NULL);
 
-	/* check file has the correct ending */
-	if (!g_str_has_suffix (filename, ".appdata.xml")) {
-		appdata_add_problem (&problems,
-				     APPDATA_PROBLEM_KIND_FILENAME_INVALID,
-				     "incorrect extension, expected '.appdata.xml'");
-	}
+	/* open file */
 	ret = g_file_get_contents (filename, &data, &data_len, &error);
 	if (!ret) {
 		appdata_add_problem (&problems,
@@ -790,6 +785,13 @@ appdata_check_file_for_problems (GKeyFile *config,
 				     error->message);
 		g_error_free (error);
 		goto out;
+	}
+
+	/* check file has the correct ending */
+	if (!g_str_has_suffix (filename, ".appdata.xml")) {
+		appdata_add_problem (&problems,
+				     APPDATA_PROBLEM_KIND_FILENAME_INVALID,
+				     "incorrect extension, expected '.appdata.xml'");
 	}
 
 	/* parse */

@@ -164,6 +164,9 @@ typedef struct {
 	gboolean	 tag_translated;
 	gboolean	 previous_para_was_short;
 	gboolean	 seen_application;
+	guint		 translations_name;
+	guint		 translations_summary;
+	guint		 translations_description;
 	GKeyFile	*config;
 } AppdataHelper;
 
@@ -211,6 +214,12 @@ appdata_start_element_fn (GMarkupParseContext *context,
 						     "xml:lang should never be 'C'");
 			}
 			helper->tag_translated = TRUE;
+			if (new == APPDATA_SECTION_NAME)
+				helper->translations_name++;
+			else if (new == APPDATA_SECTION_SUMMARY)
+				helper->translations_summary++;
+			else if (new == APPDATA_SECTION_DESCRIPTION_PARA)
+				helper->translations_description++;
 			break;
 		}
 	}
@@ -895,6 +904,28 @@ appdata_check_file_for_problems (GKeyFile *config,
 		appdata_add_problem (&problems,
 				     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
 				     "<summary> is shorter than <name>");
+	}
+	ret = g_key_file_get_boolean (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+				      "RequireTranslations", NULL);
+	if (ret) {
+		if (helper->name != NULL &&
+		    helper->translations_name == 0) {
+			appdata_add_problem (&problems,
+					     APPDATA_PROBLEM_KIND_TRANSLATIONS_REQUIRED,
+					     "<name> has no translations");
+		}
+		if (helper->summary != NULL &&
+		    helper->translations_summary == 0) {
+			appdata_add_problem (&problems,
+					     APPDATA_PROBLEM_KIND_TRANSLATIONS_REQUIRED,
+					     "<summary> has no translations");
+		}
+		if (helper->number_paragraphs > 0 &&
+		    helper->translations_description == 0) {
+			appdata_add_problem (&problems,
+					     APPDATA_PROBLEM_KIND_TRANSLATIONS_REQUIRED,
+					     "<description> has no translations");
+		}
 	}
 out:
 	if (helper != NULL) {

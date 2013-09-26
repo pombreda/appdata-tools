@@ -117,6 +117,7 @@ main (int argc, char *argv[])
 {
 	gboolean relax = FALSE;
 	gboolean ret;
+	gboolean strict = FALSE;
 	gboolean verbose = FALSE;
 	gboolean version = FALSE;
 	gchar *config_dump = NULL;
@@ -130,6 +131,9 @@ main (int argc, char *argv[])
 		{ "relax", 'r', 0, G_OPTION_ARG_NONE, &relax,
 			/* TRANSLATORS: this is the --relax argument */
 			_("Be less strict when checking files"), NULL },
+		{ "strict", 's', 0, G_OPTION_ARG_NONE, &strict,
+			/* TRANSLATORS: this is the --relax argument */
+			_("Be more strict when checking files"), NULL },
 		{ "verbose", 'v', 0, G_OPTION_ARG_NONE, &verbose,
 			/* TRANSLATORS: this is the --verbose argument */
 			_("Show extra debugging information"), NULL },
@@ -251,6 +255,10 @@ main (int argc, char *argv[])
 					"RequireContactdetails", TRUE);
 		g_key_file_set_boolean (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
 					"RequireUrl", TRUE);
+	}
+	if (strict) {
+		g_key_file_set_boolean (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+					"RequireTranslations", TRUE);
 	}
 	config_dump = g_key_file_to_data (config, NULL, &error);
 	g_debug ("%s", config_dump);

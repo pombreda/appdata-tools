@@ -209,10 +209,14 @@ appdata_translated_func (void)
 	GKeyFile *config;
 
 	config = get_config ();
+	g_key_file_set_boolean (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+				"RequireTranslations", TRUE);
 	filename = appdata_test_get_data_file ("translated.appdata.xml");
 	list = appdata_check_file_for_problems (config, filename);
 	g_assert (ensure_failure (list, "Not enough <p> tags for a good description"));
 	g_assert (!ensure_failure (list, "<name> is duplicated"));
+	g_assert (!ensure_failure (list, "<name> has no translations"));
+	g_assert (!ensure_failure (list, "<description> has no translations"));
 	g_assert_cmpint (g_list_length (list), >, 0);
 
 	g_list_free_full (list, (GDestroyNotify) appdata_problem_free);

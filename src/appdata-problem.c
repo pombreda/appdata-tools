@@ -85,6 +85,10 @@ appdata_problem_kind_to_string (AppdataProblemKind kind)
 		/* TRANSLATORS: the file was not readable */
 		return _("failed to open");
 	}
+	if (kind == APPDATA_PROBLEM_KIND_TRANSLATIONS_REQUIRED) {
+		/* TRANSLATORS: there were no translations in the file */
+		return _("translations required");
+	}
 
 	/* TRANSLATORS: if we get here, we have problems */
 	return _("unknown error");

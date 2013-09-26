@@ -38,6 +38,7 @@ typedef enum {
 	APPDATA_SECTION_SCREENSHOTS,
 	APPDATA_SECTION_SUMMARY,
 	APPDATA_SECTION_UPDATECONTACT,
+	APPDATA_SECTION_PROJECT_GROUP,
 	APPDATA_SECTION_URL,
 	APPDATA_SECTION_LAST
 } AppdataSection;
@@ -74,6 +75,8 @@ appdata_selection_from_string (const gchar *element_name)
 		return APPDATA_SECTION_DESCRIPTION_UL_LI;
 	if (g_strcmp0 (element_name, "updatecontact") == 0)
 		return APPDATA_SECTION_UPDATECONTACT;
+	if (g_strcmp0 (element_name, "project_group") == 0)
+		return APPDATA_SECTION_PROJECT_GROUP;
 	return APPDATA_SECTION_UNKNOWN;
 }
 
@@ -109,6 +112,8 @@ appdata_selection_to_string (AppdataSection section)
 		return "li";
 	if (section == APPDATA_SECTION_UPDATECONTACT)
 		return "updatecontact";
+	if (section == APPDATA_SECTION_PROJECT_GROUP)
+		return "project_group";
 	return NULL;
 }
 
@@ -151,6 +156,7 @@ typedef struct {
 	gchar		*summary;
 	gchar		*licence;
 	gchar		*updatecontact;
+	gchar		*project_group;
 	gchar		*url;
 	GList		**problems;
 	guint		 number_paragraphs;
@@ -281,6 +287,7 @@ appdata_start_element_fn (GMarkupParseContext *context,
 		case APPDATA_SECTION_DESCRIPTION:
 		case APPDATA_SECTION_SCREENSHOTS:
 		case APPDATA_SECTION_UPDATECONTACT:
+		case APPDATA_SECTION_PROJECT_GROUP:
 			/* valid */
 			helper->section = new;
 			break;
@@ -495,6 +502,14 @@ appdata_end_element_fn (GMarkupParseContext *context,
 		return;
 	}
 
+	/* </project_group> */
+	if (helper->section == APPDATA_SECTION_PROJECT_GROUP &&
+	    new == APPDATA_SECTION_PROJECT_GROUP) {
+		/* valid */
+		helper->section = APPDATA_SECTION_APPLICATION;
+		return;
+	}
+
 	g_set_error (error, 1, 0,
 		     "end tag <%s> not allowed from section <%s>",
 		     element_name,
@@ -624,6 +639,15 @@ appdata_text_fn (GMarkupParseContext *context,
 					     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
 					     "<updatecontact> is too short");
 		}
+		break;
+	case APPDATA_SECTION_PROJECT_GROUP:
+		if (helper->project_group != NULL) {
+			g_free (helper->project_group);
+			appdata_add_problem (helper->problems,
+					     APPDATA_PROBLEM_KIND_TAG_DUPLICATED,
+					     "<project_group> is duplicated");
+		}
+		helper->project_group = g_strstrip (g_strndup (text, text_len));
 		break;
 	case APPDATA_SECTION_NAME:
 		if (helper->name != NULL) {
@@ -880,6 +904,7 @@ out:
 		g_free (helper->name);
 		g_free (helper->summary);
 		g_free (helper->updatecontact);
+		g_free (helper->project_group);
 	}
 	g_free (helper);
 	g_free (data);

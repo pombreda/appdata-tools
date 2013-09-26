@@ -69,6 +69,7 @@ The file should contain something like this:
  &lt;/screenshots&gt;
  &lt;url type="homepage"&gt;http://www.gnome.org/projects/en_US/gnome-power-manager&lt;/url&gt;
  &lt;updatecontact&gt;gnome-power-manager-list@gnome.org&lt;/updatecontact&gt;
+ &lt;project_group&gt;GNOME&lt;/project_group&gt;
 &lt;/application&gt;
 </pre>
 
@@ -168,6 +169,20 @@ deluge of email.
 <p>
 <b>TIP:</b>Use <code>_at_</code> rather than <code>@</code> if you're worried
 about the email address being harvested by spammers.
+</p>
+
+<a name="project_group"/><h2><code>&lt;project_group/&gt</code></h2>
+<p>
+If you include the <code>&lt;project_group&gt;</code> tag then this identifies
+your project with a specific upstream umbrella project.
+Known values include <code>GNOME</code>, <code>KDE</code>, <code>XFCE</code>,
+<code>MATE</code> and <code>LXDE</code>, although other umbrella projects like
+<code>Yorba</code> would make sense too.
+</p>
+<p>
+<b>NOTE:</b>You should only identify with an umbrella project if you use all
+their infrastructure and policies, for instance string freezes dates, bugtracker
+and source control instance.
 </p>
 
 <h1>Questions:</h1>

@@ -197,7 +197,7 @@ main (int argc, char *argv[])
 		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
 					"LengthUpdatecontactMin", 6);
 		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-					"LengthNameMin", 4);
+					"LengthNameMin", 3);
 		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
 					"LengthNameMax", 100);
 		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
@@ -228,7 +228,7 @@ main (int argc, char *argv[])
 		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
 					"LengthUpdatecontactMin", 6);
 		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-					"LengthNameMin", 4);
+					"LengthNameMin", 3);
 		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
 					"LengthNameMax", 30);
 		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,

@@ -202,6 +202,27 @@ appdata_broken_func (void)
 }
 
 static void
+appdata_screenshots_func (void)
+{
+	gchar *filename;
+	GList *list;
+	GKeyFile *config;
+
+	config = get_config ();
+	filename = appdata_test_get_data_file ("screenshots.appdata.xml");
+	list = appdata_check_file_for_problems (config, filename);
+	g_assert (ensure_failure (list, "<screenshot> has no content"));
+	g_assert (ensure_failure (list, "<screenshot> has unknown type"));
+	g_assert (ensure_failure (list, "<screenshot> has duplicated data"));
+	g_assert (ensure_failure (list, "<screenshot> has more than one default"));
+	g_assert_cmpint (g_list_length (list), >, 0);
+
+	g_list_free_full (list, (GDestroyNotify) appdata_problem_free);
+	g_free (filename);
+	g_key_file_free (config);
+}
+
+static void
 appdata_translated_func (void)
 {
 	gchar *filename;
@@ -238,6 +259,7 @@ main (int argc, char **argv)
 	g_test_add_func ("/appdata/success", appdata_success_func);
 	g_test_add_func ("/appdata/wrong-extension", appdata_wrong_extension_func);
 	g_test_add_func ("/appdata/broken", appdata_broken_func);
+	g_test_add_func ("/appdata/screenshots", appdata_screenshots_func);
 	g_test_add_func ("/appdata/translated", appdata_translated_func);
 
 	/* go go go! */

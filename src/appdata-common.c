@@ -160,7 +160,6 @@ typedef struct {
 	gchar		*url;
 	GList		**problems;
 	guint		 number_paragraphs;
-	guint		 number_screenshots;
 	gboolean	 tag_translated;
 	gboolean	 previous_para_was_short;
 	gboolean	 seen_application;
@@ -168,6 +167,8 @@ typedef struct {
 	guint		 translations_summary;
 	guint		 translations_description;
 	GKeyFile	*config;
+	GPtrArray	*screenshots;
+	gboolean	 has_default_screenshot;
 } AppdataHelper;
 
 /**
@@ -363,8 +364,26 @@ appdata_start_element_fn (GMarkupParseContext *context,
 	/* unknown -> application */
 	if (helper->section == APPDATA_SECTION_SCREENSHOTS) {
 		if (new == APPDATA_SECTION_SCREENSHOT) {
-			/* valid */
-			helper->number_screenshots++;
+			tmp = NULL;
+			for (i = 0; attribute_names[i] != NULL; i++) {
+				if (g_strcmp0 (attribute_names[i], "type") == 0) {
+					tmp = attribute_values[i];
+					break;
+				}
+			}
+			if (tmp != NULL && g_strcmp0 (tmp, "default") != 0) {
+				appdata_add_problem (helper->problems,
+						     APPDATA_PROBLEM_KIND_ATTRIBUTE_INVALID,
+						     "<screenshot> has unknown type");
+			}
+			if (g_strcmp0 (tmp, "default") == 0) {
+				if (helper->has_default_screenshot) {
+					appdata_add_problem (helper->problems,
+							     APPDATA_PROBLEM_KIND_MARKUP_INVALID,
+							     "<screenshot> has more than one default");
+				}
+				helper->has_default_screenshot = TRUE;
+			}
 			helper->section = new;
 			return;
 		}
@@ -565,6 +584,23 @@ appdata_has_fullstop_ending (const gchar *tmp)
 	if (str_len == 0)
 		return FALSE;
 	return tmp[str_len - 1] == '.';
+}
+
+/**
+ * appdata_screenshot_already_exists:
+ */
+static gboolean
+appdata_screenshot_already_exists (AppdataHelper *helper, const gchar *search)
+{
+	const gchar *tmp;
+	guint i;
+
+	for (i = 0; i < helper->screenshots->len; i++) {
+		tmp = g_ptr_array_index (helper->screenshots, i);
+		if (g_strcmp0 (tmp, search) == 0)
+			return TRUE;
+	}
+	return FALSE;
 }
 
 /**
@@ -780,6 +816,23 @@ appdata_text_fn (GMarkupParseContext *context,
 		}
 		g_free (temp);
 		break;
+	case APPDATA_SECTION_SCREENSHOT:
+		temp = g_strstrip (g_strndup (text, text_len));
+		if (strlen (temp) == 0) {
+			appdata_add_problem (helper->problems,
+					     APPDATA_PROBLEM_KIND_VALUE_MISSING,
+					     "<screenshot> has no content");
+		}
+		ret = appdata_screenshot_already_exists (helper, temp);
+		if (ret) {
+			appdata_add_problem (helper->problems,
+					     APPDATA_PROBLEM_KIND_DUPLICATE_DATA,
+					     "<screenshot> has duplicated data");
+		} else {
+			g_ptr_array_add (helper->screenshots, g_strdup (temp));
+		}
+		g_free (temp);
+		break;
 	default:
 		/* ignore */
 		break;
@@ -832,6 +885,7 @@ appdata_check_file_for_problems (GKeyFile *config,
 	helper->problems = &problems;
 	helper->section = APPDATA_SECTION_UNKNOWN;
 	helper->config = config;
+	helper->screenshots = g_ptr_array_new_with_free_func (g_free);
 	context = g_markup_parse_context_new (&parser, 0, helper, NULL);
 	ret = g_markup_parse_context_parse (context, data, data_len, &error);
 	if (!ret) {
@@ -886,7 +940,7 @@ appdata_check_file_for_problems (GKeyFile *config,
 	len = g_key_file_get_integer (helper->config,
 				      APPDATA_TOOLS_VALIDATE_GROUP_NAME,
 				      "NumberScreenshotsMin", NULL);
-	if (helper->number_screenshots < len) {
+	if (helper->screenshots->len < len) {
 		appdata_add_problem (&problems,
 				     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
 				     "Not enough <screenshot> tags");
@@ -894,10 +948,15 @@ appdata_check_file_for_problems (GKeyFile *config,
 	len = g_key_file_get_integer (helper->config,
 				      APPDATA_TOOLS_VALIDATE_GROUP_NAME,
 				      "NumberScreenshotsMax", NULL);
-	if (helper->number_screenshots > len) {
+	if (helper->screenshots->len > len) {
 		appdata_add_problem (&problems,
 				     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
 				     "Too many <screenshot> tags");
+	}
+	if (helper->screenshots->len > 0 && !helper->has_default_screenshot) {
+		appdata_add_problem (helper->problems,
+				     APPDATA_PROBLEM_KIND_MARKUP_INVALID,
+				     "<screenshots> has no default <screenshot>");
 	}
 	if (helper->summary != NULL && helper->name != NULL &&
 	    strlen (helper->summary) < strlen (helper->name)) {
@@ -936,6 +995,7 @@ out:
 		g_free (helper->summary);
 		g_free (helper->updatecontact);
 		g_free (helper->project_group);
+		g_ptr_array_unref (helper->screenshots);
 	}
 	g_free (helper);
 	g_free (data);

@@ -89,6 +89,14 @@ appdata_problem_kind_to_string (AppdataProblemKind kind)
 		/* TRANSLATORS: there were no translations in the file */
 		return _("translations required");
 	}
+	if (kind == APPDATA_PROBLEM_KIND_DUPLICATE_DATA) {
+		/* TRANSLATORS: there was duplicate data in the file */
+		return _("duplicate data");
+	}
+	if (kind == APPDATA_PROBLEM_KIND_VALUE_MISSING) {
+		/* TRANSLATORS: there was no data specified in the tag */
+		return _("value missing");
+	}
 
 	/* TRANSLATORS: if we get here, we have problems */
 	return _("unknown error");

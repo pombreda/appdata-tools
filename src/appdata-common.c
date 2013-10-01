@@ -170,6 +170,7 @@ typedef struct {
 	GPtrArray	*screenshots;
 	gboolean	 has_default_screenshot;
 	gboolean	 has_xml_header;
+	gboolean	 has_copyright_info;
 } AppdataHelper;
 
 /**
@@ -908,6 +909,11 @@ appdata_passthrough_fn (GMarkupParseContext *context,
 	temp = g_strndup (passthrough_text, text_len);
 	if (g_strcmp0 (temp, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>") == 0)
 		helper->has_xml_header = TRUE;
+
+	/* check for copyright */
+	if (g_str_has_prefix (g_strstrip (temp), "<!-- Copyright"))
+		helper->has_copyright_info = TRUE;
+
 	g_free (temp);
 }
 
@@ -978,6 +984,13 @@ appdata_check_file_for_problems (GKeyFile *config,
 		appdata_add_problem (helper->problems,
 				     APPDATA_PROBLEM_KIND_MARKUP_INVALID,
 				     "<?xml> header not found");
+	}
+	ret = g_key_file_get_boolean (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+				      "RequireCopyright", NULL);
+	if (ret && !helper->has_copyright_info) {
+		appdata_add_problem (&problems,
+				     APPDATA_PROBLEM_KIND_VALUE_MISSING,
+				     "<!-- Copyright [year] [name] --> is not present");
 	}
 	ret = g_key_file_get_boolean (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
 				      "RequireContactdetails", NULL);

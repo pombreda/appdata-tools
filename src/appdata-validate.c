@@ -230,6 +230,8 @@ main (int argc, char *argv[])
 					"RequireUrl", FALSE);
 		g_key_file_set_boolean (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
 					"HasNetworkAccess", FALSE);
+		g_key_file_set_boolean (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+					"RequireCopyright", FALSE);
 	} else {
 		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
 					"LengthUpdatecontactMin", 6);
@@ -263,10 +265,14 @@ main (int argc, char *argv[])
 					"RequireUrl", TRUE);
 		g_key_file_set_boolean (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
 					"HasNetworkAccess", TRUE);
+		g_key_file_set_boolean (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+					"RequireCopyright", FALSE);
 	}
 	if (strict) {
 		g_key_file_set_boolean (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
 					"RequireTranslations", TRUE);
+		g_key_file_set_boolean (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+					"RequireCopyright", TRUE);
 	}
 	if (nonet) {
 		g_key_file_set_boolean (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,

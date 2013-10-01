@@ -124,6 +124,8 @@ get_config (void)
 				"RequireUrl", TRUE);
 	g_key_file_set_boolean (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
 				"HasNetworkAccess", TRUE);
+	g_key_file_set_boolean (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+				"RequireCopyright", TRUE);
 	return config;
 }
 
@@ -197,6 +199,7 @@ appdata_broken_func (void)
 	g_assert (ensure_failure (list, "<li> cannot end in '.'"));
 	g_assert (ensure_failure (list, "<application> used more than once"));
 	g_assert (ensure_failure (list, "<?xml> header not found"));
+	g_assert (ensure_failure (list, "<!-- Copyright [year] [name] --> is not present"));
 	g_assert_cmpint (g_list_length (list), >, 0);
 
 	g_list_free_full (list, (GDestroyNotify) appdata_problem_free);

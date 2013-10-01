@@ -122,6 +122,8 @@ get_config (void)
 				"RequireContactdetails", TRUE);
 	g_key_file_set_boolean (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
 				"RequireUrl", TRUE);
+	g_key_file_set_boolean (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+				"HasNetworkAccess", TRUE);
 	return config;
 }
 
@@ -215,6 +217,7 @@ appdata_screenshots_func (void)
 	g_assert (ensure_failure (list, "<screenshot> has unknown type"));
 	g_assert (ensure_failure (list, "<screenshot> has duplicated data"));
 	g_assert (ensure_failure (list, "<screenshot> has more than one default"));
+	g_assert (ensure_failure (list, "<screenshot> url not found"));
 	g_assert_cmpint (g_list_length (list), >, 0);
 
 	g_list_free_full (list, (GDestroyNotify) appdata_problem_free);

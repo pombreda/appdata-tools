@@ -604,6 +604,49 @@ appdata_screenshot_already_exists (AppdataHelper *helper, const gchar *search)
 }
 
 /**
+ * appdata_screenshot_check_remote_url:
+ */
+static gboolean
+appdata_screenshot_check_remote_url (AppdataHelper *helper, const gchar *url)
+{
+	GError *error = NULL;
+	gboolean got_network;
+	gboolean ret = TRUE;
+	gint exit_status = 0;
+	const gchar *argv[] = { "/usr/bin/wget",
+			        "--spider",
+			        "--quiet",
+			        url,
+			        NULL };
+
+	/* have we got network access */
+	got_network = g_key_file_get_boolean (helper->config,
+					      APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+					      "HasNetworkAccess", NULL);
+	if (!got_network)
+		goto out;
+
+	/* check the file exists */
+	ret = g_spawn_sync ("/tmp",
+			    (gchar **) argv, NULL,
+			    0,
+			    NULL, NULL,
+			    NULL, NULL,
+			    &exit_status,
+			    &error);
+	if (!ret) {
+		g_warning ("Failed to run %s: %s", argv[0], error->message);
+		g_error_free (error);
+		goto out;
+	}
+
+	/* we get rc:0 for success, and rc:8 for not found */
+	ret = exit_status == 0;
+out:
+	return ret;
+}
+
+/**
  * appdata_text_fn:
  */
 static void
@@ -829,7 +872,15 @@ appdata_text_fn (GMarkupParseContext *context,
 					     APPDATA_PROBLEM_KIND_DUPLICATE_DATA,
 					     "<screenshot> has duplicated data");
 		} else {
-			g_ptr_array_add (helper->screenshots, g_strdup (temp));
+			ret = appdata_screenshot_check_remote_url (helper, temp);
+			if (!ret) {
+				appdata_add_problem (helper->problems,
+						     APPDATA_PROBLEM_KIND_URL_NOT_FOUND,
+						     "<screenshot> url not found");
+			} else {
+				g_ptr_array_add (helper->screenshots,
+						 g_strdup (temp));
+			}
 		}
 		g_free (temp);
 		break;

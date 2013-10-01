@@ -115,6 +115,7 @@ appdata_validate_log_handler_cb (const gchar *log_domain, GLogLevelFlags log_lev
 int
 main (int argc, char *argv[])
 {
+	gboolean nonet = FALSE;
 	gboolean relax = FALSE;
 	gboolean ret;
 	gboolean strict = FALSE;
@@ -134,6 +135,9 @@ main (int argc, char *argv[])
 		{ "strict", 's', 0, G_OPTION_ARG_NONE, &strict,
 			/* TRANSLATORS: this is the --relax argument */
 			_("Be more strict when checking files"), NULL },
+		{ "nonet", '\0', 0, G_OPTION_ARG_NONE, &nonet,
+			/* TRANSLATORS: this is the --nonet argument */
+			_("Do not use network access"), NULL },
 		{ "verbose", 'v', 0, G_OPTION_ARG_NONE, &verbose,
 			/* TRANSLATORS: this is the --verbose argument */
 			_("Show extra debugging information"), NULL },
@@ -224,6 +228,8 @@ main (int argc, char *argv[])
 					"NumberScreenshotsMax", 10);
 		g_key_file_set_boolean (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
 					"RequireUrl", FALSE);
+		g_key_file_set_boolean (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+					"HasNetworkAccess", FALSE);
 	} else {
 		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
 					"LengthUpdatecontactMin", 6);
@@ -255,10 +261,16 @@ main (int argc, char *argv[])
 					"RequireContactdetails", TRUE);
 		g_key_file_set_boolean (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
 					"RequireUrl", TRUE);
+		g_key_file_set_boolean (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+					"HasNetworkAccess", TRUE);
 	}
 	if (strict) {
 		g_key_file_set_boolean (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
 					"RequireTranslations", TRUE);
+	}
+	if (nonet) {
+		g_key_file_set_boolean (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+					"HasNetworkAccess", FALSE);
 	}
 	config_dump = g_key_file_to_data (config, NULL, &error);
 	g_debug ("%s", config_dump);

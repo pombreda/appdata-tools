@@ -642,8 +642,8 @@ appdata_text_fn (GMarkupParseContext *context,
 		}
 		helper->licence = g_strstrip (g_strndup (text, text_len));
 		if (g_strcmp0 (helper->licence, "CC0") != 0 &&
-		    g_strcmp0 (helper->licence, "CC BY") != 0 &&
-		    g_strcmp0 (helper->licence, "CC BY-SA") != 0)
+		    g_strcmp0 (helper->licence, "CC-BY") != 0 &&
+		    g_strcmp0 (helper->licence, "CC-BY-SA") != 0)
 			appdata_add_problem (helper->problems,
 					     APPDATA_PROBLEM_KIND_TAG_INVALID,
 					     "<licence> is not valid");

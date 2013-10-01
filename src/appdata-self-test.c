@@ -196,6 +196,7 @@ appdata_broken_func (void)
 	g_assert (ensure_failure (list, "<summary> cannot end in '.'"));
 	g_assert (ensure_failure (list, "<li> cannot end in '.'"));
 	g_assert (ensure_failure (list, "<application> used more than once"));
+	g_assert (ensure_failure (list, "<?xml> header not found"));
 	g_assert_cmpint (g_list_length (list), >, 0);
 
 	g_list_free_full (list, (GDestroyNotify) appdata_problem_free);

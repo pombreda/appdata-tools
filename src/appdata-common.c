@@ -169,6 +169,7 @@ typedef struct {
 	GKeyFile	*config;
 	GPtrArray	*screenshots;
 	gboolean	 has_default_screenshot;
+	gboolean	 has_xml_header;
 } AppdataHelper;
 
 /**
@@ -891,6 +892,26 @@ appdata_text_fn (GMarkupParseContext *context,
 }
 
 /**
+ * appdata_passthrough_fn:
+ */
+static void
+appdata_passthrough_fn (GMarkupParseContext *context,
+			const gchar *passthrough_text,
+			gsize text_len,
+			gpointer user_data,
+			GError **error)
+{
+	AppdataHelper *helper = (AppdataHelper *) user_data;
+	gchar *temp;
+
+	/* check for XML header */
+	temp = g_strndup (passthrough_text, text_len);
+	if (g_strcmp0 (temp, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>") == 0)
+		helper->has_xml_header = TRUE;
+	g_free (temp);
+}
+
+/**
  * appdata_check_file_for_problems:
  */
 GList *
@@ -909,7 +930,7 @@ appdata_check_file_for_problems (GKeyFile *config,
 		appdata_start_element_fn,
 		appdata_end_element_fn,
 		appdata_text_fn,
-		NULL,
+		appdata_passthrough_fn,
 		NULL };
 
 	g_return_val_if_fail (filename != NULL, NULL);
@@ -952,6 +973,11 @@ appdata_check_file_for_problems (GKeyFile *config,
 		appdata_add_problem (&problems,
 				     APPDATA_PROBLEM_KIND_TAG_MISSING,
 				     "<id> is not present");
+	}
+	if (!helper->has_xml_header) {
+		appdata_add_problem (helper->problems,
+				     APPDATA_PROBLEM_KIND_MARKUP_INVALID,
+				     "<?xml> header not found");
 	}
 	ret = g_key_file_get_boolean (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
 				      "RequireContactdetails", NULL);

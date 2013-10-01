@@ -29,8 +29,9 @@ new file mode 100644
 index 0000000..5f3d47c
 --- /dev/null
 +++ b/data/gnome-power-statistics.appdata.xml
-@@ -0,0 +1,21 @@
+@@ -0,0 +1,22 @@
 +<?xml version="1.0" encoding="UTF-8"?>
++<!-- Copyright 2013 First Lastname <your@email.com> -->
 +<application>
 +  <id type="desktop">gnome-power-statistics.desktop</id>
 +  <licence>CC0</licence>

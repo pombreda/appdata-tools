@@ -37,8 +37,9 @@ new file mode 100644
 index 0000000..58d88f5
 --- /dev/null
 +++ b/data/gcm-viewer.appdata.xml.in
-@@ -0,0 +1,21 @@
+@@ -0,0 +1,22 @@
 +<?xml version="1.0" encoding="UTF-8"?>
++<!-- Copyright 2013 First Lastname <your@email.com> -->
 +<application>
 +  <id type="desktop">gcm-viewer.desktop</id>
 +  <licence>CC0</licence>

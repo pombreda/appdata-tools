@@ -144,17 +144,79 @@ Do not assume the format is HTML. Only paragraph, ordered list and unordered lis
 
 <a name="screenshots"/><h2><code>&lt;screenshots/&gt</code></h2>
 <p>
-A screenshot is a really good way of <i>previewing</i> the application before
-it is installed and a really good way of increasing your userbase.
-Screenshots are only fetched by the software center when the long description
-is shown.
-Screenshots should typically be ~800px wide and should not exceed 1Mb in
-size.
-Either a lossy format '.jpg' or lossless '.png' format is permitted.
+A screenshot presents your application to the outside world, and will probably
+be seen by hundreds or thousands of people.
+Screenshots are only fetched by the software center when the long description is
+shown and are usually mirrored by the distribution to avoid increasing
+upstream project hosting costs.
 </p>
 <p>
-Only translate these if a corresponding translated screenshot exists.
+Screenshots are an incredibly important part of how users choose what
+applications to install, so it's important to get them right.
+Consistent, good looking screenshots will make your application look more
+attractive and will expand your userbase.
+Consistent screenshots also mean the software center looks cohesive, and not a
+set of random packages bolted together.
 </p>
+<p>
+The following are some guidelines for how to take screenshots of applications:
+</p>
+<ul>
+  <li>
+    Use the desktop defaults - use the default wallpaper, font and visual theme.
+    Avoid including your own tweaks or use of non-standard extensions in the
+    screenshot.
+  </li>
+  <li>
+    Aim to crop images with a 16:9 aspect ratio to avoid showing letterboxed
+    screenshots.
+  </li>
+  <li>
+    Focus on one thing in your screenshots. Lots of overlapping windows make it
+    hard for people to understand what you are showing them.
+    Demonstrate one thing in each screenshot and don't show anything else at the
+    same time.
+  </li>
+  <li>
+    Try not to show the background in the screenshots.
+    If you need a background for your window, use the default wallpaper.
+    Crop your image to exclude irrelevant detail and make sure you use an alpha
+    mask if the window has curved corners.
+    Don't assume the screenshot will be shown on a white background.
+    When using the default desktop screenshot tool, take a window screenshot,
+    and include the window borders.
+  </li>
+  <li>
+    Do not resize the screenshots below the native size.
+  </li>
+  <li>
+    Screenshots often need to feature content, such as images, documents,
+    web pages or videos.
+    Don’t show the ‘empty’ default view of your application, if you can avoid it.
+    Try and use high quality content that contains positive associations, and
+    which will have a broad appeal.
+  </li>
+  <li>
+    You must avoid content that might be considered offensive or controversial.
+  </li>
+  <li>
+    Avoid showing personal data too. Remember, this will be seen by the internet
+    at large.
+  </li>
+  <li>
+    If the screenshot is supposed to be used for an international or unknown
+    audience, try to use US English, otherwise, use the local language.
+    But if in doubt, use US English.
+  </li>
+  <li>
+    Do not take a screenshot that includes the mouse pointer.
+  </li>
+  <li>
+    Use the lossless PNG format where possible, unless showing large images
+    where a lossy format JPEG format may compress much better.
+    Other file formats are not currently supported.
+  </li>
+</ul>
 
 <a name="url"/><h2><code>&lt;url/&gt</code></h2>
 <p>

@@ -18,7 +18,7 @@ XSLTPROC_FLAGS = \
 	--stringparam man.copyright.section.enabled 0
 
 appdata-validate.1: appdata-validate.xml
-	$(AM_V_GEN) $(XSLTPROC) $(XSLTPROC_FLAGS) http://docbook.sourceforge.net/release/xsl/current/manpages/docbook.xsl $<
+	$(AM_V_GEN) xsltproc $(XSLTPROC_FLAGS) http://docbook.sourceforge.net/release/xsl/current/manpages/docbook.xsl $<
 
 EXTRA_DIST =					\
 	appdata-validate.xml			\

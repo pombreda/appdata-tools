@@ -29,19 +29,25 @@ PKG_CHECK_MODULES(SOUP, libsoup-2.4)
 PKG_CHECK_MODULES(GDKPIXBUF, gdk-pixbuf-2.0)
 
 AC_ARG_ENABLE(man,
-              [AS_HELP_STRING([--enable-man],
-                              [generate man pages [default=auto]])],,
+              [AS_HELP_STRING([--disable-man],
+                              [Disable building man page])],,
               enable_man=maybe)
-AS_IF([test "$enable_man" != no], [
-  AC_PATH_PROG([XSLTPROC], [xsltproc])
-  AS_IF([test -z "$XSLTPROC"], [
-    AS_IF([test "$enable_man" = yes], [
-      AC_MSG_ERROR([xsltproc is required for --enable-man])
-    ])
-    enable_man=no
-  ])
-])
-AM_CONDITIONAL(ENABLE_MAN, test "$enable_man" != no)
+AS_IF([test "x$enable_man" != "xno"],
+  [AC_CHECK_PROG([have_xsltproc], [xsltproc], [yes], [no])
+   JH_CHECK_XML_CATALOG([-//OASIS//DTD DocBook XML V4.3//EN],
+     [DocBook XML DTD V4.3], [have_docbookdtd=yes], [have_docbookdtd=no])
+   JH_CHECK_XML_CATALOG(
+     [http://docbook.sourceforge.net/release/xsl/current/html/refentry.xsl],
+     [DocBook XSL Stylesheets], [have_docbookxsl=yes], [have_docbookxsl=no])
+   AS_IF([test "x$have_xsltproc" = "xyes" -a "x$have_docbookdtd" = "xyes" \
+     -a "x$have_docbookxsl" = "xyes"],
+     [have_manutils=yes],
+     [AS_IF([test "x$enable_man" = "xyes"],
+       [AC_MSG_ERROR(
+         [manpage generation requested but required utilities were not found])])
+      have_manutils=no])],
+  [have_manutils=no])
+AM_CONDITIONAL([ENABLE_MAN], [test "x$have_manutils" = "xyes"])
 
 dnl ---------------------------------------------------------------------------
 dnl - Makefiles, etc.

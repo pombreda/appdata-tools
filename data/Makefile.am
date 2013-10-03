@@ -23,6 +23,7 @@ appdata-validate.1: appdata-validate.xml
 EXTRA_DIST =					\
 	appdata-validate.xml			\
 	broken.appdata.xml			\
+	screenshots.appdata.xml			\
 	success.appdata.xml			\
 	translated.appdata.xml			\
 	wrong-extension.xml

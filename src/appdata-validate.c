@@ -197,15 +197,49 @@ main (int argc, char *argv[])
 
 	/* set some config values */
 	config = g_key_file_new ();
-	if (relax || g_getenv ("RELAX") != NULL) {
-		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-					"LengthUpdatecontactMin", 6);
-		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-					"LengthNameMin", 3);
+	g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+				"LengthUpdatecontactMin", 6);
+	g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+				"LengthNameMin", 3);
+	g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+				"LengthNameMax", 30);
+	g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+				"LengthSummaryMin", 8);
+	g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+				"LengthSummaryMax", 100);
+	g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+				"LengthParaMin", 50);
+	g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+				"LengthParaMax", 600);
+	g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+				"LengthListItemMin", 20);
+	g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+				"LengthListItemMax", 100);
+	g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+				"NumberParaMin", 2);
+	g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+				"NumberParaMax", 4);
+	g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+				"NumberScreenshotsMin", 1);
+	g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+				"NumberScreenshotsMax", 5);
+	g_key_file_set_boolean (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+				"RequireContactdetails", TRUE);
+	g_key_file_set_boolean (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+				"RequireUrl", TRUE);
+	g_key_file_set_boolean (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+				"HasNetworkAccess", TRUE);
+	g_key_file_set_boolean (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+				"RequireCopyright", FALSE);
+	g_key_file_set_boolean (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+				"RequireCorrectAspectRatio", FALSE);
+	g_key_file_set_double (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+			       "DesiredAspectRatio", 1.777777777);
+
+	/* relax the requirements a bit */
+	if (relax) {
 		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
 					"LengthNameMax", 100);
-		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-					"LengthSummaryMin", 8);
 		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
 					"LengthSummaryMax", 200);
 		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
@@ -230,50 +264,19 @@ main (int argc, char *argv[])
 					"RequireUrl", FALSE);
 		g_key_file_set_boolean (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
 					"HasNetworkAccess", FALSE);
-		g_key_file_set_boolean (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-					"RequireCopyright", FALSE);
-	} else {
-		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-					"LengthUpdatecontactMin", 6);
-		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-					"LengthNameMin", 3);
-		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-					"LengthNameMax", 30);
-		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-					"LengthSummaryMin", 8);
-		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-					"LengthSummaryMax", 100);
-		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-					"LengthParaMin", 50);
-		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-					"LengthParaMax", 600);
-		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-					"LengthListItemMin", 20);
-		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-					"LengthListItemMax", 100);
-		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-					"NumberParaMin", 2);
-		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-					"NumberParaMax", 4);
-		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-					"NumberScreenshotsMin", 1);
-		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-					"NumberScreenshotsMax", 5);
-		g_key_file_set_boolean (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-					"RequireContactdetails", TRUE);
-		g_key_file_set_boolean (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-					"RequireUrl", TRUE);
-		g_key_file_set_boolean (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-					"HasNetworkAccess", TRUE);
-		g_key_file_set_boolean (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-					"RequireCopyright", FALSE);
 	}
+
+	/* make the requirements more strict */
 	if (strict) {
 		g_key_file_set_boolean (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
 					"RequireTranslations", TRUE);
 		g_key_file_set_boolean (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
 					"RequireCopyright", TRUE);
+		g_key_file_set_boolean (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+					"RequireCorrectAspectRatio", TRUE);
 	}
+
+	/* the user has forced no network mode */
 	if (nonet) {
 		g_key_file_set_boolean (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
 					"HasNetworkAccess", FALSE);

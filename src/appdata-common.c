@@ -20,6 +20,8 @@
  */
 
 #include <string.h>
+#include <libsoup/soup.h>
+#include <gdk-pixbuf/gdk-pixbuf.h>
 
 #include "appdata-common.h"
 #include "appdata-problem.h"
@@ -171,6 +173,10 @@ typedef struct {
 	gboolean	 has_default_screenshot;
 	gboolean	 has_xml_header;
 	gboolean	 has_copyright_info;
+	gboolean	 got_network;
+	SoupSession	*session;
+	guint		 screenshot_width;
+	guint		 screenshot_height;
 } AppdataHelper;
 
 /**
@@ -367,11 +373,15 @@ appdata_start_element_fn (GMarkupParseContext *context,
 	if (helper->section == APPDATA_SECTION_SCREENSHOTS) {
 		if (new == APPDATA_SECTION_SCREENSHOT) {
 			tmp = NULL;
+			helper->screenshot_width = 0;
+			helper->screenshot_height = 0;
 			for (i = 0; attribute_names[i] != NULL; i++) {
-				if (g_strcmp0 (attribute_names[i], "type") == 0) {
+				if (g_strcmp0 (attribute_names[i], "type") == 0)
 					tmp = attribute_values[i];
-					break;
-				}
+				if (g_strcmp0 (attribute_names[i], "height") == 0)
+					helper->screenshot_height = atoi (attribute_values[i]);
+				if (g_strcmp0 (attribute_names[i], "width") == 0)
+					helper->screenshot_width = atoi (attribute_values[i]);
 			}
 			if (tmp != NULL && g_strcmp0 (tmp, "default") != 0) {
 				appdata_add_problem (helper->problems,
@@ -612,39 +622,123 @@ static gboolean
 appdata_screenshot_check_remote_url (AppdataHelper *helper, const gchar *url)
 {
 	GError *error = NULL;
-	gboolean got_network;
+	GInputStream *stream = NULL;
+	GdkPixbuf *pixbuf = NULL;
+	SoupMessage *msg = NULL;
+	SoupURI *base_uri = NULL;
 	gboolean ret = TRUE;
-	gint exit_status = 0;
-	const gchar *argv[] = { "/usr/bin/wget",
-			        "--spider",
-			        "--quiet",
-			        url,
-			        NULL };
+	gboolean require_aspect;
+	gdouble desired_aspect = 1.777777778;
+	gdouble screenshot_aspect;
+	gint status_code;
+	guint screenshot_height;
+	guint screenshot_width;
 
 	/* have we got network access */
-	got_network = g_key_file_get_boolean (helper->config,
-					      APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-					      "HasNetworkAccess", NULL);
-	if (!got_network)
+	if (!helper->got_network)
 		goto out;
 
-	/* check the file exists */
-	ret = g_spawn_sync ("/tmp",
-			    (gchar **) argv, NULL,
-			    0,
-			    NULL, NULL,
-			    NULL, NULL,
-			    &exit_status,
-			    &error);
-	if (!ret) {
-		g_warning ("Failed to run %s: %s", argv[0], error->message);
-		g_error_free (error);
+	/* GET file */
+	g_debug ("checking %s", url);
+	base_uri = soup_uri_new (url);
+	if (base_uri == NULL) {
+		ret = FALSE;
+		appdata_add_problem (helper->problems,
+				     APPDATA_PROBLEM_KIND_URL_NOT_FOUND,
+				     "<screenshot> url not valid");
+		goto out;
+	}
+	msg = soup_message_new_from_uri (SOUP_METHOD_GET, base_uri);
+	if (msg == NULL) {
+		g_warning ("Failed to setup message");
 		goto out;
 	}
 
-	/* we get rc:0 for success, and rc:8 for not found */
-	ret = exit_status == 0;
+	/* send sync */
+	status_code = soup_session_send_message (helper->session, msg);
+	if (status_code != SOUP_STATUS_OK) {
+		ret = FALSE;
+		appdata_add_problem (helper->problems,
+				     APPDATA_PROBLEM_KIND_URL_NOT_FOUND,
+				     "<screenshot> url not found");
+		goto out;
+	}
+
+	/* check if it's a zero sized file */
+	if (msg->response_body->length == 0) {
+		ret = FALSE;
+		appdata_add_problem (helper->problems,
+				     APPDATA_PROBLEM_KIND_FILE_INVALID,
+				     "<screenshot> url is a zero length file");
+		goto out;
+	}
+
+	/* create a buffer with the data */
+	stream = g_memory_input_stream_new_from_data (msg->response_body->data,
+					      msg->response_body->length,
+					      NULL);
+	if (stream == NULL) {
+		ret = FALSE;
+		appdata_add_problem (helper->problems,
+				     APPDATA_PROBLEM_KIND_URL_NOT_FOUND,
+				     "<screenshot> failed to load data");
+		goto out;
+	}
+
+	/* load the image */
+	pixbuf = gdk_pixbuf_new_from_stream (stream, NULL, &error);
+	if (pixbuf == NULL) {
+		ret = FALSE;
+		appdata_add_problem (helper->problems,
+				     APPDATA_PROBLEM_KIND_FILE_INVALID,
+				     "<screenshot> failed to load image");
+		goto out;
+	}
+
+	/* check width matches */
+	screenshot_width = gdk_pixbuf_get_width (pixbuf);
+	screenshot_height = gdk_pixbuf_get_height (pixbuf);
+	if (helper->screenshot_width != 0 &&
+	    helper->screenshot_width != screenshot_width) {
+		appdata_add_problem (helper->problems,
+				     APPDATA_PROBLEM_KIND_ATTRIBUTE_INVALID,
+				     "<screenshot> width did not match specified");
+	}
+
+	/* check height matches */
+	if (helper->screenshot_height != 0 &&
+	    helper->screenshot_height != screenshot_height) {
+		appdata_add_problem (helper->problems,
+				     APPDATA_PROBLEM_KIND_ATTRIBUTE_INVALID,
+				     "<screenshot> height did not match specified");
+	}
+
+	/* check aspect ratio */
+	require_aspect = g_key_file_get_boolean (helper->config,
+						 APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+						 "RequireCorrectAspectRatio", NULL);
+	if (require_aspect) {
+		desired_aspect = g_key_file_get_double (helper->config,
+							APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+							"DesiredAspectRatio", NULL);
+		screenshot_aspect = (gdouble) screenshot_width / (gdouble) screenshot_height;
+		if (ABS (screenshot_aspect - desired_aspect) > 0.1) {
+			g_debug ("got aspect %.2f, wanted %.2f",
+				 screenshot_aspect, desired_aspect);
+			appdata_add_problem (helper->problems,
+					     APPDATA_PROBLEM_KIND_ASPECT_RATIO_INCORRECT,
+					     "<screenshot> aspect ratio was not 16:9");
+		}
+	}
 out:
+	if (base_uri != NULL)
+		soup_uri_free (base_uri);
+	if (msg != NULL)
+		g_object_unref (msg);
+	if (stream != NULL)
+		g_object_unref (stream);
+	if (pixbuf != NULL)
+		g_object_unref (pixbuf);
 	return ret;
 }
 
@@ -875,11 +969,7 @@ appdata_text_fn (GMarkupParseContext *context,
 					     "<screenshot> has duplicated data");
 		} else {
 			ret = appdata_screenshot_check_remote_url (helper, temp);
-			if (!ret) {
-				appdata_add_problem (helper->problems,
-						     APPDATA_PROBLEM_KIND_URL_NOT_FOUND,
-						     "<screenshot> url not found");
-			} else {
+			if (ret) {
 				g_ptr_array_add (helper->screenshots,
 						 g_strdup (temp));
 			}
@@ -964,6 +1054,25 @@ appdata_check_file_for_problems (GKeyFile *config,
 	helper->section = APPDATA_SECTION_UNKNOWN;
 	helper->config = config;
 	helper->screenshots = g_ptr_array_new_with_free_func (g_free);
+	helper->got_network = g_key_file_get_boolean (helper->config,
+						      APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+						      "HasNetworkAccess", NULL);
+	if (helper->got_network) {
+		helper->session = soup_session_sync_new_with_options (SOUP_SESSION_USER_AGENT,
+								      "appdata-validate",
+								      SOUP_SESSION_TIMEOUT,
+								      5000,
+								      NULL);
+		if (helper->session == NULL) {
+			g_warning ("Failed to setup networking");
+			goto out;
+		}
+	}
+
+	/* automatically use the correct proxies */
+	soup_session_add_feature_by_type (helper->session,
+					  SOUP_TYPE_PROXY_RESOLVER_DEFAULT);
+
 	context = g_markup_parse_context_new (&parser, 0, helper, NULL);
 	ret = g_markup_parse_context_parse (context, data, data_len, &error);
 	if (!ret) {
@@ -1085,6 +1194,7 @@ out:
 		g_free (helper->summary);
 		g_free (helper->updatecontact);
 		g_free (helper->project_group);
+		g_object_unref (helper->session);
 		g_ptr_array_unref (helper->screenshots);
 	}
 	g_free (helper);

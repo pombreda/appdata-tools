@@ -25,6 +25,8 @@ AM_GLIB_GNU_GETTEXT
 AC_DEFINE_UNQUOTED([GETTEXT_PACKAGE],["$GETTEXT_PACKAGE"],[gettext domain])
 
 PKG_CHECK_MODULES(GLIB, glib-2.0 >= 2.14.0 gobject-2.0 gthread-2.0)
+PKG_CHECK_MODULES(SOUP, libsoup-2.4)
+PKG_CHECK_MODULES(GDKPIXBUF, gdk-pixbuf-2.0)
 
 AC_ARG_ENABLE(man,
               [AS_HELP_STRING([--enable-man],

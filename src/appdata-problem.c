@@ -97,6 +97,14 @@ appdata_problem_kind_to_string (AppdataProblemKind kind)
 		/* TRANSLATORS: there was no data specified in the tag */
 		return _("value missing");
 	}
+	if (kind == APPDATA_PROBLEM_KIND_FILE_INVALID) {
+		/* TRANSLATORS: the file specified was invalid */
+		return _("file invalid");
+	}
+	if (kind == APPDATA_PROBLEM_KIND_ASPECT_RATIO_INCORRECT) {
+		/* TRANSLATORS: the file specified was invalid */
+		return _("aspect ratio invalid");
+	}
 
 	/* TRANSLATORS: if we get here, we have problems */
 	return _("unknown error");

@@ -1,5 +1,7 @@
 AM_CPPFLAGS =						\
 	$(GLIB_CFLAGS)					\
+	$(SOUP_CFLAGS)					\
+	$(GDKPIXBUF_CFLAGS)				\
 	-DPACKAGE_LOCALE_DIR=\"$(localedir)\"		\
 	-DG_LOG_DOMAIN=\"AppDataTools\"
 
@@ -14,6 +16,8 @@ appdata_validate_SOURCES =				\
 	appdata-validate.c
 
 appdata_validate_LDADD =				\
+	$(GDKPIXBUF_LIBS)				\
+	$(SOUP_LIBS)					\
 	$(GLIB_LIBS)
 
 appdata_validate_CFLAGS =				\
@@ -30,6 +34,8 @@ appdata_self_test_SOURCES =				\
 	appdata-self-test.c
 
 appdata_self_test_LDADD =				\
+	$(GDKPIXBUF_LIBS)				\
+	$(SOUP_LIBS)					\
 	$(GLIB_LIBS)
 
 appdata_self_test_CFLAGS = $(AM_CFLAGS) $(WARNINGFLAGS_C)

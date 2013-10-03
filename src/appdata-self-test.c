@@ -215,6 +215,11 @@ appdata_screenshots_func (void)
 	GKeyFile *config;
 
 	config = get_config ();
+	g_key_file_set_boolean (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+				"RequireCorrectAspectRatio", TRUE);
+	g_key_file_set_double (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+			       "DesiredAspectRatio", 1.777777777);
+
 	filename = appdata_test_get_data_file ("screenshots.appdata.xml");
 	list = appdata_check_file_for_problems (config, filename);
 	g_assert (ensure_failure (list, "<screenshot> has no content"));
@@ -222,6 +227,10 @@ appdata_screenshots_func (void)
 	g_assert (ensure_failure (list, "<screenshot> has duplicated data"));
 	g_assert (ensure_failure (list, "<screenshot> has more than one default"));
 	g_assert (ensure_failure (list, "<screenshot> url not found"));
+	g_assert (ensure_failure (list, "<screenshot> url not valid"));
+	g_assert (ensure_failure (list, "<screenshot> width did not match specified"));
+	g_assert (ensure_failure (list, "<screenshot> height did not match specified"));
+	g_assert (ensure_failure (list, "<screenshot> aspect ratio was not 16:9"));
 	g_assert_cmpint (g_list_length (list), >, 0);
 
 	g_list_free_full (list, (GDestroyNotify) appdata_problem_free);

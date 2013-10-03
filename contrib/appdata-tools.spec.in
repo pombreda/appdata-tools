@@ -13,8 +13,8 @@ BuildRequires: intltool
 BuildRequires: libxslt
 BuildRequires: docbook-style-xsl
 BuildRequires: glib2-devel >= 2.25.9-2
-
-Requires: wget
+BuildRequires: libsoup-devel
+BuildRequires: gdk-pixbuf2-devel
 
 %description
 appdata-tools contains a command line program designed to validate AppData

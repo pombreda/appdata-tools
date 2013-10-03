@@ -1067,11 +1067,9 @@ appdata_check_file_for_problems (GKeyFile *config,
 			g_warning ("Failed to setup networking");
 			goto out;
 		}
+		soup_session_add_feature_by_type (helper->session,
+						  SOUP_TYPE_PROXY_RESOLVER_DEFAULT);
 	}
-
-	/* automatically use the correct proxies */
-	soup_session_add_feature_by_type (helper->session,
-					  SOUP_TYPE_PROXY_RESOLVER_DEFAULT);
 
 	context = g_markup_parse_context_new (&parser, 0, helper, NULL);
 	ret = g_markup_parse_context_parse (context, data, data_len, &error);
@@ -1194,7 +1192,8 @@ out:
 		g_free (helper->summary);
 		g_free (helper->updatecontact);
 		g_free (helper->project_group);
-		g_object_unref (helper->session);
+		if (helper->session != NULL)
+			g_object_unref (helper->session);
 		g_ptr_array_unref (helper->screenshots);
 	}
 	g_free (helper);

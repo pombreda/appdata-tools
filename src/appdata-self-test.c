@@ -126,6 +126,14 @@ get_config (void)
 				"HasNetworkAccess", TRUE);
 	g_key_file_set_boolean (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
 				"RequireCopyright", TRUE);
+	g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+				"ScreenshotSizeWidthMin", 10);
+	g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+				"ScreenshotSizeHeightMin", 10);
+	g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+				"ScreenshotSizeWidthMax", 10000);
+	g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+				"ScreenshotSizeHeightMax", 10000);
 	return config;
 }
 
@@ -219,6 +227,10 @@ appdata_screenshots_func (void)
 				"RequireCorrectAspectRatio", TRUE);
 	g_key_file_set_double (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
 			       "DesiredAspectRatio", 1.777777777);
+	g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+				"ScreenshotSizeWidthMin", 624);
+	g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+				"ScreenshotSizeHeightMin", 351);
 
 	filename = appdata_test_get_data_file ("screenshots.appdata.xml");
 	list = appdata_check_file_for_problems (config, filename);
@@ -231,6 +243,8 @@ appdata_screenshots_func (void)
 	g_assert (ensure_failure (list, "<screenshot> width did not match specified"));
 	g_assert (ensure_failure (list, "<screenshot> height did not match specified"));
 	g_assert (ensure_failure (list, "<screenshot> aspect ratio was not 16:9"));
+	g_assert (ensure_failure (list, "<screenshot> height was too small"));
+	g_assert (ensure_failure (list, "<screenshot> width was too small"));
 	g_assert_cmpint (g_list_length (list), >, 0);
 
 	g_list_free_full (list, (GDestroyNotify) appdata_problem_free);

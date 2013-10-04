@@ -105,6 +105,10 @@ appdata_problem_kind_to_string (AppdataProblemKind kind)
 		/* TRANSLATORS: the file specified was invalid */
 		return _("aspect ratio invalid");
 	}
+	if (kind == APPDATA_PROBLEM_KIND_RESOLUTION_INCORRECT) {
+		/* TRANSLATORS: the file specified was invalid */
+		return _("resolution invalid");
+	}
 
 	/* TRANSLATORS: if we get here, we have problems */
 	return _("unknown error");

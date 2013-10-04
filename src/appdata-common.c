@@ -631,6 +631,7 @@ appdata_screenshot_check_remote_url (AppdataHelper *helper, const gchar *url)
 	gdouble desired_aspect = 1.777777778;
 	gdouble screenshot_aspect;
 	gint status_code;
+	guint policy;
 	guint screenshot_height;
 	guint screenshot_width;
 
@@ -711,6 +712,36 @@ appdata_screenshot_check_remote_url (AppdataHelper *helper, const gchar *url)
 		appdata_add_problem (helper->problems,
 				     APPDATA_PROBLEM_KIND_ATTRIBUTE_INVALID,
 				     "<screenshot> height did not match specified");
+	}
+
+	/* check size is reasonable */
+	policy = g_key_file_get_integer (helper->config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+					 "ScreenshotSizeWidthMin", NULL);
+	if (screenshot_width < policy) {
+		appdata_add_problem (helper->problems,
+				     APPDATA_PROBLEM_KIND_ATTRIBUTE_INVALID,
+				     "<screenshot> width was too small");
+	}
+	policy = g_key_file_get_integer (helper->config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+					 "ScreenshotSizeHeightMin", NULL);
+	if (screenshot_height < policy) {
+		appdata_add_problem (helper->problems,
+				     APPDATA_PROBLEM_KIND_ATTRIBUTE_INVALID,
+				     "<screenshot> height was too small");
+	}
+	policy = g_key_file_get_integer (helper->config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+					 "ScreenshotSizeWidthMax", NULL);
+	if (screenshot_width > policy) {
+		appdata_add_problem (helper->problems,
+				     APPDATA_PROBLEM_KIND_ATTRIBUTE_INVALID,
+				     "<screenshot> width was too large");
+	}
+	policy = g_key_file_get_integer (helper->config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+					 "ScreenshotSizeHeightMax", NULL);
+	if (screenshot_height > policy) {
+		appdata_add_problem (helper->problems,
+				     APPDATA_PROBLEM_KIND_ATTRIBUTE_INVALID,
+				     "<screenshot> height was too large");
 	}
 
 	/* check aspect ratio */

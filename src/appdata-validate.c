@@ -222,6 +222,14 @@ main (int argc, char *argv[])
 	g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
 				"NumberScreenshotsMin", 1);
 	g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+				"ScreenshotSizeWidthMin", 624);
+	g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+				"ScreenshotSizeHeightMin", 351);
+	g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+				"ScreenshotSizeWidthMax", 624 * 4);
+	g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+				"ScreenshotSizeHeightMax", 351 * 4);
+	g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
 				"NumberScreenshotsMax", 5);
 	g_key_file_set_boolean (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
 				"RequireContactdetails", TRUE);

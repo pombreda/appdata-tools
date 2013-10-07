@@ -226,9 +226,9 @@ main (int argc, char *argv[])
 	g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
 				"ScreenshotSizeHeightMin", 351);
 	g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-				"ScreenshotSizeWidthMax", 624 * 4);
+				"ScreenshotSizeWidthMax", 1600);
 	g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-				"ScreenshotSizeHeightMax", 351 * 4);
+				"ScreenshotSizeHeightMax", 900);
 	g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
 				"NumberScreenshotsMax", 5);
 	g_key_file_set_boolean (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
@@ -272,6 +272,14 @@ main (int argc, char *argv[])
 					"RequireUrl", FALSE);
 		g_key_file_set_boolean (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
 					"HasNetworkAccess", FALSE);
+		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+					"ScreenshotSizeWidthMin", 300);
+		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+					"ScreenshotSizeHeightMin", 150);
+		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+					"ScreenshotSizeWidthMax", 3200);
+		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+					"ScreenshotSizeHeightMax", 1800);
 	}
 
 	/* make the requirements more strict */

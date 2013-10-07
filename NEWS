@@ -1,3 +1,22 @@
+Version 0.1.4
+~~~~~~~~~~~~~
+Released: 2013-10-07
+
+New Features:
+ - Add a --strict mode where we check for translations (Richard Hughes)
+ - Add the <project_group> tag to the specification (Richard Hughes)
+ - Detect AppData files with missing copyright comments (Richard Hughes)
+ - Detect files with missing XML headers (Richard Hughes)
+
+Bugfixes:
+ - Actually download the image and validate it (Richard Hughes)
+ - Add some tests to validate <screenshots> (Richard Hughes)
+ - Allow 3 character project names (Richard Hughes)
+ - Check for the XML catalog at configure time (Richard Hughes)
+ - Check the screenshots conform to the new size requirements (Richard Hughes)
+ - Clarify what each licence code means (Richard Hughes)
+ - Make some of the screenshot guidelines clearer (Allan Day)
+
 Version 0.1.3
 ~~~~~~~~~~~~~
 Released: 2013-09-24

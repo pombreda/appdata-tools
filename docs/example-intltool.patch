@@ -21,7 +21,7 @@ index 68de590..dea6f4b 100644
  
 +@INTLTOOL_XML_RULE@
 +appdatadir = $(datadir)/appdata
-+dist_appdata_DATA = $(appdata_in_files:.xml.in=.xml)
++appdata_DATA = $(appdata_in_files:.xml.in=.xml)
 +appdata_in_files = gcm-viewer.appdata.xml.in
 +
  UI_FILES =						\
@@ -30,7 +30,7 @@ index 68de590..dea6f4b 100644
  
  CLEANFILES =						\
  	gpk-update-icon.service				\
-+	gcm-viewer.appdata.xml				\
++	$(appdata_DATA)					\
  	$(GENERATED_FILES)
 diff --git a/data/gcm-viewer.appdata.xml.in b/data/gcm-viewer.appdata.xml.in
 new file mode 100644

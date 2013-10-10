@@ -19,6 +19,7 @@ BuildRequires: libsoup-devel
 BuildRequires: gdk-pixbuf2-devel
 BuildRequires: trang
 BuildRequires: python-lxml > 2.3
+BuildRequires: emacs
 
 %description
 appdata-tools contains a command line program designed to validate AppData
@@ -43,7 +44,6 @@ make %{?_smp_mflags}
 %dir %{_datadir}/appdata/schema
 %{_datadir}/appdata/schema/appdata.xsd
 %{_datadir}/appdata/schema/appdata.rnc
-%{_datadir}/appdata/schema/appdata.rng
 %{_datadir}/appdata/schema/schema-locating-rules.xml
 %{_emacs_sitestartdir}/appdata-rng-init.el
 

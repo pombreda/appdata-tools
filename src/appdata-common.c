@@ -152,6 +152,7 @@ typedef enum {
 	APPDATA_KIND_DESKTOP,
 	APPDATA_KIND_FONT,
 	APPDATA_KIND_INPUTMETHOD,
+	APPDATA_KIND_CODEC,
 	APPDATA_KIND_LAST
 } AppdataKind;
 
@@ -196,6 +197,8 @@ appdata_id_type_from_string (const gchar *id_type)
 		return APPDATA_KIND_FONT;
 	if (g_strcmp0 (id_type, "inputmethod") == 0)
 		return APPDATA_KIND_INPUTMETHOD;
+	if (g_strcmp0 (id_type, "codec") == 0)
+		return APPDATA_KIND_CODEC;
 	return APPDATA_KIND_UNKNOWN;
 }
 
@@ -584,6 +587,8 @@ appdata_check_id_for_kind (const gchar *id, AppdataKind kind)
 	if (kind == APPDATA_KIND_INPUTMETHOD)
 		return g_str_has_suffix (id, ".xml") ||
 			g_str_has_suffix (id, ".db");
+	if (kind == APPDATA_KIND_CODEC)
+		return g_str_has_prefix (id, "gstreamer");
 	return FALSE;
 }
 

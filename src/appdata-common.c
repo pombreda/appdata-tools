@@ -42,6 +42,7 @@ typedef enum {
 	APPDATA_SECTION_UPDATECONTACT,
 	APPDATA_SECTION_PROJECT_GROUP,
 	APPDATA_SECTION_URL,
+	APPDATA_SECTION_COMPULSORY_FOR_DESKTOP,
 	APPDATA_SECTION_LAST
 } AppdataSection;
 
@@ -79,6 +80,8 @@ appdata_selection_from_string (const gchar *element_name)
 		return APPDATA_SECTION_UPDATECONTACT;
 	if (g_strcmp0 (element_name, "project_group") == 0)
 		return APPDATA_SECTION_PROJECT_GROUP;
+	if (g_strcmp0 (element_name, "compulsory_for_desktop") == 0)
+		return APPDATA_SECTION_COMPULSORY_FOR_DESKTOP;
 	return APPDATA_SECTION_UNKNOWN;
 }
 
@@ -116,6 +119,8 @@ appdata_selection_to_string (AppdataSection section)
 		return "updatecontact";
 	if (section == APPDATA_SECTION_PROJECT_GROUP)
 		return "project_group";
+	if (section == APPDATA_SECTION_COMPULSORY_FOR_DESKTOP)
+		return "compulsory_for_desktop";
 	return NULL;
 }
 
@@ -305,6 +310,7 @@ appdata_start_element_fn (GMarkupParseContext *context,
 		case APPDATA_SECTION_DESCRIPTION:
 		case APPDATA_SECTION_SCREENSHOTS:
 		case APPDATA_SECTION_UPDATECONTACT:
+		case APPDATA_SECTION_COMPULSORY_FOR_DESKTOP:
 		case APPDATA_SECTION_PROJECT_GROUP:
 			/* valid */
 			helper->section = new;
@@ -537,6 +543,14 @@ appdata_end_element_fn (GMarkupParseContext *context,
 	/* </updatecontact> */
 	if (helper->section == APPDATA_SECTION_UPDATECONTACT &&
 	    new == APPDATA_SECTION_UPDATECONTACT) {
+		/* valid */
+		helper->section = APPDATA_SECTION_APPLICATION;
+		return;
+	}
+
+	/* </compulsory_for_desktop> */
+	if (helper->section == APPDATA_SECTION_COMPULSORY_FOR_DESKTOP &&
+	    new == APPDATA_SECTION_COMPULSORY_FOR_DESKTOP) {
 		/* valid */
 		helper->section = APPDATA_SECTION_APPLICATION;
 		return;

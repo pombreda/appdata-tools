@@ -52,6 +52,7 @@ EXTRA_DIST =					\
 	appdata-rng-init.el.in			\
 	appdata-validate.xml			\
 	broken.appdata.xml			\
+	metadata.appdata.xml			\
 	screenshots.appdata.xml			\
 	success.appdata.xml			\
 	translated.appdata.xml			\

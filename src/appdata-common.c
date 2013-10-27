@@ -43,6 +43,8 @@ typedef enum {
 	APPDATA_SECTION_PROJECT_GROUP,
 	APPDATA_SECTION_URL,
 	APPDATA_SECTION_COMPULSORY_FOR_DESKTOP,
+	APPDATA_SECTION_METADATA,
+	APPDATA_SECTION_VALUE,
 	APPDATA_SECTION_LAST
 } AppdataSection;
 
@@ -82,6 +84,10 @@ appdata_selection_from_string (const gchar *element_name)
 		return APPDATA_SECTION_PROJECT_GROUP;
 	if (g_strcmp0 (element_name, "compulsory_for_desktop") == 0)
 		return APPDATA_SECTION_COMPULSORY_FOR_DESKTOP;
+	if (g_strcmp0 (element_name, "metadata") == 0)
+		return APPDATA_SECTION_METADATA;
+	if (g_strcmp0 (element_name, "value") == 0)
+		return APPDATA_SECTION_VALUE;
 	return APPDATA_SECTION_UNKNOWN;
 }
 
@@ -121,6 +127,10 @@ appdata_selection_to_string (AppdataSection section)
 		return "project_group";
 	if (section == APPDATA_SECTION_COMPULSORY_FOR_DESKTOP)
 		return "compulsory_for_desktop";
+	if (section == APPDATA_SECTION_METADATA)
+		return "metadata";
+	if (section == APPDATA_SECTION_VALUE)
+		return "value";
 	return NULL;
 }
 
@@ -315,7 +325,23 @@ appdata_start_element_fn (GMarkupParseContext *context,
 		case APPDATA_SECTION_UPDATECONTACT:
 		case APPDATA_SECTION_COMPULSORY_FOR_DESKTOP:
 		case APPDATA_SECTION_PROJECT_GROUP:
+		case APPDATA_SECTION_METADATA:
 			/* valid */
+			helper->section = new;
+			break;
+		default:
+			g_set_error (error, 1, 0,
+				     "start tag <%s> not allowed from section <%s>",
+				     element_name,
+				     appdata_selection_to_string (helper->section));
+		}
+		return;
+	}
+
+	/* metadata -> value */
+	if (helper->section == APPDATA_SECTION_METADATA) {
+		switch (new) {
+		case APPDATA_SECTION_VALUE:
 			helper->section = new;
 			break;
 		default:
@@ -500,6 +526,20 @@ appdata_end_element_fn (GMarkupParseContext *context,
 
 		/* valid */
 		helper->section = APPDATA_SECTION_APPLICATION;
+		return;
+	}
+
+	/* </metadata> */
+	if (helper->section == APPDATA_SECTION_METADATA &&
+	    new == APPDATA_SECTION_METADATA) {
+		helper->section = APPDATA_SECTION_APPLICATION;
+		return;
+	}
+
+	/* </value> */
+	if (helper->section == APPDATA_SECTION_VALUE &&
+	    new == APPDATA_SECTION_VALUE) {
+		helper->section = APPDATA_SECTION_METADATA;
 		return;
 	}
 

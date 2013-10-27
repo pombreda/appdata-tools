@@ -275,6 +275,24 @@ appdata_translated_func (void)
 	g_key_file_free (config);
 }
 
+static void
+appdata_metadata_func (void)
+{
+	gchar *filename;
+	GList *list;
+	GKeyFile *config;
+
+	config = get_config ();
+	filename = appdata_test_get_data_file ("metadata.appdata.xml");
+	list = appdata_check_file_for_problems (config, filename);
+	g_assert_cmpint (g_list_length (list), ==, 5);
+	g_assert (ensure_failure (list, "Not enough <p> tags for a good description"));
+
+	g_list_free_full (list, (GDestroyNotify) appdata_problem_free);
+	g_free (filename);
+	g_key_file_free (config);
+}
+
 int
 main (int argc, char **argv)
 {
@@ -291,6 +309,7 @@ main (int argc, char **argv)
 	g_test_add_func ("/appdata/broken", appdata_broken_func);
 	g_test_add_func ("/appdata/screenshots", appdata_screenshots_func);
 	g_test_add_func ("/appdata/translated", appdata_translated_func);
+	g_test_add_func ("/appdata/metadata", appdata_metadata_func);
 
 	/* go go go! */
 	retval = g_test_run ();

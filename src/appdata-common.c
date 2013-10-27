@@ -583,7 +583,7 @@ appdata_check_id_for_kind (const gchar *id, AppdataKind kind)
 		return g_str_has_suffix (id, ".desktop");
 	if (kind == APPDATA_KIND_FONT)
 		return g_str_has_suffix (id, ".ttf") ||
-			g_str_has_suffix (id, ".odf");
+			g_str_has_suffix (id, ".otf");
 	if (kind == APPDATA_KIND_INPUTMETHOD)
 		return g_str_has_suffix (id, ".xml") ||
 			g_str_has_suffix (id, ".db");

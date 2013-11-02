@@ -35,36 +35,105 @@
 #define EXIT_CODE_WARNINGS	2
 
 /**
- * appdata_validate_and_show_results:
+ * gs_string_replace:
  **/
-static gint
-appdata_validate_and_show_results (GKeyFile *config, const gchar *filename)
+static guint
+gs_string_replace (GString *string, const gchar *search, const gchar *replace)
+{
+	gchar *tmp;
+	guint count = 0;
+	guint replace_len;
+	guint search_len;
+
+	search_len = strlen (search);
+	replace_len = strlen (replace);
+
+	do {
+		tmp = g_strstr_len (string->str, -1, search);
+		if (tmp == NULL)
+			goto out;
+
+		/* reallocate the string if required */
+		if (search_len > replace_len) {
+			g_string_erase (string,
+					tmp - string->str,
+					search_len - replace_len);
+		}
+		if (search_len < replace_len) {
+			g_string_insert_len (string,
+					    tmp - string->str,
+					    search,
+					    replace_len - search_len);
+		}
+
+		/* just memcmp in the new string */
+		memcpy (tmp, replace, replace_len);
+		count++;
+	} while (TRUE);
+out:
+	return count;
+}
+
+/**
+ * appdata_validate_format_html:
+ **/
+static void
+appdata_validate_format_html (const gchar *filename, GList *problems)
 {
 	AppdataProblem *problem;
-	const gchar *tmp;
-	gchar *original_filename = NULL;
-	gint retval;
 	GList *l;
-	GList *problems = NULL;
+	GString *tmp;
+
+	g_print ("<html>\n");
+	g_print ("<head>\n");
+	g_print ("<style type=\"text/css\">\n");
+	g_print ("body {width: 70%; font: 12px/20px Arial, Helvetica;}\n");
+	g_print ("p {color: #333;}\n");
+	g_print ("</style>\n");
+	g_print ("<title>AppData Validation Results for %s</title>\n", filename);
+	g_print ("</head>\n");
+	g_print ("<body>\n");
+	if (problems == NULL) {
+		g_print ("<h1>Success!</h1>\n");
+		g_print ("<p>%s validated successfully.</p>\n", filename);
+	} else {
+		g_print ("<h1>Validation failed!</h1>\n");
+		g_print ("<p>%s did not validate:</p>\n", filename);
+		g_print ("<ul>\n", filename);
+		for (l = problems; l != NULL; l = l->next) {
+			problem = l->data;
+			tmp = g_string_new (problem->description);
+			gs_string_replace (tmp, "&", "&amp;");
+			gs_string_replace (tmp, "<", "[");
+			gs_string_replace (tmp, ">", "]");
+			g_print ("<li>%s</li>\n", tmp->str);
+			g_string_free (tmp, TRUE);
+		}
+		g_print ("</ul>\n", filename);
+	}
+	g_print ("</body>\n");
+	g_print ("</html>\n");
+}
+
+/**
+ * appdata_validate_format_text:
+ **/
+static void
+appdata_validate_format_text (const gchar *filename, GList *problems)
+{
+	AppdataProblem *problem;
+	GList *l;
+	const gchar *tmp;
 	guint i;
 
-	/* scan file for problems */
-	problems = appdata_check_file_for_problems (config, filename);
 	if (problems == NULL) {
-		retval = EXIT_CODE_SUCCESS;
 		/* TRANSLATORS: the file is valid */
 		g_print (_("%s validated OK."), filename);
 		g_print ("\n");
-		goto out;
+		return;
 	}
-
-	/* print problems */
-	retval = EXIT_CODE_WARNINGS;
-	original_filename = g_key_file_get_string (config,
-						   APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-						   "OriginalFilename", NULL);
 	g_print ("%s %i %s\n",
-		 original_filename != NULL ? original_filename : filename,
+		 filename,
 		 g_list_length (problems),
 		 _("problems detected:"));
 	for (l = problems; l != NULL; l = l->next) {
@@ -74,6 +143,36 @@ appdata_validate_and_show_results (GKeyFile *config, const gchar *filename)
 		for (i = strlen (tmp); i < 20; i++)
 			g_print (" ");
 		g_print (" : %s\n", problem->description);
+	}
+}
+
+/**
+ * appdata_validate_and_show_results:
+ **/
+static gint
+appdata_validate_and_show_results (GKeyFile *config,
+				   const gchar *filename,
+				   const gchar *output_format)
+{
+	const gchar *tmp;
+	gchar *original_filename = NULL;
+	gint retval = EXIT_CODE_SUCCESS;
+	GList *problems = NULL;
+
+	/* scan file for problems */
+	problems = appdata_check_file_for_problems (config, filename);
+	if (problems != NULL)
+		retval = EXIT_CODE_WARNINGS;
+
+	/* print problems */
+	original_filename = g_key_file_get_string (config,
+						   APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+						   "OriginalFilename", NULL);
+	tmp = original_filename != NULL ? original_filename : filename;
+	if (g_strcmp0 (output_format, "html") == 0) {
+		appdata_validate_format_html (tmp, problems);
+	} else {
+		appdata_validate_format_text (tmp, problems);
 	}
 out:
 	g_free (original_filename);
@@ -128,6 +227,7 @@ main (int argc, char *argv[])
 	gboolean version = FALSE;
 	gchar *config_dump = NULL;
 	gchar *filename = NULL;
+	gchar *output_format = NULL;
 	GError *error = NULL;
 	gint retval = EXIT_CODE_SUCCESS;
 	gint retval_tmp;
@@ -153,6 +253,9 @@ main (int argc, char *argv[])
 		{ "filename", '\0', 0, G_OPTION_ARG_STRING, &filename,
 			/* TRANSLATORS: this is the --filename argument */
 			_("The source filename when using a temporary file"), NULL },
+		{ "output-format", '\0', 0, G_OPTION_ARG_STRING, &output_format,
+			/* TRANSLATORS: this is the --output-format argument */
+			_("The output format [text|html]"), NULL },
 		{ NULL}
 	};
 
@@ -317,7 +420,9 @@ main (int argc, char *argv[])
 
 	/* validate each file */
 	for (i = 1; i < argc; i++) {
-		retval_tmp = appdata_validate_and_show_results (config, argv[i]);
+		retval_tmp = appdata_validate_and_show_results (config,
+								argv[i],
+								output_format);
 		if (retval_tmp != EXIT_CODE_SUCCESS)
 			retval = retval_tmp;
 	}
@@ -326,6 +431,7 @@ out:
 		g_key_file_free (config);
 	g_free (config_dump);
 	g_free (filename);
+	g_free (output_format);
 	g_option_context_free (context);
 	return retval;
 }

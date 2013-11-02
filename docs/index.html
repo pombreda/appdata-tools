@@ -366,7 +366,17 @@ The largest resolution screenshot supported is 1600x900.
 
 <a name="validate"/><h3>How do I know if my appdata XML is correct?</h3>
 <p>
-There are several ways to validate the data:
+You can validate the AppData file using this web helper.
+Just upload the file you wish to validate:
+</p>
+<form action="http://hughsient.no-ip.org/validate.php" method="post" enctype="multipart/form-data">
+<fieldset>
+<input type="file" name="upload" id="file">
+<input type="submit" name="submit" value="Validate">
+</fieldset>
+</form>
+<p>
+There are several other ways to validate the data:
 </p>
 <ul>
 <li>Using the appdata-validate command available in <a href="https://github.com/hughsie/appdata-tools">appdata-tools</a>.</li>

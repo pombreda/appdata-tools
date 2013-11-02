@@ -1110,6 +1110,7 @@ appdata_check_file_for_problems (GKeyFile *config,
 	GError *error = NULL;
 	GList *problems = NULL;
 	GMarkupParseContext *context = NULL;
+	gchar *original_filename = NULL;
 	gsize data_len;
 	guint len;
 	const GMarkupParser parser = {
@@ -1131,8 +1132,15 @@ appdata_check_file_for_problems (GKeyFile *config,
 		goto out;
 	}
 
+	/* we set the orignal filename */
+	original_filename = g_key_file_get_string (config,
+						   APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+						   "OriginalFilename", NULL);
+	if (original_filename == NULL)
+		original_filename = g_strdup (filename);
+
 	/* check file has the correct ending */
-	if (!g_str_has_suffix (filename, ".appdata.xml")) {
+	if (!g_str_has_suffix (original_filename, ".appdata.xml")) {
 		appdata_add_problem (&problems,
 				     APPDATA_PROBLEM_KIND_FILENAME_INVALID,
 				     "incorrect extension, expected '.appdata.xml'");
@@ -1287,6 +1295,7 @@ out:
 		g_ptr_array_unref (helper->screenshots);
 	}
 	g_free (helper);
+	g_free (original_filename);
 	g_free (data);
 	if (context != NULL)
 		g_markup_parse_context_unref (context);

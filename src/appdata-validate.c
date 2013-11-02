@@ -42,6 +42,7 @@ appdata_validate_and_show_results (GKeyFile *config, const gchar *filename)
 {
 	AppdataProblem *problem;
 	const gchar *tmp;
+	gchar *original_filename = NULL;
 	gint retval;
 	GList *l;
 	GList *problems = NULL;
@@ -59,8 +60,11 @@ appdata_validate_and_show_results (GKeyFile *config, const gchar *filename)
 
 	/* print problems */
 	retval = EXIT_CODE_WARNINGS;
-	g_print ("%s %i %s\n", 
-		 filename,
+	original_filename = g_key_file_get_string (config,
+						   APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+						   "OriginalFilename", NULL);
+	g_print ("%s %i %s\n",
+		 original_filename != NULL ? original_filename : filename,
 		 g_list_length (problems),
 		 _("problems detected:"));
 	for (l = problems; l != NULL; l = l->next) {
@@ -72,6 +76,7 @@ appdata_validate_and_show_results (GKeyFile *config, const gchar *filename)
 		g_print (" : %s\n", problem->description);
 	}
 out:
+	g_free (original_filename);
 	g_list_free_full (problems, (GDestroyNotify) appdata_problem_free);
 	return retval;
 }
@@ -122,6 +127,7 @@ main (int argc, char *argv[])
 	gboolean verbose = FALSE;
 	gboolean version = FALSE;
 	gchar *config_dump = NULL;
+	gchar *filename = NULL;
 	GError *error = NULL;
 	gint retval = EXIT_CODE_SUCCESS;
 	gint retval_tmp;
@@ -144,6 +150,9 @@ main (int argc, char *argv[])
 		{ "version", '\0', 0, G_OPTION_ARG_NONE, &version,
 			/* TRANSLATORS: this is the --version argument */
 			_("Show the version number and then quit"), NULL },
+		{ "filename", '\0', 0, G_OPTION_ARG_STRING, &filename,
+			/* TRANSLATORS: this is the --filename argument */
+			_("The source filename when using a temporary file"), NULL },
 		{ NULL}
 	};
 
@@ -292,6 +301,12 @@ main (int argc, char *argv[])
 					"RequireCorrectAspectRatio", TRUE);
 	}
 
+	/* we're using a temporary file */
+	if (filename != NULL) {
+		g_key_file_set_string (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+				       "OriginalFilename", filename);
+	}
+
 	/* the user has forced no network mode */
 	if (nonet) {
 		g_key_file_set_boolean (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
@@ -310,6 +325,7 @@ out:
 	if (config != NULL)
 		g_key_file_free (config);
 	g_free (config_dump);
+	g_free (filename);
 	g_option_context_free (context);
 	return retval;
 }

@@ -843,10 +843,13 @@ appdata_text_fn (GMarkupParseContext *context,
 		 GError **error)
 {
 	AppdataHelper *helper = (AppdataHelper *) user_data;
+	gchar **licences = NULL;
 	gchar *temp;
+	guint i;
 	guint len;
 	guint str_len;
 	gboolean ret;
+	gboolean valid;
 
 	/* ignore translations */
 	if (helper->tag_translated)
@@ -870,12 +873,22 @@ appdata_text_fn (GMarkupParseContext *context,
 					     "<licence> is duplicated");
 		}
 		helper->licence = g_strstrip (g_strndup (text, text_len));
-		if (g_strcmp0 (helper->licence, "CC0") != 0 &&
-		    g_strcmp0 (helper->licence, "CC-BY") != 0 &&
-		    g_strcmp0 (helper->licence, "CC-BY-SA") != 0)
+		licences = g_key_file_get_string_list (helper->config,
+						       APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+						       "AcceptableLicences",
+						       NULL, NULL);
+		valid = FALSE;
+		for (i = 0; licences[i] != NULL; i++) {
+			if (g_strcmp0 (helper->licence, licences[i]) == 0) {
+				valid = TRUE;
+				break;
+			}
+		}
+		if (!valid) {
 			appdata_add_problem (helper->problems,
 					     APPDATA_PROBLEM_KIND_TAG_INVALID,
 					     "<licence> is not valid");
+		}
 		break;
 	case APPDATA_SECTION_URL:
 		if (helper->url != NULL) {
@@ -1070,6 +1083,7 @@ appdata_text_fn (GMarkupParseContext *context,
 		/* ignore */
 		break;
 	}
+	g_free (licences);
 }
 
 /**

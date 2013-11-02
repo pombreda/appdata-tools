@@ -91,6 +91,8 @@ static GKeyFile *
 get_config (void)
 {
 	GKeyFile *config;
+	const gchar * const licences[] = {
+		"CC0", "CC-BY", "CC-BY-SA", "GFDL", NULL};
 	config = g_key_file_new ();
 	g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
 				"LengthUpdatecontactMin", 6);
@@ -134,6 +136,9 @@ get_config (void)
 				"ScreenshotSizeWidthMax", 10000);
 	g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
 				"ScreenshotSizeHeightMax", 10000);
+	g_key_file_set_string_list (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+				    "AcceptableLicences", licences,
+				    g_strv_length ((gchar **) licences));
 	return config;
 }
 

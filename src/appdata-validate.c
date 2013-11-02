@@ -234,6 +234,8 @@ main (int argc, char *argv[])
 	GKeyFile *config = NULL;
 	GOptionContext *context;
 	guint i;
+	const gchar * const licences[] = {
+		"CC0", "CC-BY", "CC-BY-SA", "GFDL", NULL};
 	const GOptionEntry options[] = {
 		{ "relax", 'r', 0, G_OPTION_ARG_NONE, &relax,
 			/* TRANSLATORS: this is the --relax argument */
@@ -309,6 +311,9 @@ main (int argc, char *argv[])
 
 	/* set some config values */
 	config = g_key_file_new ();
+	g_key_file_set_string_list (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+				    "AcceptableLicences", licences,
+				    g_strv_length ((gchar **) licences));
 	g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
 				"LengthUpdatecontactMin", 6);
 	g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,

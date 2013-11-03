@@ -116,6 +116,36 @@ appdata_validate_format_html (const gchar *filename, GList *problems)
 }
 
 /**
+ * appdata_validate_format_xml:
+ **/
+static void
+appdata_validate_format_xml (const gchar *filename, GList *problems)
+{
+	AppdataProblem *problem;
+	GList *l;
+	GString *tmp;
+
+	g_print ("<results version=\"1\">\n");
+	g_print ("  <filename>%s</filename>\n", filename);
+	if (problems != NULL) {
+		g_print ("  <problems>\n");
+		for (l = problems; l != NULL; l = l->next) {
+			problem = l->data;
+			tmp = g_string_new (problem->description);
+			gs_string_replace (tmp, "&", "&amp;");
+			gs_string_replace (tmp, "<", "");
+			gs_string_replace (tmp, ">", "");
+			g_print ("    <problem type=\"%s\">%s</problem>\n",
+				 appdata_problem_kind_to_string (problem->kind),
+				 tmp->str);
+			g_string_free (tmp, TRUE);
+		}
+		g_print ("  </problems>\n");
+	}
+	g_print ("</results>\n");
+}
+
+/**
  * appdata_validate_format_text:
  **/
 static void
@@ -171,6 +201,8 @@ appdata_validate_and_show_results (GKeyFile *config,
 	tmp = original_filename != NULL ? original_filename : filename;
 	if (g_strcmp0 (output_format, "html") == 0) {
 		appdata_validate_format_html (tmp, problems);
+	} else if (g_strcmp0 (output_format, "xml") == 0) {
+		appdata_validate_format_xml (tmp, problems);
 	} else {
 		appdata_validate_format_text (tmp, problems);
 	}
@@ -257,7 +289,7 @@ main (int argc, char *argv[])
 			_("The source filename when using a temporary file"), NULL },
 		{ "output-format", '\0', 0, G_OPTION_ARG_STRING, &output_format,
 			/* TRANSLATORS: this is the --output-format argument */
-			_("The output format [text|html]"), NULL },
+			_("The output format [text|html|xml]"), NULL },
 		{ NULL}
 	};
 

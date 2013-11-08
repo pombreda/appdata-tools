@@ -1,3 +1,13 @@
+Version 0.1.6
+~~~~~~~~~~~~~
+Released: 2013-11-08
+
+Bugfixes:
+ - Do not use g_type_init() for newer versions of GLib (Richard Hughes)
+ - Fix up several warnings spotted when building with -Wformat (Richard Hughes)
+ - Fix the schema install logic (Richard Hughes)
+ - Ensure the tarball is always built with schemas enabled (Richard Hughes)
+
 Version 0.1.5
 ~~~~~~~~~~~~~
 Released: 2013-11-08

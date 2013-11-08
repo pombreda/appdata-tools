@@ -24,6 +24,40 @@ AC_SUBST([GETTEXT_PACKAGE])
 AM_GLIB_GNU_GETTEXT
 AC_DEFINE_UNQUOTED([GETTEXT_PACKAGE],["$GETTEXT_PACKAGE"],[gettext domain])
 
+dnl ---------------------------------------------------------------------------
+dnl - Extra verbose warning switches
+dnl ---------------------------------------------------------------------------
+if test "$GCC" = "yes"; then
+	WARNINGFLAGS_C="$WARNINGFLAGS_C -Wall"
+	WARNINGFLAGS_C="$WARNINGFLAGS_C -Wcast-align -Wno-uninitialized"
+	WARNINGFLAGS_C="$WARNINGFLAGS_C -Wmissing-declarations"
+	WARNINGFLAGS_C="$WARNINGFLAGS_C -Wpointer-arith"
+	WARNINGFLAGS_C="$WARNINGFLAGS_C -Wcast-align"
+	WARNINGFLAGS_C="$WARNINGFLAGS_C -Wwrite-strings"
+	WARNINGFLAGS_C="$WARNINGFLAGS_C -Winit-self"
+	WARNINGFLAGS_C="$WARNINGFLAGS_C -Wreturn-type"
+	WARNINGFLAGS_C="$WARNINGFLAGS_C -Wformat-nonliteral"
+	WARNINGFLAGS_C="$WARNINGFLAGS_C -Wformat-security"
+	WARNINGFLAGS_C="$WARNINGFLAGS_C -Wmissing-include-dirs"
+	WARNINGFLAGS_C="$WARNINGFLAGS_C -Wmissing-format-attribute"
+	WARNINGFLAGS_C="$WARNINGFLAGS_C -Wclobbered"
+	WARNINGFLAGS_C="$WARNINGFLAGS_C -Wempty-body"
+	WARNINGFLAGS_C="$WARNINGFLAGS_C -Wignored-qualifiers"
+	WARNINGFLAGS_C="$WARNINGFLAGS_C -Wsign-compare"
+	WARNINGFLAGS_C="$WARNINGFLAGS_C -Wtype-limits"
+	WARNINGFLAGS_C="$WARNINGFLAGS_C -Wuninitialized"
+	WARNINGFLAGS_C="$WARNINGFLAGS_C -Waggregate-return"
+	WARNINGFLAGS_C="$WARNINGFLAGS_C -Wdeclaration-after-statement"
+	WARNINGFLAGS_C="$WARNINGFLAGS_C -Wshadow"
+	WARNINGFLAGS_C="$WARNINGFLAGS_C -Wno-strict-aliasing"
+	WARNINGFLAGS_C="$WARNINGFLAGS_C -Winline"
+	WARNINGFLAGS_C="$WARNINGFLAGS_C -Wmissing-parameter-type"
+	WARNINGFLAGS_C="$WARNINGFLAGS_C -Woverride-init"
+else
+	WARNINGFLAGS_C=""
+fi
+AC_SUBST(WARNINGFLAGS_C)
+
 PKG_CHECK_MODULES(GLIB, glib-2.0 >= 2.14.0 gobject-2.0 gthread-2.0)
 PKG_CHECK_MODULES(SOUP, libsoup-2.4)
 PKG_CHECK_MODULES(GDKPIXBUF, gdk-pixbuf-2.0)

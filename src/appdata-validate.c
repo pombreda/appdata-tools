@@ -206,7 +206,7 @@ appdata_validate_and_show_results (GKeyFile *config,
 	} else {
 		appdata_validate_format_text (tmp, problems);
 	}
-out:
+
 	g_free (original_filename);
 	g_list_free_full (problems, (GDestroyNotify) appdata_problem_free);
 	return retval;
@@ -265,7 +265,7 @@ main (int argc, char *argv[])
 	gint retval_tmp;
 	GKeyFile *config = NULL;
 	GOptionContext *context;
-	guint i;
+	gint i;
 	const gchar * const licences[] = {
 		"CC0", "CC-BY", "CC-BY-SA", "GFDL", NULL};
 	const GOptionEntry options[] = {

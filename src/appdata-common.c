@@ -19,6 +19,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include <stdlib.h>
 #include <string.h>
 #include <libsoup/soup.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
@@ -381,7 +382,7 @@ appdata_start_element_fn (GMarkupParseContext *context,
 						      "LengthParaCharsBeforeList",
 						      NULL);
 			if (helper->para_chars_before_list != 0 &&
-			    helper->para_chars_before_list < len) {
+			    helper->para_chars_before_list < (guint) len) {
 				appdata_add_problem (helper->problems,
 						     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
 						     "Not enough <p> content before <ul>");

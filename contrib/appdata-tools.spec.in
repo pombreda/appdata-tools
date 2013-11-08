@@ -45,6 +45,7 @@ make %{?_smp_mflags}
 %{_datadir}/appdata/schema/appdata.xsd
 %{_datadir}/appdata/schema/appdata.rnc
 %{_datadir}/appdata/schema/schema-locating-rules.xml
+%{_datadir}/aclocal/appdata-xml.m4
 %{_emacs_sitestartdir}/appdata-rng-init.el
 
 %changelog

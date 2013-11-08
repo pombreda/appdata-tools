@@ -87,7 +87,7 @@ appdata_validate_format_html (const gchar *filename, GList *problems)
 	g_print ("<html>\n");
 	g_print ("<head>\n");
 	g_print ("<style type=\"text/css\">\n");
-	g_print ("body {width: 70%; font: 12px/20px Arial, Helvetica;}\n");
+	g_print ("body {width: 70%%; font: 12px/20px Arial, Helvetica;}\n");
 	g_print ("p {color: #333;}\n");
 	g_print ("</style>\n");
 	g_print ("<title>AppData Validation Results for %s</title>\n", filename);
@@ -99,7 +99,7 @@ appdata_validate_format_html (const gchar *filename, GList *problems)
 	} else {
 		g_print ("<h1>Validation failed!</h1>\n");
 		g_print ("<p>%s did not validate:</p>\n", filename);
-		g_print ("<ul>\n", filename);
+		g_print ("<ul>\n");
 		for (l = problems; l != NULL; l = l->next) {
 			problem = l->data;
 			tmp = g_string_new (problem->description);
@@ -109,7 +109,7 @@ appdata_validate_format_html (const gchar *filename, GList *problems)
 			g_print ("<li>%s</li>\n", tmp->str);
 			g_string_free (tmp, TRUE);
 		}
-		g_print ("</ul>\n", filename);
+		g_print ("</ul>\n");
 	}
 	g_print ("</body>\n");
 	g_print ("</html>\n");

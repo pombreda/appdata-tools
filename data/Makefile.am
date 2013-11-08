@@ -6,6 +6,10 @@ if ENABLE_MAN
 man_MANS += appdata-validate.1
 endif
 
+m4datadir = $(datadir)/aclocal
+dist_m4data_DATA = \
+	appdata-xml.m4
+
 xmlschemadir = $(datadir)/appdata/schema
 dist_xmlschema_DATA = 				\
 	appdata.xsd				\

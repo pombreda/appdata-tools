@@ -1,3 +1,21 @@
+Version 0.1.5
+~~~~~~~~~~~~~
+Released: 2013-11-08
+
+New Features:
+ - Add a style rule to require 300 chars of <p> content before <ul> (Richard Hughes)
+ - Add an --output-format parameter that can optionally output HTML or XML (Richard Hughes)
+ - Add simple APPDATA_XML m4 macro (David King)
+ - Generate appdata.rng from appdata.rnc at build time (Peter Oliver)
+ - Host an online version of the AppData validation tool (Richard Hughes)
+ - Install included RELAX NG schema and make it automatically loadable by Emacs (Peter Oliver)
+
+Bugfixes:
+ - Allow GFDL as an acceptable content licence (Richard Hughes)
+ - Ignore the <compulsory_for_desktop> private key (Richard Hughes)
+ - Support the 'codec' AppData kind (Richard Hughes)
+ - Validate AppData files with metadata keys (Richard Hughes)
+
 Version 0.1.4
 ~~~~~~~~~~~~~
 Released: 2013-10-07

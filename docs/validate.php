@@ -21,9 +21,7 @@
  */
 
 $command = '/usr/bin/appdata-validate --output-format=html --filename='.$_FILES['upload']['name'].' '.$_FILES['upload']['tmp_name'];
-$escaped_command = escapeshellcmd($command);
-
 header('HTTP/1.0 201 Created');
-system($escaped_command);
+system(escapeshellcmd($command));
 
 ?>

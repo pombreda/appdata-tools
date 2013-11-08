@@ -365,6 +365,8 @@ main (int argc, char *argv[])
 	g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
 				"LengthListItemMax", 100);
 	g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+				"LengthParaCharsBeforeList", 300);
+	g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
 				"NumberParaMin", 2);
 	g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
 				"NumberParaMax", 4);
@@ -407,6 +409,8 @@ main (int argc, char *argv[])
 					"LengthListItemMin", 4);
 		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
 					"LengthListItemMax", 1000);
+		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+					"LengthParaCharsBeforeList", 100);
 		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
 					"NumberParaMin", 1);
 		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,

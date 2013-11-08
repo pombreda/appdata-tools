@@ -136,6 +136,8 @@ get_config (void)
 				"ScreenshotSizeWidthMax", 10000);
 	g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
 				"ScreenshotSizeHeightMax", 10000);
+	g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+				"LengthParaCharsBeforeList", 300);
 	g_key_file_set_string_list (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
 				    "AcceptableLicences", licences,
 				    g_strv_length ((gchar **) licences));
@@ -213,6 +215,24 @@ appdata_broken_func (void)
 	g_assert (ensure_failure (list, "<application> used more than once"));
 	g_assert (ensure_failure (list, "<?xml> header not found"));
 	g_assert (ensure_failure (list, "<!-- Copyright [year] [name] --> is not present"));
+	g_assert_cmpint (g_list_length (list), >, 0);
+
+	g_list_free_full (list, (GDestroyNotify) appdata_problem_free);
+	g_free (filename);
+	g_key_file_free (config);
+}
+
+static void
+appdata_short_para_before_list_func (void)
+{
+	gchar *filename;
+	GList *list;
+	GKeyFile *config;
+
+	config = get_config ();
+	filename = appdata_test_get_data_file ("short-para-before-list.appdata.xml");
+	list = appdata_check_file_for_problems (config, filename);
+	g_assert (ensure_failure (list, "Not enough <p> content before <ul>"));
 	g_assert_cmpint (g_list_length (list), >, 0);
 
 	g_list_free_full (list, (GDestroyNotify) appdata_problem_free);
@@ -315,6 +335,7 @@ main (int argc, char **argv)
 	g_test_add_func ("/appdata/screenshots", appdata_screenshots_func);
 	g_test_add_func ("/appdata/translated", appdata_translated_func);
 	g_test_add_func ("/appdata/metadata", appdata_metadata_func);
+	g_test_add_func ("/appdata/short-para-before-list", appdata_short_para_before_list_func);
 
 	/* go go go! */
 	retval = g_test_run ();

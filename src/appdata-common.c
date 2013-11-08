@@ -193,6 +193,7 @@ typedef struct {
 	SoupSession	*session;
 	guint		 screenshot_width;
 	guint		 screenshot_height;
+	guint		 para_chars_before_list;
 } AppdataHelper;
 
 /**
@@ -226,6 +227,7 @@ appdata_start_element_fn (GMarkupParseContext *context,
 	AppdataHelper *helper = (AppdataHelper *) user_data;
 	AppdataSection new;
 	const gchar *tmp;
+	gint len;
 	guint i;
 
 	new = appdata_selection_from_string (element_name);
@@ -374,9 +376,20 @@ appdata_start_element_fn (GMarkupParseContext *context,
 						     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
 						     "<ul> cannot start a description");
 			}
+			len = g_key_file_get_integer (helper->config,
+						      APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+						      "LengthParaCharsBeforeList",
+						      NULL);
+			if (helper->para_chars_before_list != 0 &&
+			    helper->para_chars_before_list < len) {
+				appdata_add_problem (helper->problems,
+						     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
+						     "Not enough <p> content before <ul>");
+			}
 			/* we allow the previous paragraph to be short to
 			 * introduce the list */
 			helper->previous_para_was_short = FALSE;
+			helper->para_chars_before_list = 0;
 			helper->section = new;
 			break;
 		default:
@@ -1031,6 +1044,7 @@ appdata_text_fn (GMarkupParseContext *context,
 		}
 		g_free (temp);
 		helper->number_paragraphs++;
+		helper->para_chars_before_list += text_len;
 		break;
 	case APPDATA_SECTION_DESCRIPTION_UL_LI:
 		temp = g_strstrip (g_strndup (text, text_len));

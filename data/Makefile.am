@@ -59,6 +59,7 @@ EXTRA_DIST =					\
 	metadata.appdata.xml			\
 	screenshots.appdata.xml			\
 	success.appdata.xml			\
+	short-para-before-list.appdata.xml	\
 	translated.appdata.xml			\
 	wrong-extension.xml
 

@@ -8,6 +8,9 @@ SUBDIRS = 						\
 snapshot:
 	$(MAKE) dist distdir=$(PACKAGE)-$(VERSION)-`date +"%Y%m%d"`
 
+DISTCHECK_CONFIGURE_FLAGS =				\
+	--enable-schemas
+
 MAINTAINERCLEANFILES =					\
 	*~						\
 	aclocal.m4					\

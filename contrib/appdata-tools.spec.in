@@ -29,7 +29,7 @@ application descriptions for standards compliance and to the style guide.
 %setup -q
 
 %build
-%configure
+%configure --enable-schemas
 make %{?_smp_mflags}
 
 %install
@@ -44,6 +44,8 @@ make %{?_smp_mflags}
 %dir %{_datadir}/appdata/schema
 %{_datadir}/appdata/schema/appdata.xsd
 %{_datadir}/appdata/schema/appdata.rnc
+%{_datadir}/appdata/schema/appdata.rng
+%{_datadir}/appdata/schema/appdata.sch
 %{_datadir}/appdata/schema/schema-locating-rules.xml
 %{_datadir}/aclocal/appdata-xml.m4
 %{_emacs_sitestartdir}/appdata-rng-init.el

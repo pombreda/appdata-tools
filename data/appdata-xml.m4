@@ -30,7 +30,7 @@ AC_DEFUN([APPDATA_XML],
 mostlyclean-am: clean-appdata-xml
 
 %.appdata.valid: %.appdata.xml
-	$(AM_V_GEN) if test -f "$<"; then d=; else d="$(srcdir)/"; fi; $(APPDATA_VALIDATE) $${d}$< && touch [$]@
+	$(AM_V_GEN) if test -f "$<"; then d=; else d="$(srcdir)/"; fi; $(APPDATA_VALIDATE) --nonet $${d}$< && touch [$]@
 
 all-am: $(appdata_XML:.appdata.xml=.appdata.valid)
 uninstall-am: uninstall-appdata-xml

@@ -200,7 +200,6 @@ appdata_broken_func (void)
 	g_assert (ensure_failure (list, "<licence> is not valid"));
 	g_assert (ensure_failure (list, "<id> does not have correct extension for kind"));
 	g_assert (ensure_failure (list, "<id> has invalid type attribute"));
-	g_assert (ensure_failure (list, "<p> is too short"));
 	g_assert (ensure_failure (list, "Not enough <p> tags for a good description"));
 	g_assert (ensure_failure (list, "<li> is too short"));
 	g_assert (ensure_failure (list, "<ul> cannot start a description"));
@@ -290,7 +289,8 @@ appdata_translated_func (void)
 				"RequireTranslations", TRUE);
 	filename = appdata_test_get_data_file ("translated.appdata.xml");
 	list = appdata_check_file_for_problems (config, filename);
-	g_assert (ensure_failure (list, "Not enough <p> tags for a good description"));
+	print_failures (list);
+	g_assert (!ensure_failure (list, "<p> is too short [p]"));
 	g_assert (!ensure_failure (list, "<name> is duplicated"));
 	g_assert (!ensure_failure (list, "<name> has no translations"));
 	g_assert (!ensure_failure (list, "<description> has no translations"));

@@ -191,6 +191,9 @@ appdata_add_problem (AppdataHelper *helper,
 	g_markup_parse_context_get_position (helper->context,
 					     &problem->line_number,
 					     &problem->char_number);
+	g_debug ("Adding %s '%s', [%i,%i]",
+		 appdata_problem_kind_to_string (kind),
+		 str, problem->line_number, problem->char_number);
 	helper->problems = g_list_prepend (helper->problems, problem);
 }
 
@@ -250,6 +253,10 @@ appdata_start_element_fn (GMarkupParseContext *context,
 			break;
 		}
 	}
+
+	g_debug ("START\t<%s> (%s)",
+		 element_name,
+		 helper->tag_translated ? "translated" : "untranslated");
 
 	/* unknown -> application */
 	if (helper->section == APPDATA_SECTION_UNKNOWN) {
@@ -360,12 +367,14 @@ appdata_start_element_fn (GMarkupParseContext *context,
 			helper->section = new;
 
 			/* previous paragraph wasn't long enough */
-			if (helper->previous_para_was_short) {
-				appdata_add_problem (helper,
-						     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
-						     "<p> is too short [p]");
+			if (!helper->tag_translated) {
+				if (helper->previous_para_was_short) {
+					appdata_add_problem (helper,
+							     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
+							     "<p> is too short [p]");
+				}
+				helper->previous_para_was_short = FALSE;
 			}
-			helper->previous_para_was_short = FALSE;
 			break;
 		case APPDATA_SECTION_DESCRIPTION_UL:
 			/* ul without a leading para */
@@ -469,6 +478,8 @@ appdata_end_element_fn (GMarkupParseContext *context,
 {
 	AppdataHelper *helper = (AppdataHelper *) user_data;
 	AppdataSection new;
+
+	g_debug ("END\t<%s>", element_name);
 
 	new = appdata_selection_from_string (element_name);
 	if (helper->section == APPDATA_SECTION_APPLICATION) {

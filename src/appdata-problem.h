@@ -44,8 +44,10 @@ typedef enum {
 typedef struct {
 	AppdataProblemKind	 kind;
 	gchar			*description;
+	gint			 line_number;
+	gint			 char_number;
 } AppdataProblem;
 
-AppdataProblem		*appdata_problem_new		(void);
+AppdataProblem		*appdata_problem_new		(AppdataProblemKind	 kind);
 void			 appdata_problem_free		(AppdataProblem		*problem);
 const gchar		*appdata_problem_kind_to_string	(AppdataProblemKind	 kind);

@@ -135,29 +135,6 @@ appdata_selection_to_string (AppdataSection section)
 	return NULL;
 }
 
-/**
- * appdata_add_problem:
- */
-static void
-appdata_add_problem (GList **problems, AppdataProblemKind kind, const gchar *str)
-{
-	GList *l;
-	AppdataProblem *problem;
-
-	/* find if it's already been added */
-	for (l = *problems; l != NULL; l = l->next) {
-		problem = l->data;
-		if (g_strcmp0 (str, problem->description) == 0)
-			return;
-	}
-
-	/* add new problem to list */
-	problem = appdata_problem_new ();
-	problem->kind = kind;
-	problem->description = g_strdup (str);
-	*problems = g_list_prepend (*problems, problem);
-}
-
 typedef enum {
 	APPDATA_KIND_UNKNOWN,
 	APPDATA_KIND_DESKTOP,
@@ -168,6 +145,7 @@ typedef enum {
 } AppdataKind;
 
 typedef struct {
+	GMarkupParseContext *context;
 	AppdataSection	 section;
 	gchar		*id;
 	AppdataKind	 kind;
@@ -177,7 +155,7 @@ typedef struct {
 	gchar		*updatecontact;
 	gchar		*project_group;
 	gchar		*url;
-	GList		**problems;
+	GList		*problems;
 	guint		 number_paragraphs;
 	gboolean	 tag_translated;
 	gboolean	 previous_para_was_short;
@@ -196,6 +174,25 @@ typedef struct {
 	guint		 screenshot_height;
 	guint		 para_chars_before_list;
 } AppdataHelper;
+
+/**
+ * appdata_add_problem:
+ */
+static void
+appdata_add_problem (AppdataHelper *helper,
+		     AppdataProblemKind kind,
+		     const gchar *str)
+{
+	AppdataProblem *problem;
+
+	/* add new problem to list */
+	problem = appdata_problem_new (kind);
+	problem->description = g_strdup (str);
+	g_markup_parse_context_get_position (helper->context,
+					     &problem->line_number,
+					     &problem->char_number);
+	helper->problems = g_list_prepend (helper->problems, problem);
+}
 
 /**
  * appdata_id_type_from_string:
@@ -239,7 +236,7 @@ appdata_start_element_fn (GMarkupParseContext *context,
 		if (g_strcmp0 (attribute_names[i], "xml:lang") == 0) {
 			tmp = attribute_values[i];
 			if (g_strcmp0 (tmp, "C") == 0) {
-				appdata_add_problem (helper->problems,
+				appdata_add_problem (helper,
 						     APPDATA_PROBLEM_KIND_ATTRIBUTE_INVALID,
 						     "xml:lang should never be 'C'");
 			}
@@ -260,7 +257,7 @@ appdata_start_element_fn (GMarkupParseContext *context,
 			/* valid */
 			helper->section = new;
 			if (helper->seen_application) {
-				appdata_add_problem (helper->problems,
+				appdata_add_problem (helper,
 						     APPDATA_PROBLEM_KIND_MARKUP_INVALID,
 						     "<application> used more than once");
 			}
@@ -287,13 +284,13 @@ appdata_start_element_fn (GMarkupParseContext *context,
 			}
 			if (tmp == NULL) {
 				helper->kind = APPDATA_KIND_DESKTOP;
-				appdata_add_problem (helper->problems,
+				appdata_add_problem (helper,
 						     APPDATA_PROBLEM_KIND_ATTRIBUTE_MISSING,
 						     "no type attribute in <id>");
 			} else {
 				helper->kind = appdata_id_type_from_string (tmp);
 				if (helper->kind == APPDATA_KIND_UNKNOWN) {
-					appdata_add_problem (helper->problems,
+					appdata_add_problem (helper,
 							     APPDATA_PROBLEM_KIND_ATTRIBUTE_INVALID,
 							     "<id> has invalid type attribute");
 				}
@@ -309,12 +306,12 @@ appdata_start_element_fn (GMarkupParseContext *context,
 				}
 			}
 			if (tmp == NULL) {
-				appdata_add_problem (helper->problems,
+				appdata_add_problem (helper,
 						     APPDATA_PROBLEM_KIND_ATTRIBUTE_MISSING,
 						     "no type attribute in <url>");
 			}
 			if (g_strcmp0 (tmp, "homepage") != 0) {
-				appdata_add_problem (helper->problems,
+				appdata_add_problem (helper,
 						     APPDATA_PROBLEM_KIND_ATTRIBUTE_INVALID,
 						     "<url> has invalid type attribute");
 			}
@@ -364,7 +361,7 @@ appdata_start_element_fn (GMarkupParseContext *context,
 
 			/* previous paragraph wasn't long enough */
 			if (helper->previous_para_was_short) {
-				appdata_add_problem (helper->problems,
+				appdata_add_problem (helper,
 						     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
 						     "<p> is too short [p]");
 			}
@@ -373,7 +370,7 @@ appdata_start_element_fn (GMarkupParseContext *context,
 		case APPDATA_SECTION_DESCRIPTION_UL:
 			/* ul without a leading para */
 			if (helper->number_paragraphs < 1) {
-				appdata_add_problem (helper->problems,
+				appdata_add_problem (helper,
 						     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
 						     "<ul> cannot start a description");
 			}
@@ -383,7 +380,7 @@ appdata_start_element_fn (GMarkupParseContext *context,
 						      NULL);
 			if (helper->para_chars_before_list != 0 &&
 			    helper->para_chars_before_list < (guint) len) {
-				appdata_add_problem (helper->problems,
+				appdata_add_problem (helper,
 						     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
 						     "Not enough <p> content before <ul>");
 			}
@@ -433,13 +430,13 @@ appdata_start_element_fn (GMarkupParseContext *context,
 					helper->screenshot_width = atoi (attribute_values[i]);
 			}
 			if (tmp != NULL && g_strcmp0 (tmp, "default") != 0) {
-				appdata_add_problem (helper->problems,
+				appdata_add_problem (helper,
 						     APPDATA_PROBLEM_KIND_ATTRIBUTE_INVALID,
 						     "<screenshot> has unknown type");
 			}
 			if (g_strcmp0 (tmp, "default") == 0) {
 				if (helper->has_default_screenshot) {
-					appdata_add_problem (helper->problems,
+					appdata_add_problem (helper,
 							     APPDATA_PROBLEM_KIND_MARKUP_INVALID,
 							     "<screenshot> has more than one default");
 				}
@@ -533,7 +530,7 @@ appdata_end_element_fn (GMarkupParseContext *context,
 
 		/* previous paragraph wasn't long enough */
 		if (helper->previous_para_was_short) {
-			appdata_add_problem (helper->problems,
+			appdata_add_problem (helper,
 					     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
 					     "<p> is too short");
 		}
@@ -717,7 +714,7 @@ appdata_screenshot_check_remote_url (AppdataHelper *helper, const gchar *url)
 	base_uri = soup_uri_new (url);
 	if (base_uri == NULL) {
 		ret = FALSE;
-		appdata_add_problem (helper->problems,
+		appdata_add_problem (helper,
 				     APPDATA_PROBLEM_KIND_URL_NOT_FOUND,
 				     "<screenshot> url not valid");
 		goto out;
@@ -732,7 +729,7 @@ appdata_screenshot_check_remote_url (AppdataHelper *helper, const gchar *url)
 	status_code = soup_session_send_message (helper->session, msg);
 	if (status_code != SOUP_STATUS_OK) {
 		ret = FALSE;
-		appdata_add_problem (helper->problems,
+		appdata_add_problem (helper,
 				     APPDATA_PROBLEM_KIND_URL_NOT_FOUND,
 				     "<screenshot> url not found");
 		goto out;
@@ -741,7 +738,7 @@ appdata_screenshot_check_remote_url (AppdataHelper *helper, const gchar *url)
 	/* check if it's a zero sized file */
 	if (msg->response_body->length == 0) {
 		ret = FALSE;
-		appdata_add_problem (helper->problems,
+		appdata_add_problem (helper,
 				     APPDATA_PROBLEM_KIND_FILE_INVALID,
 				     "<screenshot> url is a zero length file");
 		goto out;
@@ -753,7 +750,7 @@ appdata_screenshot_check_remote_url (AppdataHelper *helper, const gchar *url)
 					      NULL);
 	if (stream == NULL) {
 		ret = FALSE;
-		appdata_add_problem (helper->problems,
+		appdata_add_problem (helper,
 				     APPDATA_PROBLEM_KIND_URL_NOT_FOUND,
 				     "<screenshot> failed to load data");
 		goto out;
@@ -763,7 +760,7 @@ appdata_screenshot_check_remote_url (AppdataHelper *helper, const gchar *url)
 	pixbuf = gdk_pixbuf_new_from_stream (stream, NULL, &error);
 	if (pixbuf == NULL) {
 		ret = FALSE;
-		appdata_add_problem (helper->problems,
+		appdata_add_problem (helper,
 				     APPDATA_PROBLEM_KIND_FILE_INVALID,
 				     "<screenshot> failed to load image");
 		goto out;
@@ -774,7 +771,7 @@ appdata_screenshot_check_remote_url (AppdataHelper *helper, const gchar *url)
 	screenshot_height = gdk_pixbuf_get_height (pixbuf);
 	if (helper->screenshot_width != 0 &&
 	    helper->screenshot_width != screenshot_width) {
-		appdata_add_problem (helper->problems,
+		appdata_add_problem (helper,
 				     APPDATA_PROBLEM_KIND_ATTRIBUTE_INVALID,
 				     "<screenshot> width did not match specified");
 	}
@@ -782,7 +779,7 @@ appdata_screenshot_check_remote_url (AppdataHelper *helper, const gchar *url)
 	/* check height matches */
 	if (helper->screenshot_height != 0 &&
 	    helper->screenshot_height != screenshot_height) {
-		appdata_add_problem (helper->problems,
+		appdata_add_problem (helper,
 				     APPDATA_PROBLEM_KIND_ATTRIBUTE_INVALID,
 				     "<screenshot> height did not match specified");
 	}
@@ -791,28 +788,28 @@ appdata_screenshot_check_remote_url (AppdataHelper *helper, const gchar *url)
 	policy = g_key_file_get_integer (helper->config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
 					 "ScreenshotSizeWidthMin", NULL);
 	if (screenshot_width < policy) {
-		appdata_add_problem (helper->problems,
+		appdata_add_problem (helper,
 				     APPDATA_PROBLEM_KIND_ATTRIBUTE_INVALID,
 				     "<screenshot> width was too small");
 	}
 	policy = g_key_file_get_integer (helper->config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
 					 "ScreenshotSizeHeightMin", NULL);
 	if (screenshot_height < policy) {
-		appdata_add_problem (helper->problems,
+		appdata_add_problem (helper,
 				     APPDATA_PROBLEM_KIND_ATTRIBUTE_INVALID,
 				     "<screenshot> height was too small");
 	}
 	policy = g_key_file_get_integer (helper->config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
 					 "ScreenshotSizeWidthMax", NULL);
 	if (screenshot_width > policy) {
-		appdata_add_problem (helper->problems,
+		appdata_add_problem (helper,
 				     APPDATA_PROBLEM_KIND_ATTRIBUTE_INVALID,
 				     "<screenshot> width was too large");
 	}
 	policy = g_key_file_get_integer (helper->config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
 					 "ScreenshotSizeHeightMax", NULL);
 	if (screenshot_height > policy) {
-		appdata_add_problem (helper->problems,
+		appdata_add_problem (helper,
 				     APPDATA_PROBLEM_KIND_ATTRIBUTE_INVALID,
 				     "<screenshot> height was too large");
 	}
@@ -829,7 +826,7 @@ appdata_screenshot_check_remote_url (AppdataHelper *helper, const gchar *url)
 		if (ABS (screenshot_aspect - desired_aspect) > 0.1) {
 			g_debug ("got aspect %.2f, wanted %.2f",
 				 screenshot_aspect, desired_aspect);
-			appdata_add_problem (helper->problems,
+			appdata_add_problem (helper,
 					     APPDATA_PROBLEM_KIND_ASPECT_RATIO_INCORRECT,
 					     "<screenshot> aspect ratio was not 16:9");
 		}
@@ -874,7 +871,7 @@ appdata_text_fn (GMarkupParseContext *context,
 		helper->id = g_strstrip (g_strndup (text, text_len));
 		ret = appdata_check_id_for_kind (helper->id, helper->kind);
 		if (!ret) {
-			appdata_add_problem (helper->problems,
+			appdata_add_problem (helper,
 					     APPDATA_PROBLEM_KIND_MARKUP_INVALID,
 					     "<id> does not have correct extension for kind");
 		}
@@ -882,7 +879,7 @@ appdata_text_fn (GMarkupParseContext *context,
 	case APPDATA_SECTION_LICENCE:
 		if (helper->licence != NULL) {
 			g_free (helper->licence);
-			appdata_add_problem (helper->problems,
+			appdata_add_problem (helper,
 					     APPDATA_PROBLEM_KIND_TAG_DUPLICATED,
 					     "<licence> is duplicated");
 		}
@@ -899,7 +896,7 @@ appdata_text_fn (GMarkupParseContext *context,
 			}
 		}
 		if (!valid) {
-			appdata_add_problem (helper->problems,
+			appdata_add_problem (helper,
 					     APPDATA_PROBLEM_KIND_TAG_INVALID,
 					     "<licence> is not valid");
 		}
@@ -907,28 +904,28 @@ appdata_text_fn (GMarkupParseContext *context,
 	case APPDATA_SECTION_URL:
 		if (helper->url != NULL) {
 			g_free (helper->url);
-			appdata_add_problem (helper->problems,
+			appdata_add_problem (helper,
 					     APPDATA_PROBLEM_KIND_TAG_DUPLICATED,
 					     "<url> is duplicated");
 		}
 		helper->url = g_strstrip (g_strndup (text, text_len));
 		if (!g_str_has_prefix (helper->url, "http://") &&
 		    !g_str_has_prefix (helper->url, "https://"))
-			appdata_add_problem (helper->problems,
+			appdata_add_problem (helper,
 					     APPDATA_PROBLEM_KIND_TAG_INVALID,
 					     "<url> does not start with 'http://'");
 		break;
 	case APPDATA_SECTION_UPDATECONTACT:
 		if (helper->updatecontact != NULL) {
 			g_free (helper->updatecontact);
-			appdata_add_problem (helper->problems,
+			appdata_add_problem (helper,
 					     APPDATA_PROBLEM_KIND_TAG_DUPLICATED,
 					     "<updatecontact> is duplicated");
 		}
 		helper->updatecontact = g_strstrip (g_strndup (text, text_len));
 		if (g_strcmp0 (helper->updatecontact,
 			       "someone_who_cares@upstream_project.org") == 0) {
-			appdata_add_problem (helper->problems,
+			appdata_add_problem (helper,
 					     APPDATA_PROBLEM_KIND_TAG_INVALID,
 					     "<updatecontact> is still set to a dummy value");
 		}
@@ -936,7 +933,7 @@ appdata_text_fn (GMarkupParseContext *context,
 					      APPDATA_TOOLS_VALIDATE_GROUP_NAME,
 					      "LengthUpdatecontactMin", NULL);
 		if (strlen (helper->updatecontact) < len) {
-			appdata_add_problem (helper->problems,
+			appdata_add_problem (helper,
 					     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
 					     "<updatecontact> is too short");
 		}
@@ -944,7 +941,7 @@ appdata_text_fn (GMarkupParseContext *context,
 	case APPDATA_SECTION_PROJECT_GROUP:
 		if (helper->project_group != NULL) {
 			g_free (helper->project_group);
-			appdata_add_problem (helper->problems,
+			appdata_add_problem (helper,
 					     APPDATA_PROBLEM_KIND_TAG_DUPLICATED,
 					     "<project_group> is duplicated");
 		}
@@ -953,7 +950,7 @@ appdata_text_fn (GMarkupParseContext *context,
 	case APPDATA_SECTION_NAME:
 		if (helper->name != NULL) {
 			g_free (helper->name);
-			appdata_add_problem (helper->problems,
+			appdata_add_problem (helper,
 					     APPDATA_PROBLEM_KIND_TAG_DUPLICATED,
 					     "<name> is duplicated");
 		}
@@ -963,7 +960,7 @@ appdata_text_fn (GMarkupParseContext *context,
 					      "LengthNameMin", NULL);
 		str_len = strlen (helper->name);
 		if (str_len < len) {
-			appdata_add_problem (helper->problems,
+			appdata_add_problem (helper,
 					     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
 					     "<name> is too short");
 		}
@@ -971,12 +968,12 @@ appdata_text_fn (GMarkupParseContext *context,
 					      APPDATA_TOOLS_VALIDATE_GROUP_NAME,
 					      "LengthNameMax", NULL);
 		if (str_len > len) {
-			appdata_add_problem (helper->problems,
+			appdata_add_problem (helper,
 					     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
 					     "<name> is too long");
 		}
 		if (appdata_has_fullstop_ending (helper->name)) {
-			appdata_add_problem (helper->problems,
+			appdata_add_problem (helper,
 					     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
 					     "<name> cannot end in '.'");
 		}
@@ -984,7 +981,7 @@ appdata_text_fn (GMarkupParseContext *context,
 	case APPDATA_SECTION_SUMMARY:
 		if (helper->summary != NULL) {
 			g_free (helper->summary);
-			appdata_add_problem (helper->problems,
+			appdata_add_problem (helper,
 					     APPDATA_PROBLEM_KIND_TAG_DUPLICATED,
 					     "<summary> is duplicated");
 		}
@@ -994,7 +991,7 @@ appdata_text_fn (GMarkupParseContext *context,
 					      "LengthSummaryMin", NULL);
 		str_len = strlen (helper->summary);
 		if (str_len < len) {
-			appdata_add_problem (helper->problems,
+			appdata_add_problem (helper,
 					     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
 					     "<summary> is too short");
 		}
@@ -1002,12 +999,12 @@ appdata_text_fn (GMarkupParseContext *context,
 					      APPDATA_TOOLS_VALIDATE_GROUP_NAME,
 					      "LengthSummaryMax", NULL);
 		if (str_len > len) {
-			appdata_add_problem (helper->problems,
+			appdata_add_problem (helper,
 					     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
 					     "<summary> is too long");
 		}
 		if (appdata_has_fullstop_ending (helper->summary)) {
-			appdata_add_problem (helper->problems,
+			appdata_add_problem (helper,
 					     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
 					     "<summary> cannot end in '.'");
 		}
@@ -1027,19 +1024,19 @@ appdata_text_fn (GMarkupParseContext *context,
 					      "LengthParaMax", NULL);
 		str_len = strlen (temp);
 		if (str_len > len) {
-			appdata_add_problem (helper->problems,
+			appdata_add_problem (helper,
 					     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
 					     "<p> is too long");
 		}
 		if (g_str_has_prefix (temp, "This application")) {
-			appdata_add_problem (helper->problems,
+			appdata_add_problem (helper,
 					     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
 					     "<p> should not start with 'This application'");
 		}
 		if (temp[str_len - 1] != '.' &&
 		    temp[str_len - 1] != '!' &&
 		    temp[str_len - 1] != ':') {
-			appdata_add_problem (helper->problems,
+			appdata_add_problem (helper,
 					     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
 					     "<p> does not end in '.|:|!'");
 		}
@@ -1054,7 +1051,7 @@ appdata_text_fn (GMarkupParseContext *context,
 					      "LengthListItemMin", NULL);
 		str_len = strlen (temp);
 		if (str_len < len) {
-			appdata_add_problem (helper->problems,
+			appdata_add_problem (helper,
 					     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
 					     "<li> is too short");
 		}
@@ -1062,12 +1059,12 @@ appdata_text_fn (GMarkupParseContext *context,
 					      APPDATA_TOOLS_VALIDATE_GROUP_NAME,
 					      "LengthListItemMax", NULL);
 		if (str_len > len) {
-			appdata_add_problem (helper->problems,
+			appdata_add_problem (helper,
 					     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
 					     "<li> is too long");
 		}
 		if (appdata_has_fullstop_ending (temp)) {
-			appdata_add_problem (helper->problems,
+			appdata_add_problem (helper,
 					     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
 					     "<li> cannot end in '.'");
 		}
@@ -1076,13 +1073,13 @@ appdata_text_fn (GMarkupParseContext *context,
 	case APPDATA_SECTION_SCREENSHOT:
 		temp = g_strstrip (g_strndup (text, text_len));
 		if (strlen (temp) == 0) {
-			appdata_add_problem (helper->problems,
+			appdata_add_problem (helper,
 					     APPDATA_PROBLEM_KIND_VALUE_MISSING,
 					     "<screenshot> has no content");
 		}
 		ret = appdata_screenshot_already_exists (helper, temp);
 		if (ret) {
-			appdata_add_problem (helper->problems,
+			appdata_add_problem (helper,
 					     APPDATA_PROBLEM_KIND_DUPLICATE_DATA,
 					     "<screenshot> has duplicated data");
 		} else {
@@ -1134,11 +1131,11 @@ appdata_check_file_for_problems (GKeyFile *config,
 				 const gchar *filename)
 {
 	AppdataHelper *helper = NULL;
+	AppdataProblem *problem;
 	gboolean ret;
 	gchar *data;
 	GError *error = NULL;
 	GList *problems = NULL;
-	GMarkupParseContext *context = NULL;
 	gchar *original_filename = NULL;
 	gsize data_len;
 	guint len;
@@ -1154,9 +1151,9 @@ appdata_check_file_for_problems (GKeyFile *config,
 	/* open file */
 	ret = g_file_get_contents (filename, &data, &data_len, &error);
 	if (!ret) {
-		appdata_add_problem (&problems,
-				     APPDATA_PROBLEM_KIND_FAILED_TO_OPEN,
-				     error->message);
+		problem = appdata_problem_new (APPDATA_PROBLEM_KIND_FAILED_TO_OPEN);
+		problem->description = g_strdup (error->message);
+		problems = g_list_prepend (problems, problem);
 		g_error_free (error);
 		goto out;
 	}
@@ -1170,14 +1167,14 @@ appdata_check_file_for_problems (GKeyFile *config,
 
 	/* check file has the correct ending */
 	if (!g_str_has_suffix (original_filename, ".appdata.xml")) {
-		appdata_add_problem (&problems,
-				     APPDATA_PROBLEM_KIND_FILENAME_INVALID,
-				     "incorrect extension, expected '.appdata.xml'");
+		problem = appdata_problem_new (APPDATA_PROBLEM_KIND_FILENAME_INVALID);
+		problem->description = g_strdup ("incorrect extension, expected '.appdata.xml'");
+		problems = g_list_prepend (problems, problem);
 	}
 
 	/* parse */
 	helper = g_new0 (AppdataHelper, 1);
-	helper->problems = &problems;
+	helper->problems = problems;
 	helper->section = APPDATA_SECTION_UNKNOWN;
 	helper->config = config;
 	helper->screenshots = g_ptr_array_new_with_free_func (g_free);
@@ -1198,10 +1195,10 @@ appdata_check_file_for_problems (GKeyFile *config,
 						  SOUP_TYPE_PROXY_RESOLVER_DEFAULT);
 	}
 
-	context = g_markup_parse_context_new (&parser, 0, helper, NULL);
-	ret = g_markup_parse_context_parse (context, data, data_len, &error);
+	helper->context = g_markup_parse_context_new (&parser, 0, helper, NULL);
+	ret = g_markup_parse_context_parse (helper->context, data, data_len, &error);
 	if (!ret) {
-		appdata_add_problem (&problems,
+		appdata_add_problem (helper,
 				     APPDATA_PROBLEM_KIND_MARKUP_INVALID,
 				     error->message);
 		g_error_free (error);
@@ -1210,38 +1207,38 @@ appdata_check_file_for_problems (GKeyFile *config,
 
 	/* check for things that have to exist */
 	if (helper->id == NULL) {
-		appdata_add_problem (&problems,
+		appdata_add_problem (helper,
 				     APPDATA_PROBLEM_KIND_TAG_MISSING,
 				     "<id> is not present");
 	}
 	if (!helper->has_xml_header) {
-		appdata_add_problem (helper->problems,
+		appdata_add_problem (helper,
 				     APPDATA_PROBLEM_KIND_MARKUP_INVALID,
 				     "<?xml> header not found");
 	}
 	ret = g_key_file_get_boolean (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
 				      "RequireCopyright", NULL);
 	if (ret && !helper->has_copyright_info) {
-		appdata_add_problem (&problems,
+		appdata_add_problem (helper,
 				     APPDATA_PROBLEM_KIND_VALUE_MISSING,
 				     "<!-- Copyright [year] [name] --> is not present");
 	}
 	ret = g_key_file_get_boolean (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
 				      "RequireContactdetails", NULL);
 	if (ret && helper->updatecontact == NULL) {
-		appdata_add_problem (&problems,
+		appdata_add_problem (helper,
 				     APPDATA_PROBLEM_KIND_TAG_MISSING,
 				     "<updatecontact> is not present");
 	}
 	ret = g_key_file_get_boolean (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
 				      "RequireUrl", NULL);
 	if (ret && helper->url == NULL) {
-		appdata_add_problem (&problems,
+		appdata_add_problem (helper,
 				     APPDATA_PROBLEM_KIND_TAG_MISSING,
 				     "<url> is not present");
 	}
 	if (helper->licence == NULL) {
-		appdata_add_problem (&problems,
+		appdata_add_problem (helper,
 				     APPDATA_PROBLEM_KIND_TAG_MISSING,
 				     "<licence> is not present");
 	}
@@ -1249,7 +1246,7 @@ appdata_check_file_for_problems (GKeyFile *config,
 				      APPDATA_TOOLS_VALIDATE_GROUP_NAME,
 				      "NumberParaMin", NULL);
 	if (helper->number_paragraphs < len) {
-		appdata_add_problem (&problems,
+		appdata_add_problem (helper,
 				     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
 				     "Not enough <p> tags for a good description");
 	}
@@ -1257,7 +1254,7 @@ appdata_check_file_for_problems (GKeyFile *config,
 				      APPDATA_TOOLS_VALIDATE_GROUP_NAME,
 				      "NumberParaMax", NULL);
 	if (helper->number_paragraphs > len) {
-		appdata_add_problem (&problems,
+		appdata_add_problem (helper,
 				     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
 				     "Too many <p> tags for a good description");
 	}
@@ -1265,7 +1262,7 @@ appdata_check_file_for_problems (GKeyFile *config,
 				      APPDATA_TOOLS_VALIDATE_GROUP_NAME,
 				      "NumberScreenshotsMin", NULL);
 	if (helper->screenshots->len < len) {
-		appdata_add_problem (&problems,
+		appdata_add_problem (helper,
 				     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
 				     "Not enough <screenshot> tags");
 	}
@@ -1273,18 +1270,18 @@ appdata_check_file_for_problems (GKeyFile *config,
 				      APPDATA_TOOLS_VALIDATE_GROUP_NAME,
 				      "NumberScreenshotsMax", NULL);
 	if (helper->screenshots->len > len) {
-		appdata_add_problem (&problems,
+		appdata_add_problem (helper,
 				     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
 				     "Too many <screenshot> tags");
 	}
 	if (helper->screenshots->len > 0 && !helper->has_default_screenshot) {
-		appdata_add_problem (helper->problems,
+		appdata_add_problem (helper,
 				     APPDATA_PROBLEM_KIND_MARKUP_INVALID,
 				     "<screenshots> has no default <screenshot>");
 	}
 	if (helper->summary != NULL && helper->name != NULL &&
 	    strlen (helper->summary) < strlen (helper->name)) {
-		appdata_add_problem (&problems,
+		appdata_add_problem (helper,
 				     APPDATA_PROBLEM_KIND_STYLE_INCORRECT,
 				     "<summary> is shorter than <name>");
 	}
@@ -1293,25 +1290,26 @@ appdata_check_file_for_problems (GKeyFile *config,
 	if (ret) {
 		if (helper->name != NULL &&
 		    helper->translations_name == 0) {
-			appdata_add_problem (&problems,
+			appdata_add_problem (helper,
 					     APPDATA_PROBLEM_KIND_TRANSLATIONS_REQUIRED,
 					     "<name> has no translations");
 		}
 		if (helper->summary != NULL &&
 		    helper->translations_summary == 0) {
-			appdata_add_problem (&problems,
+			appdata_add_problem (helper,
 					     APPDATA_PROBLEM_KIND_TRANSLATIONS_REQUIRED,
 					     "<summary> has no translations");
 		}
 		if (helper->number_paragraphs > 0 &&
 		    helper->translations_description == 0) {
-			appdata_add_problem (&problems,
+			appdata_add_problem (helper,
 					     APPDATA_PROBLEM_KIND_TRANSLATIONS_REQUIRED,
 					     "<description> has no translations");
 		}
 	}
 out:
 	if (helper != NULL) {
+		problems = helper->problems;
 		g_free (helper->id);
 		g_free (helper->licence);
 		g_free (helper->url);
@@ -1321,12 +1319,12 @@ out:
 		g_free (helper->project_group);
 		if (helper->session != NULL)
 			g_object_unref (helper->session);
+		if (helper->context != NULL)
+			g_markup_parse_context_unref (helper->context);
 		g_ptr_array_unref (helper->screenshots);
 	}
 	g_free (helper);
 	g_free (original_filename);
 	g_free (data);
-	if (context != NULL)
-		g_markup_parse_context_unref (context);
 	return problems;
 }

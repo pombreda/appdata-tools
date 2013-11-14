@@ -27,10 +27,11 @@
  * appdata_problem_new:
  */
 AppdataProblem *
-appdata_problem_new (void)
+appdata_problem_new (AppdataProblemKind kind)
 {
 	AppdataProblem *problem;
 	problem = g_slice_new0 (AppdataProblem);
+	problem->kind = kind;
 	return problem;
 }
 

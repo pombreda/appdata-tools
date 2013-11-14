@@ -106,7 +106,14 @@ appdata_validate_format_html (const gchar *filename, GList *problems)
 			gs_string_replace (tmp, "&", "&amp;");
 			gs_string_replace (tmp, "<", "[");
 			gs_string_replace (tmp, ">", "]");
-			g_print ("<li>%s</li>\n", tmp->str);
+			g_print ("<li>");
+			g_print ("%s\n", tmp->str);
+			if (problem->line_number > 0) {
+				g_print (" (line %i, char %i)",
+					 problem->line_number,
+					 problem->char_number);
+			}
+			g_print ("</li>\n");
 			g_string_free (tmp, TRUE);
 		}
 		g_print ("</ul>\n");
@@ -135,9 +142,16 @@ appdata_validate_format_xml (const gchar *filename, GList *problems)
 			gs_string_replace (tmp, "&", "&amp;");
 			gs_string_replace (tmp, "<", "");
 			gs_string_replace (tmp, ">", "");
-			g_print ("    <problem type=\"%s\">%s</problem>\n",
-				 appdata_problem_kind_to_string (problem->kind),
-				 tmp->str);
+			if (problem->line_number > 0) {
+				g_print ("    <problem type=\"%s\" line=\"%i\">%s</problem>\n",
+					 appdata_problem_kind_to_string (problem->kind),
+					 problem->line_number,
+					 tmp->str);
+			} else {
+				g_print ("    <problem type=\"%s\">%s</problem>\n",
+					 appdata_problem_kind_to_string (problem->kind),
+					 tmp->str);
+			}
 			g_string_free (tmp, TRUE);
 		}
 		g_print ("  </problems>\n");
@@ -172,7 +186,14 @@ appdata_validate_format_text (const gchar *filename, GList *problems)
 		g_print ("• %s ", tmp);
 		for (i = strlen (tmp); i < 20; i++)
 			g_print (" ");
-		g_print (" : %s\n", problem->description);
+		if (problem->line_number > 0) {
+			g_print (" : %s [ln:%i ch:%i]\n",
+				 problem->description,
+				 problem->line_number,
+				 problem->char_number);
+		} else {
+			g_print (" : %s\n", problem->description);
+		}
 	}
 }
 

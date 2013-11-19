@@ -1,6 +1,6 @@
 # appdata-xml.m4
 #
-# serial 1
+# serial 2
 
 dnl APPDATA_XML
 dnl Installs and validates AppData XML files.

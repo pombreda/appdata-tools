@@ -1,6 +1,6 @@
 # appdata-xml.m4
 #
-# serial 2
+# serial 3
 
 dnl APPDATA_XML
 dnl Installs and validates AppData XML files.
@@ -32,7 +32,7 @@ mostlyclean-am: clean-appdata-xml
 %.appdata.valid: %.appdata.xml
 	$(AM_V_GEN) if test -f "$<"; then d=; else d="$(srcdir)/"; fi; $(APPDATA_VALIDATE) --nonet $${d}$< && touch [$]@
 
-all-am: $(appdata_XML:.appdata.xml=.appdata.valid)
+check-am: $(appdata_XML:.appdata.xml=.appdata.valid)
 uninstall-am: uninstall-appdata-xml
 install-data-am: install-appdata-xml
 

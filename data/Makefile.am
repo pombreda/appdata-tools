@@ -49,7 +49,7 @@ appdata-rng-init.el:
 appdata-rng-init.el: appdata-rng-init.el.in
 
 emacsinitdir = $(datadir)/emacs/site-lisp/site-start.d
-dist_emacsinit_DATA = appdata-rng-init.el
+emacsinit_DATA = appdata-rng-init.el
 
 EXTRA_DIST =					\
 	appdata-rng-init.el.in			\

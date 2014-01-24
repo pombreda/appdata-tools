@@ -1,3 +1,18 @@
+Version 0.1.7
+~~~~~~~~~~~~~
+Released: 2014-01-24
+
+New Features:
+ - Add configure conditional to control validation (David King)
+
+Bugfixes:
+ - Bump serial in appdata-xml.m4 (David King)
+ - Correct a validation warning when using a translated list (Richard Hughes)
+ - Don't include appdata-rng-init.el in the distribution tarball (Peter Oliver)
+ - Output the line and char number when printing problems (Richard Hughes)
+ - Pass --nonet to appdata-validate in appdata-xml.m4 (David King)
+ - Validate APPDATA_XML files during check phase (David King)
+
 Version 0.1.6
 ~~~~~~~~~~~~~
 Released: 2013-11-08

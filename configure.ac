@@ -58,9 +58,9 @@ else
 fi
 AC_SUBST(WARNINGFLAGS_C)
 
-PKG_CHECK_MODULES(GLIB, glib-2.0 >= 2.14.0 gobject-2.0 gthread-2.0)
-PKG_CHECK_MODULES(SOUP, libsoup-2.4)
-PKG_CHECK_MODULES(GDKPIXBUF, gdk-pixbuf-2.0)
+PKG_CHECK_MODULES(GLIB, glib-2.0 >= 2.36.0 gobject-2.0 gthread-2.0)
+PKG_CHECK_MODULES(SOUP, libsoup-2.4 >= 2.24)
+PKG_CHECK_MODULES(GDKPIXBUF, gdk-pixbuf-2.0 >= 2.14)
 
 AC_ARG_ENABLE(man,
               [AS_HELP_STRING([--disable-man],

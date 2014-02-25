@@ -17,7 +17,7 @@
     <xsd:complexType mixed="true">
       <xsd:all>
         <xsd:element ref="id" minOccurs="1" maxOccurs="1"/>
-        <xsd:element ref="licence" minOccurs="1" maxOccurs="1"/>
+        <xsd:element ref="metadata_license" minOccurs="1" maxOccurs="1"/>
         <xsd:element ref="name" minOccurs="0" maxOccurs="1"/>
         <xsd:element ref="summary" minOccurs="0" maxOccurs="1"/>
         <xsd:element ref="description" minOccurs="1" maxOccurs="1"/>
@@ -43,7 +43,7 @@
       </xsd:simpleContent>
     </xsd:complexType>
   </xsd:element>
-  <xsd:element name="licence" type="xsd:string"/>
+  <xsd:element name="metadata_license" type="xsd:string"/>
   <xsd:element name="name">
     <xsd:complexType>
       <xsd:simpleContent>

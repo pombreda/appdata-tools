@@ -1,8 +1,8 @@
 <!-- Author: 2013 Richard Hughes <richard@hughsie.com> -->
 <application>
   <id type="unknown">gnome-power-statistics</id>
-  <licence>GPLv3+</licence>
-  <licence>BSD</licence>
+  <metadata_license>GPLv3+</metadata_license>
+  <metadata_license>BSD</metadata_license>
   <name>Power Statistics.</name>
   <summary>Observe power management.</summary>
   <description>

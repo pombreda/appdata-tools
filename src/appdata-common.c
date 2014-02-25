@@ -61,6 +61,8 @@ appdata_selection_from_string (const gchar *element_name)
 		return APPDATA_SECTION_ID;
 	if (g_strcmp0 (element_name, "licence") == 0)
 		return APPDATA_SECTION_LICENCE;
+	if (g_strcmp0 (element_name, "metadata_license") == 0)
+		return APPDATA_SECTION_LICENCE;
 	if (g_strcmp0 (element_name, "screenshots") == 0)
 		return APPDATA_SECTION_SCREENSHOTS;
 	if (g_strcmp0 (element_name, "screenshot") == 0)
@@ -103,7 +105,7 @@ appdata_selection_to_string (AppdataSection section)
 	if (section == APPDATA_SECTION_ID)
 		return "id";
 	if (section == APPDATA_SECTION_LICENCE)
-		return "licence";
+		return "metadata_license";
 	if (section == APPDATA_SECTION_SCREENSHOTS)
 		return "screenshots";
 	if (section == APPDATA_SECTION_SCREENSHOT)
@@ -151,7 +153,7 @@ typedef struct {
 	AppdataKind	 kind;
 	gchar		*name;
 	gchar		*summary;
-	gchar		*licence;
+	gchar		*metadata_license;
 	gchar		*updatecontact;
 	gchar		*project_group;
 	gchar		*url;
@@ -228,10 +230,25 @@ appdata_start_element_fn (GMarkupParseContext *context,
 	AppdataHelper *helper = (AppdataHelper *) user_data;
 	AppdataSection new;
 	const gchar *tmp;
+	gboolean ret;
 	gint len;
 	guint i;
 
 	new = appdata_selection_from_string (element_name);
+
+	/* using deprecated names */
+	if (g_strcmp0 (element_name, "licence") == 0) {
+		ret = g_key_file_get_boolean (helper->config,
+					      APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+					      "DeprecatedFailure",
+					      NULL);
+		if (ret) {
+			appdata_add_problem (helper,
+					     APPDATA_PROBLEM_KIND_ATTRIBUTE_INVALID,
+					     "<licence> is deprecated, use "
+					     "<metadata_license> instead");
+		}
+	}
 
 	/* all tags are untranslated until found otherwise */
 	helper->tag_translated = FALSE;
@@ -503,7 +520,7 @@ appdata_end_element_fn (GMarkupParseContext *context,
 		return;
 	}
 
-	/* </licence> */
+	/* </metadata_license> */
 	if (helper->section == APPDATA_SECTION_LICENCE &&
 	    new == APPDATA_SECTION_LICENCE) {
 		/* valid */
@@ -865,7 +882,7 @@ appdata_text_fn (GMarkupParseContext *context,
 		 GError **error)
 {
 	AppdataHelper *helper = (AppdataHelper *) user_data;
-	gchar **licences = NULL;
+	gchar **licenses = NULL;
 	gchar *temp;
 	guint i;
 	guint len;
@@ -888,20 +905,20 @@ appdata_text_fn (GMarkupParseContext *context,
 		}
 		break;
 	case APPDATA_SECTION_LICENCE:
-		if (helper->licence != NULL) {
-			g_free (helper->licence);
+		if (helper->metadata_license != NULL) {
+			g_free (helper->metadata_license);
 			appdata_add_problem (helper,
 					     APPDATA_PROBLEM_KIND_TAG_DUPLICATED,
-					     "<licence> is duplicated");
+					     "<metadata_license> is duplicated");
 		}
-		helper->licence = g_strstrip (g_strndup (text, text_len));
-		licences = g_key_file_get_string_list (helper->config,
+		helper->metadata_license = g_strstrip (g_strndup (text, text_len));
+		licenses = g_key_file_get_string_list (helper->config,
 						       APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-						       "AcceptableLicences",
+						       "AcceptableLicenses",
 						       NULL, NULL);
 		valid = FALSE;
-		for (i = 0; licences[i] != NULL; i++) {
-			if (g_strcmp0 (helper->licence, licences[i]) == 0) {
+		for (i = 0; licenses[i] != NULL; i++) {
+			if (g_strcmp0 (helper->metadata_license, licenses[i]) == 0) {
 				valid = TRUE;
 				break;
 			}
@@ -909,7 +926,7 @@ appdata_text_fn (GMarkupParseContext *context,
 		if (!valid) {
 			appdata_add_problem (helper,
 					     APPDATA_PROBLEM_KIND_TAG_INVALID,
-					     "<licence> is not valid");
+					     "<metadata_license> is not valid");
 		}
 		break;
 	case APPDATA_SECTION_URL:
@@ -1106,7 +1123,7 @@ appdata_text_fn (GMarkupParseContext *context,
 		/* ignore */
 		break;
 	}
-	g_free (licences);
+	g_free (licenses);
 }
 
 /**
@@ -1248,10 +1265,10 @@ appdata_check_file_for_problems (GKeyFile *config,
 				     APPDATA_PROBLEM_KIND_TAG_MISSING,
 				     "<url> is not present");
 	}
-	if (helper->licence == NULL) {
+	if (helper->metadata_license == NULL) {
 		appdata_add_problem (helper,
 				     APPDATA_PROBLEM_KIND_TAG_MISSING,
-				     "<licence> is not present");
+				     "<metadata_license> is not present");
 	}
 	len = g_key_file_get_integer (helper->config,
 				      APPDATA_TOOLS_VALIDATE_GROUP_NAME,
@@ -1322,7 +1339,7 @@ out:
 	if (helper != NULL) {
 		problems = helper->problems;
 		g_free (helper->id);
-		g_free (helper->licence);
+		g_free (helper->metadata_license);
 		g_free (helper->url);
 		g_free (helper->name);
 		g_free (helper->summary);

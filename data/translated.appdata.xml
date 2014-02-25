@@ -2,7 +2,7 @@
 <!-- Copyright 2013 Richard Hughes <richard@hughsie.com> -->
 <application>
   <id type="desktop">org.gnome.Weather.Application.desktop</id>
-  <licence>CC0</licence>
+  <metadata_license>CC0</metadata_license>
   <name>Weather</name>
   <name xml:lang="de">Wetter</name>
   <description>

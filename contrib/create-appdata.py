@@ -54,7 +54,7 @@ def main():
         s = '<?xml version="1.0" encoding="UTF-8"?>\n'
         s = s + '<application>\n'
         s = s + '  <id type=\"desktop\">' + data[1] + '.desktop</id>\n'
-        s = s + '  <licence>CC0</licence>\n'
+        s = s + '  <metadata_license>CC0</metadata_license>\n'
         if len(data[2]) > 0:
             s = s + '  <name>' + data[2] + '</name>\n'
         if len(data[3]) > 0:

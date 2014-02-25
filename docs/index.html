@@ -45,7 +45,7 @@ The file should contain something like this:
 &lt;!-- Copyright 2013 First Lastname &lt;your@email.com&gt; --&gt;
 &lt;application&gt;
  &lt;id type="desktop"&gt;gnome-power-statistics.desktop&lt;/id&gt;
- &lt;licence&gt;CC0&lt;/licence&gt;
+ &lt;metadata_license&gt;CC0&lt;/metadata_license&gt;
  &lt;name&gt;Power Statistics&lt;/name&gt;
  &lt;summary&gt;Observe power management&lt;/summary&gt;
  &lt;description&gt;
@@ -80,14 +80,14 @@ The <code>%{id}</code> is the same name as the installed .desktop file for the
 application.
 </p>
 
-<a name="licence"/><h2><code>&lt;licence/&gt</code></h2>
+<a name="metadata_license"/><h2><code>&lt;metadata_license/&gt</code></h2>
 <p>
-The <code>&lt;licence&gt;</code> tag is indicating the content licence that you
-are releasing the one AppData text file as.
-<b>This is not typically the same as the project licence.</b>
-By ommitting the licence value would probably mean your data would not be
+The <code>&lt;metadata_license&gt;</code> tag is indicating the content license that you
+are releasing the AppData text file and screenshots as.
+<b>This is not typically the same as the project license.</b>
+By ommitting the metadata_license value would probably mean your data would not be
 incorporated into the distribution metadata.
-Permissible licence codes include:
+Permissible license codes include:
 </p>
 <ul>
 <li><code>CC0</code></li>
@@ -96,10 +96,16 @@ Permissible licence codes include:
 <li><code>GFDL</code></li>
 </ul>
 <p>
-  The licence codes correspond to the full licence texts as given by the
-  list of free content licences according to <a href="https://fedoraproject.org/wiki/Licensing:Main?rd=Licensing">Fedora</a>.
+  The license codes correspond to the full license texts as given by the
+  list of free content licenses according to <a href="https://fedoraproject.org/wiki/Licensing:Main?rd=Licensing">Fedora</a>.
   For instance, <code>CC-BY-SA</code> corresponds to <code>
   http://creativecommons.org/licenses/by-sa/3.0/</code>
+</p>
+<p>
+  The old name for this tag was <code>&lt;licence/&gt</code> and was changed
+  for two reasons. It used the British English spelling, and also that it wasn't
+  clear that the license given wasn't the project license, but rather the license
+  for the metadata only.
 </p>
 
 <a name="name"/><h2><code>&lt;name/&gt</code></h2>

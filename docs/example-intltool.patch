@@ -42,7 +42,7 @@ index 0000000..58d88f5
 +<!-- Copyright 2013 First Lastname <your@email.com> -->
 +<application>
 +  <id type="desktop">gcm-viewer.desktop</id>
-+  <licence>CC0</licence>
++  <metadata_license>CC0</metadata_license>
 +  <description>
 +    <_p>
 +      GNOME Color Profile Viewer shows installed color profiles on your system

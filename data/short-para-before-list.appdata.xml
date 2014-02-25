@@ -2,7 +2,7 @@
 <!-- Copyright 2013 Richard Hughes <richard@hughsie.com> -->
 <application>
   <id type="desktop">gnome-power-statistics.desktop</id>
-  <licence>GFDL</licence>
+  <metadata_license>GFDL</metadata_license>
   <description>
     <p>
       GNOME Power Statistics is awesome, but has a short description.

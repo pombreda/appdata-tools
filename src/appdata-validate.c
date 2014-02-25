@@ -287,7 +287,7 @@ main (int argc, char *argv[])
 	GKeyFile *config = NULL;
 	GOptionContext *context;
 	gint i;
-	const gchar * const licences[] = {
+	const gchar * const licenses[] = {
 		"CC0", "CC-BY", "CC-BY-SA", "GFDL", NULL};
 	const GOptionEntry options[] = {
 		{ "relax", 'r', 0, G_OPTION_ARG_NONE, &relax,
@@ -366,8 +366,8 @@ main (int argc, char *argv[])
 	/* set some config values */
 	config = g_key_file_new ();
 	g_key_file_set_string_list (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-				    "AcceptableLicences", licences,
-				    g_strv_length ((gchar **) licences));
+				    "AcceptableLicenses", licenses,
+				    g_strv_length ((gchar **) licenses));
 	g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
 				"LengthUpdatecontactMin", 6);
 	g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
@@ -465,6 +465,8 @@ main (int argc, char *argv[])
 					"RequireCopyright", TRUE);
 		g_key_file_set_boolean (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
 					"RequireCorrectAspectRatio", TRUE);
+		g_key_file_set_boolean (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
+					"DeprecatedFailure", TRUE);
 	}
 
 	/* we're using a temporary file */

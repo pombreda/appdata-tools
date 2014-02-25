@@ -14,7 +14,7 @@ start = application
 application = 
   element application { 
     id 
-    & licence 
+    & metadata_license 
     & name* 
     & summary* 
     & description 
@@ -30,8 +30,8 @@ id =
     text 
   }
 
-# Other licences?  Worth restricting this at all, or use free content?
-licence =  element licence { 
+# Other licenses?  Worth restricting this at all, or use free content?
+metadata_license =  element metadata_license { 
   string "CC0" 
   | string "CC BY" 
   | string "CC BY-SA" 

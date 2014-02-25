@@ -92,7 +92,7 @@ static GKeyFile *
 get_config (void)
 {
 	GKeyFile *config;
-	const gchar * const licences[] = {
+	const gchar * const licenses[] = {
 		"CC0", "CC-BY", "CC-BY-SA", "GFDL", NULL};
 	config = g_key_file_new ();
 	g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
@@ -140,8 +140,8 @@ get_config (void)
 	g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
 				"LengthParaCharsBeforeList", 300);
 	g_key_file_set_string_list (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-				    "AcceptableLicences", licences,
-				    g_strv_length ((gchar **) licences));
+				    "AcceptableLicenses", licenses,
+				    g_strv_length ((gchar **) licenses));
 	return config;
 }
 
@@ -177,7 +177,7 @@ appdata_wrong_extension_func (void)
 	g_assert (ensure_failure (list, "<id> is not present"));
 	g_assert (ensure_failure (list, "<url> is not present"));
 	g_assert (ensure_failure (list, "<updatecontact> is not present"));
-	g_assert (ensure_failure (list, "<licence> is not present"));
+	g_assert (ensure_failure (list, "<metadata_license> is not present"));
 	g_assert_cmpint (g_list_length (list), >, 0);
 
 	g_list_free_full (list, (GDestroyNotify) appdata_problem_free);
@@ -197,7 +197,7 @@ appdata_broken_func (void)
 	list = appdata_check_file_for_problems (config, filename);
 	g_assert (ensure_failure (list, "<updatecontact> is too short"));
 	g_assert (ensure_failure (list, "<url> does not start with 'http://'"));
-	g_assert (ensure_failure (list, "<licence> is not valid"));
+	g_assert (ensure_failure (list, "<metadata_license> is not valid"));
 	g_assert (ensure_failure (list, "<id> does not have correct extension for kind"));
 	g_assert (ensure_failure (list, "<id> has invalid type attribute"));
 	g_assert (ensure_failure (list, "Not enough <p> tags for a good description"));
@@ -205,7 +205,7 @@ appdata_broken_func (void)
 	g_assert (ensure_failure (list, "<ul> cannot start a description"));
 	g_assert (ensure_failure (list, "<url> has invalid type attribute"));
 	g_assert (ensure_failure (list, "Not enough <screenshot> tags"));
-	g_assert (ensure_failure (list, "<licence> is duplicated"));
+	g_assert (ensure_failure (list, "<metadata_license> is duplicated"));
 	g_assert (ensure_failure (list, "<p> should not start with 'This application'"));
 	g_assert (ensure_failure (list, "xml:lang should never be 'C'"));
 	g_assert (ensure_failure (list, "<p> does not end in '.|:|!'"));

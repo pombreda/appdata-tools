@@ -28,129 +28,129 @@
 #include "appdata-problem.h"
 
 typedef enum {
-	APPDATA_SECTION_UNKNOWN,
-	APPDATA_SECTION_APPLICATION,
-	APPDATA_SECTION_DESCRIPTION,
-	APPDATA_SECTION_DESCRIPTION_PARA,
-	APPDATA_SECTION_DESCRIPTION_UL,
-	APPDATA_SECTION_DESCRIPTION_UL_LI,
-	APPDATA_SECTION_ID,
-	APPDATA_SECTION_LICENCE,
-	APPDATA_SECTION_NAME,
-	APPDATA_SECTION_SCREENSHOT,
-	APPDATA_SECTION_SCREENSHOTS,
-	APPDATA_SECTION_SUMMARY,
-	APPDATA_SECTION_UPDATECONTACT,
-	APPDATA_SECTION_PROJECT_GROUP,
-	APPDATA_SECTION_URL,
-	APPDATA_SECTION_COMPULSORY_FOR_DESKTOP,
-	APPDATA_SECTION_METADATA,
-	APPDATA_SECTION_VALUE,
-	APPDATA_SECTION_LAST
+	AS_TAG_UNKNOWN,
+	AS_TAG_APPLICATION,
+	AS_TAG_DESCRIPTION,
+	AS_TAG_DESCRIPTION_PARA,
+	AS_TAG_DESCRIPTION_UL,
+	AS_TAG_DESCRIPTION_UL_LI,
+	AS_TAG_ID,
+	AS_TAG_METADATA_LICENSE,
+	AS_TAG_NAME,
+	AS_TAG_SCREENSHOT,
+	AS_TAG_SCREENSHOTS,
+	AS_TAG_SUMMARY,
+	AS_TAG_UPDATE_CONTACT,
+	AS_TAG_PROJECT_GROUP,
+	AS_TAG_URL,
+	AS_TAG_COMPULSORY_FOR_DESKTOP,
+	AS_TAG_METADATA,
+	AS_TAG_VALUE,
+	AS_TAG_LAST
 } AppdataSection;
 
 /**
- * appdata_selection_from_string:
+ * as_tag_from_string:
  */
 static AppdataSection
-appdata_selection_from_string (const gchar *element_name)
+as_tag_from_string (const gchar *element_name)
 {
 	if (g_strcmp0 (element_name, "application") == 0)
-		return APPDATA_SECTION_APPLICATION;
+		return AS_TAG_APPLICATION;
 	if (g_strcmp0 (element_name, "id") == 0)
-		return APPDATA_SECTION_ID;
+		return AS_TAG_ID;
 	if (g_strcmp0 (element_name, "licence") == 0)
-		return APPDATA_SECTION_LICENCE;
+		return AS_TAG_METADATA_LICENSE;
 	if (g_strcmp0 (element_name, "metadata_license") == 0)
-		return APPDATA_SECTION_LICENCE;
+		return AS_TAG_METADATA_LICENSE;
 	if (g_strcmp0 (element_name, "screenshots") == 0)
-		return APPDATA_SECTION_SCREENSHOTS;
+		return AS_TAG_SCREENSHOTS;
 	if (g_strcmp0 (element_name, "screenshot") == 0)
-		return APPDATA_SECTION_SCREENSHOT;
+		return AS_TAG_SCREENSHOT;
 	if (g_strcmp0 (element_name, "name") == 0)
-		return APPDATA_SECTION_NAME;
+		return AS_TAG_NAME;
 	if (g_strcmp0 (element_name, "summary") == 0)
-		return APPDATA_SECTION_SUMMARY;
+		return AS_TAG_SUMMARY;
 	if (g_strcmp0 (element_name, "url") == 0)
-		return APPDATA_SECTION_URL;
+		return AS_TAG_URL;
 	if (g_strcmp0 (element_name, "description") == 0)
-		return APPDATA_SECTION_DESCRIPTION;
+		return AS_TAG_DESCRIPTION;
 	if (g_strcmp0 (element_name, "p") == 0)
-		return APPDATA_SECTION_DESCRIPTION_PARA;
+		return AS_TAG_DESCRIPTION_PARA;
 	if (g_strcmp0 (element_name, "ul") == 0)
-		return APPDATA_SECTION_DESCRIPTION_UL;
+		return AS_TAG_DESCRIPTION_UL;
 	if (g_strcmp0 (element_name, "li") == 0)
-		return APPDATA_SECTION_DESCRIPTION_UL_LI;
+		return AS_TAG_DESCRIPTION_UL_LI;
 	if (g_strcmp0 (element_name, "updatecontact") == 0)
-		return APPDATA_SECTION_UPDATECONTACT;
+		return AS_TAG_UPDATE_CONTACT;
 	if (g_strcmp0 (element_name, "project_group") == 0)
-		return APPDATA_SECTION_PROJECT_GROUP;
+		return AS_TAG_PROJECT_GROUP;
 	if (g_strcmp0 (element_name, "compulsory_for_desktop") == 0)
-		return APPDATA_SECTION_COMPULSORY_FOR_DESKTOP;
+		return AS_TAG_COMPULSORY_FOR_DESKTOP;
 	if (g_strcmp0 (element_name, "metadata") == 0)
-		return APPDATA_SECTION_METADATA;
+		return AS_TAG_METADATA;
 	if (g_strcmp0 (element_name, "value") == 0)
-		return APPDATA_SECTION_VALUE;
-	return APPDATA_SECTION_UNKNOWN;
+		return AS_TAG_VALUE;
+	return AS_TAG_UNKNOWN;
 }
 
 /**
- * appdata_selection_to_string:
+ * as_tag_to_string:
  */
 static const gchar *
-appdata_selection_to_string (AppdataSection section)
+as_tag_to_string (AppdataSection section)
 {
-	if (section == APPDATA_SECTION_APPLICATION)
+	if (section == AS_TAG_APPLICATION)
 		return "application";
-	if (section == APPDATA_SECTION_ID)
+	if (section == AS_TAG_ID)
 		return "id";
-	if (section == APPDATA_SECTION_LICENCE)
+	if (section == AS_TAG_METADATA_LICENSE)
 		return "metadata_license";
-	if (section == APPDATA_SECTION_SCREENSHOTS)
+	if (section == AS_TAG_SCREENSHOTS)
 		return "screenshots";
-	if (section == APPDATA_SECTION_SCREENSHOT)
+	if (section == AS_TAG_SCREENSHOT)
 		return "screenshot";
-	if (section == APPDATA_SECTION_NAME)
+	if (section == AS_TAG_NAME)
 		return "name";
-	if (section == APPDATA_SECTION_SUMMARY)
+	if (section == AS_TAG_SUMMARY)
 		return "summary";
-	if (section == APPDATA_SECTION_URL)
+	if (section == AS_TAG_URL)
 		return "url";
-	if (section == APPDATA_SECTION_DESCRIPTION)
+	if (section == AS_TAG_DESCRIPTION)
 		return "description";
-	if (section == APPDATA_SECTION_DESCRIPTION_PARA)
+	if (section == AS_TAG_DESCRIPTION_PARA)
 		return "p";
-	if (section == APPDATA_SECTION_DESCRIPTION_UL)
+	if (section == AS_TAG_DESCRIPTION_UL)
 		return "ul";
-	if (section == APPDATA_SECTION_DESCRIPTION_UL_LI)
+	if (section == AS_TAG_DESCRIPTION_UL_LI)
 		return "li";
-	if (section == APPDATA_SECTION_UPDATECONTACT)
+	if (section == AS_TAG_UPDATE_CONTACT)
 		return "updatecontact";
-	if (section == APPDATA_SECTION_PROJECT_GROUP)
+	if (section == AS_TAG_PROJECT_GROUP)
 		return "project_group";
-	if (section == APPDATA_SECTION_COMPULSORY_FOR_DESKTOP)
+	if (section == AS_TAG_COMPULSORY_FOR_DESKTOP)
 		return "compulsory_for_desktop";
-	if (section == APPDATA_SECTION_METADATA)
+	if (section == AS_TAG_METADATA)
 		return "metadata";
-	if (section == APPDATA_SECTION_VALUE)
+	if (section == AS_TAG_VALUE)
 		return "value";
 	return NULL;
 }
 
 typedef enum {
-	APPDATA_KIND_UNKNOWN,
-	APPDATA_KIND_DESKTOP,
-	APPDATA_KIND_FONT,
-	APPDATA_KIND_INPUTMETHOD,
-	APPDATA_KIND_CODEC,
-	APPDATA_KIND_LAST
-} AppdataKind;
+	AS_ID_KIND_UNKNOWN,
+	AS_ID_KIND_DESKTOP,
+	AS_ID_KIND_FONT,
+	AS_ID_KIND_INPUT_METHOD,
+	AS_ID_KIND_CODEC,
+	AS_ID_KIND_LAST
+} AsIdKind;
 
 typedef struct {
 	GMarkupParseContext *context;
 	AppdataSection	 section;
 	gchar		*id;
-	AppdataKind	 kind;
+	AsIdKind	 kind;
 	gchar		*name;
 	gchar		*summary;
 	gchar		*metadata_license;
@@ -206,14 +206,14 @@ static gboolean
 appdata_id_type_from_string (const gchar *id_type)
 {
 	if (g_strcmp0 (id_type, "desktop") == 0)
-		return APPDATA_KIND_DESKTOP;
+		return AS_ID_KIND_DESKTOP;
 	if (g_strcmp0 (id_type, "font") == 0)
-		return APPDATA_KIND_FONT;
+		return AS_ID_KIND_FONT;
 	if (g_strcmp0 (id_type, "inputmethod") == 0)
-		return APPDATA_KIND_INPUTMETHOD;
+		return AS_ID_KIND_INPUT_METHOD;
 	if (g_strcmp0 (id_type, "codec") == 0)
-		return APPDATA_KIND_CODEC;
-	return APPDATA_KIND_UNKNOWN;
+		return AS_ID_KIND_CODEC;
+	return AS_ID_KIND_UNKNOWN;
 }
 
 /**
@@ -234,7 +234,7 @@ appdata_start_element_fn (GMarkupParseContext *context,
 	gint len;
 	guint i;
 
-	new = appdata_selection_from_string (element_name);
+	new = as_tag_from_string (element_name);
 
 	/* using deprecated names */
 	if (g_strcmp0 (element_name, "licence") == 0) {
@@ -261,11 +261,11 @@ appdata_start_element_fn (GMarkupParseContext *context,
 						     "xml:lang should never be 'C'");
 			}
 			helper->tag_translated = TRUE;
-			if (new == APPDATA_SECTION_NAME)
+			if (new == AS_TAG_NAME)
 				helper->translations_name++;
-			else if (new == APPDATA_SECTION_SUMMARY)
+			else if (new == AS_TAG_SUMMARY)
 				helper->translations_summary++;
-			else if (new == APPDATA_SECTION_DESCRIPTION_PARA)
+			else if (new == AS_TAG_DESCRIPTION_PARA)
 				helper->translations_description++;
 			break;
 		}
@@ -276,8 +276,8 @@ appdata_start_element_fn (GMarkupParseContext *context,
 		 helper->tag_translated ? "translated" : "untranslated");
 
 	/* unknown -> application */
-	if (helper->section == APPDATA_SECTION_UNKNOWN) {
-		if (new == APPDATA_SECTION_APPLICATION) {
+	if (helper->section == AS_TAG_UNKNOWN) {
+		if (new == AS_TAG_APPLICATION) {
 			/* valid */
 			helper->section = new;
 			if (helper->seen_application) {
@@ -291,14 +291,14 @@ appdata_start_element_fn (GMarkupParseContext *context,
 		g_set_error (error, 1, 0,
 			     "start tag <%s> not allowed from section <%s>",
 			     element_name,
-			     appdata_selection_to_string (helper->section));
+			     as_tag_to_string (helper->section));
 		return;
 	}
 
 	/* application -> various */
-	if (helper->section == APPDATA_SECTION_APPLICATION) {
+	if (helper->section == AS_TAG_APPLICATION) {
 		switch (new) {
-		case APPDATA_SECTION_ID:
+		case AS_TAG_ID:
 			tmp = NULL;
 			for (i = 0; attribute_names[i] != NULL; i++) {
 				if (g_strcmp0 (attribute_names[i], "type") == 0) {
@@ -307,13 +307,13 @@ appdata_start_element_fn (GMarkupParseContext *context,
 				}
 			}
 			if (tmp == NULL) {
-				helper->kind = APPDATA_KIND_DESKTOP;
+				helper->kind = AS_ID_KIND_DESKTOP;
 				appdata_add_problem (helper,
 						     APPDATA_PROBLEM_KIND_ATTRIBUTE_MISSING,
 						     "no type attribute in <id>");
 			} else {
 				helper->kind = appdata_id_type_from_string (tmp);
-				if (helper->kind == APPDATA_KIND_UNKNOWN) {
+				if (helper->kind == AS_ID_KIND_UNKNOWN) {
 					appdata_add_problem (helper,
 							     APPDATA_PROBLEM_KIND_ATTRIBUTE_INVALID,
 							     "<id> has invalid type attribute");
@@ -321,7 +321,7 @@ appdata_start_element_fn (GMarkupParseContext *context,
 			}
 			helper->section = new;
 			break;
-		case APPDATA_SECTION_URL:
+		case AS_TAG_URL:
 			tmp = NULL;
 			for (i = 0; attribute_names[i] != NULL; i++) {
 				if (g_strcmp0 (attribute_names[i], "type") == 0) {
@@ -341,15 +341,15 @@ appdata_start_element_fn (GMarkupParseContext *context,
 			}
 			helper->section = new;
 			break;
-		case APPDATA_SECTION_NAME:
-		case APPDATA_SECTION_SUMMARY:
-		case APPDATA_SECTION_LICENCE:
-		case APPDATA_SECTION_DESCRIPTION:
-		case APPDATA_SECTION_SCREENSHOTS:
-		case APPDATA_SECTION_UPDATECONTACT:
-		case APPDATA_SECTION_COMPULSORY_FOR_DESKTOP:
-		case APPDATA_SECTION_PROJECT_GROUP:
-		case APPDATA_SECTION_METADATA:
+		case AS_TAG_NAME:
+		case AS_TAG_SUMMARY:
+		case AS_TAG_METADATA_LICENSE:
+		case AS_TAG_DESCRIPTION:
+		case AS_TAG_SCREENSHOTS:
+		case AS_TAG_UPDATE_CONTACT:
+		case AS_TAG_COMPULSORY_FOR_DESKTOP:
+		case AS_TAG_PROJECT_GROUP:
+		case AS_TAG_METADATA:
 			/* valid */
 			helper->section = new;
 			break;
@@ -357,30 +357,30 @@ appdata_start_element_fn (GMarkupParseContext *context,
 			g_set_error (error, 1, 0,
 				     "start tag <%s> not allowed from section <%s>",
 				     element_name,
-				     appdata_selection_to_string (helper->section));
+				     as_tag_to_string (helper->section));
 		}
 		return;
 	}
 
 	/* metadata -> value */
-	if (helper->section == APPDATA_SECTION_METADATA) {
+	if (helper->section == AS_TAG_METADATA) {
 		switch (new) {
-		case APPDATA_SECTION_VALUE:
+		case AS_TAG_VALUE:
 			helper->section = new;
 			break;
 		default:
 			g_set_error (error, 1, 0,
 				     "start tag <%s> not allowed from section <%s>",
 				     element_name,
-				     appdata_selection_to_string (helper->section));
+				     as_tag_to_string (helper->section));
 		}
 		return;
 	}
 
 	/* description -> p or -> ul */
-	if (helper->section == APPDATA_SECTION_DESCRIPTION) {
+	if (helper->section == AS_TAG_DESCRIPTION) {
 		switch (new) {
-		case APPDATA_SECTION_DESCRIPTION_PARA:
+		case AS_TAG_DESCRIPTION_PARA:
 			helper->section = new;
 
 			/* previous paragraph wasn't long enough */
@@ -393,7 +393,7 @@ appdata_start_element_fn (GMarkupParseContext *context,
 				helper->previous_para_was_short = FALSE;
 			}
 			break;
-		case APPDATA_SECTION_DESCRIPTION_UL:
+		case AS_TAG_DESCRIPTION_UL:
 			/* ul without a leading para */
 			if (helper->number_paragraphs < 1) {
 				appdata_add_problem (helper,
@@ -420,15 +420,15 @@ appdata_start_element_fn (GMarkupParseContext *context,
 			g_set_error (error, 1, 0,
 				     "start tag <%s> not allowed from section <%s>",
 				     element_name,
-				     appdata_selection_to_string (helper->section));
+				     as_tag_to_string (helper->section));
 		}
 		return;
 	}
 
 	/* ul -> li */
-	if (helper->section == APPDATA_SECTION_DESCRIPTION_UL) {
+	if (helper->section == AS_TAG_DESCRIPTION_UL) {
 		switch (new) {
-		case APPDATA_SECTION_DESCRIPTION_UL_LI:
+		case AS_TAG_DESCRIPTION_UL_LI:
 			/* valid */
 			helper->section = new;
 			break;
@@ -436,14 +436,14 @@ appdata_start_element_fn (GMarkupParseContext *context,
 			g_set_error (error, 1, 0,
 				     "start tag <%s> not allowed from section <%s>",
 				     element_name,
-				     appdata_selection_to_string (helper->section));
+				     as_tag_to_string (helper->section));
 		}
 		return;
 	}
 
 	/* unknown -> application */
-	if (helper->section == APPDATA_SECTION_SCREENSHOTS) {
-		if (new == APPDATA_SECTION_SCREENSHOT) {
+	if (helper->section == AS_TAG_SCREENSHOTS) {
+		if (new == AS_TAG_SCREENSHOT) {
 			tmp = NULL;
 			helper->screenshot_width = 0;
 			helper->screenshot_height = 0;
@@ -474,14 +474,14 @@ appdata_start_element_fn (GMarkupParseContext *context,
 		g_set_error (error, 1, 0,
 			     "start tag <%s> not allowed from section <%s>",
 			     element_name,
-			     appdata_selection_to_string (helper->section));
+			     as_tag_to_string (helper->section));
 		return;
 	}
 
 	g_set_error (error, 1, 0,
 		     "start tag <%s> not allowed from section <%s>",
 		     element_name,
-		     appdata_selection_to_string (helper->section));
+		     as_tag_to_string (helper->section));
 }
 
 /**
@@ -498,63 +498,63 @@ appdata_end_element_fn (GMarkupParseContext *context,
 
 	g_debug ("END\t<%s>", element_name);
 
-	new = appdata_selection_from_string (element_name);
-	if (helper->section == APPDATA_SECTION_APPLICATION) {
-		if (new == APPDATA_SECTION_APPLICATION) {
+	new = as_tag_from_string (element_name);
+	if (helper->section == AS_TAG_APPLICATION) {
+		if (new == AS_TAG_APPLICATION) {
 			/* valid */
-			helper->section = APPDATA_SECTION_UNKNOWN;
+			helper->section = AS_TAG_UNKNOWN;
 			return;
 		}
 		g_set_error (error, 1, 0,
 			     "end tag <%s> not allowed from section <%s>",
 			     element_name,
-			     appdata_selection_to_string (helper->section));
+			     as_tag_to_string (helper->section));
 		return;
 	}
 
 	/* </id> */
-	if (helper->section == APPDATA_SECTION_ID &&
-	    new == APPDATA_SECTION_ID) {
+	if (helper->section == AS_TAG_ID &&
+	    new == AS_TAG_ID) {
 		/* valid */
-		helper->section = APPDATA_SECTION_APPLICATION;
+		helper->section = AS_TAG_APPLICATION;
 		return;
 	}
 
 	/* </metadata_license> */
-	if (helper->section == APPDATA_SECTION_LICENCE &&
-	    new == APPDATA_SECTION_LICENCE) {
+	if (helper->section == AS_TAG_METADATA_LICENSE &&
+	    new == AS_TAG_METADATA_LICENSE) {
 		/* valid */
-		helper->section = APPDATA_SECTION_APPLICATION;
+		helper->section = AS_TAG_APPLICATION;
 		return;
 	}
 
 	/* </p> */
-	if (helper->section == APPDATA_SECTION_DESCRIPTION_PARA &&
-	    new == APPDATA_SECTION_DESCRIPTION_PARA) {
+	if (helper->section == AS_TAG_DESCRIPTION_PARA &&
+	    new == AS_TAG_DESCRIPTION_PARA) {
 		/* valid */
-		helper->section = APPDATA_SECTION_DESCRIPTION;
+		helper->section = AS_TAG_DESCRIPTION;
 		return;
 	}
 
 	/* </li> */
-	if (helper->section == APPDATA_SECTION_DESCRIPTION_UL_LI &&
-	    new == APPDATA_SECTION_DESCRIPTION_UL_LI) {
+	if (helper->section == AS_TAG_DESCRIPTION_UL_LI &&
+	    new == AS_TAG_DESCRIPTION_UL_LI) {
 		/* valid */
-		helper->section = APPDATA_SECTION_DESCRIPTION_UL;
+		helper->section = AS_TAG_DESCRIPTION_UL;
 		return;
 	}
 
 	/* </ul> */
-	if (helper->section == APPDATA_SECTION_DESCRIPTION_UL &&
-	    new == APPDATA_SECTION_DESCRIPTION_UL) {
+	if (helper->section == AS_TAG_DESCRIPTION_UL &&
+	    new == AS_TAG_DESCRIPTION_UL) {
 		/* valid */
-		helper->section = APPDATA_SECTION_DESCRIPTION;
+		helper->section = AS_TAG_DESCRIPTION;
 		return;
 	}
 
 	/* </description> */
-	if (helper->section == APPDATA_SECTION_DESCRIPTION &&
-	    new == APPDATA_SECTION_DESCRIPTION) {
+	if (helper->section == AS_TAG_DESCRIPTION &&
+	    new == AS_TAG_DESCRIPTION) {
 
 		/* previous paragraph wasn't long enough */
 		if (helper->previous_para_was_short) {
@@ -564,109 +564,109 @@ appdata_end_element_fn (GMarkupParseContext *context,
 		}
 
 		/* valid */
-		helper->section = APPDATA_SECTION_APPLICATION;
+		helper->section = AS_TAG_APPLICATION;
 		return;
 	}
 
 	/* </metadata> */
-	if (helper->section == APPDATA_SECTION_METADATA &&
-	    new == APPDATA_SECTION_METADATA) {
-		helper->section = APPDATA_SECTION_APPLICATION;
+	if (helper->section == AS_TAG_METADATA &&
+	    new == AS_TAG_METADATA) {
+		helper->section = AS_TAG_APPLICATION;
 		return;
 	}
 
 	/* </value> */
-	if (helper->section == APPDATA_SECTION_VALUE &&
-	    new == APPDATA_SECTION_VALUE) {
-		helper->section = APPDATA_SECTION_METADATA;
+	if (helper->section == AS_TAG_VALUE &&
+	    new == AS_TAG_VALUE) {
+		helper->section = AS_TAG_METADATA;
 		return;
 	}
 
 	/* </screenshot> */
-	if (helper->section == APPDATA_SECTION_SCREENSHOT &&
-	    new == APPDATA_SECTION_SCREENSHOT) {
+	if (helper->section == AS_TAG_SCREENSHOT &&
+	    new == AS_TAG_SCREENSHOT) {
 		/* valid */
-		helper->section = APPDATA_SECTION_SCREENSHOTS;
+		helper->section = AS_TAG_SCREENSHOTS;
 		return;
 	}
 
 	/* </screenshots> */
-	if (helper->section == APPDATA_SECTION_SCREENSHOTS &&
-	    new == APPDATA_SECTION_SCREENSHOTS) {
+	if (helper->section == AS_TAG_SCREENSHOTS &&
+	    new == AS_TAG_SCREENSHOTS) {
 		/* valid */
-		helper->section = APPDATA_SECTION_APPLICATION;
+		helper->section = AS_TAG_APPLICATION;
 		return;
 	}
 
 	/* </url> */
-	if (helper->section == APPDATA_SECTION_URL &&
-	    new == APPDATA_SECTION_URL) {
+	if (helper->section == AS_TAG_URL &&
+	    new == AS_TAG_URL) {
 		/* valid */
-		helper->section = APPDATA_SECTION_APPLICATION;
+		helper->section = AS_TAG_APPLICATION;
 		return;
 	}
 
 	/* </name> */
-	if (helper->section == APPDATA_SECTION_NAME &&
-	    new == APPDATA_SECTION_NAME) {
+	if (helper->section == AS_TAG_NAME &&
+	    new == AS_TAG_NAME) {
 		/* valid */
-		helper->section = APPDATA_SECTION_APPLICATION;
+		helper->section = AS_TAG_APPLICATION;
 		return;
 	}
 
 	/* </summary> */
-	if (helper->section == APPDATA_SECTION_SUMMARY &&
-	    new == APPDATA_SECTION_SUMMARY) {
+	if (helper->section == AS_TAG_SUMMARY &&
+	    new == AS_TAG_SUMMARY) {
 		/* valid */
-		helper->section = APPDATA_SECTION_APPLICATION;
+		helper->section = AS_TAG_APPLICATION;
 		return;
 	}
 
 	/* </updatecontact> */
-	if (helper->section == APPDATA_SECTION_UPDATECONTACT &&
-	    new == APPDATA_SECTION_UPDATECONTACT) {
+	if (helper->section == AS_TAG_UPDATE_CONTACT &&
+	    new == AS_TAG_UPDATE_CONTACT) {
 		/* valid */
-		helper->section = APPDATA_SECTION_APPLICATION;
+		helper->section = AS_TAG_APPLICATION;
 		return;
 	}
 
 	/* </compulsory_for_desktop> */
-	if (helper->section == APPDATA_SECTION_COMPULSORY_FOR_DESKTOP &&
-	    new == APPDATA_SECTION_COMPULSORY_FOR_DESKTOP) {
+	if (helper->section == AS_TAG_COMPULSORY_FOR_DESKTOP &&
+	    new == AS_TAG_COMPULSORY_FOR_DESKTOP) {
 		/* valid */
-		helper->section = APPDATA_SECTION_APPLICATION;
+		helper->section = AS_TAG_APPLICATION;
 		return;
 	}
 
 	/* </project_group> */
-	if (helper->section == APPDATA_SECTION_PROJECT_GROUP &&
-	    new == APPDATA_SECTION_PROJECT_GROUP) {
+	if (helper->section == AS_TAG_PROJECT_GROUP &&
+	    new == AS_TAG_PROJECT_GROUP) {
 		/* valid */
-		helper->section = APPDATA_SECTION_APPLICATION;
+		helper->section = AS_TAG_APPLICATION;
 		return;
 	}
 
 	g_set_error (error, 1, 0,
 		     "end tag <%s> not allowed from section <%s>",
 		     element_name,
-		     appdata_selection_to_string (helper->section));
+		     as_tag_to_string (helper->section));
 }
 
 /**
  * appdata_check_id_for_kind:
  */
 static gboolean
-appdata_check_id_for_kind (const gchar *id, AppdataKind kind)
+appdata_check_id_for_kind (const gchar *id, AsIdKind kind)
 {
-	if (kind == APPDATA_KIND_DESKTOP)
+	if (kind == AS_ID_KIND_DESKTOP)
 		return g_str_has_suffix (id, ".desktop");
-	if (kind == APPDATA_KIND_FONT)
+	if (kind == AS_ID_KIND_FONT)
 		return g_str_has_suffix (id, ".ttf") ||
 			g_str_has_suffix (id, ".otf");
-	if (kind == APPDATA_KIND_INPUTMETHOD)
+	if (kind == AS_ID_KIND_INPUT_METHOD)
 		return g_str_has_suffix (id, ".xml") ||
 			g_str_has_suffix (id, ".db");
-	if (kind == APPDATA_KIND_CODEC)
+	if (kind == AS_ID_KIND_CODEC)
 		return g_str_has_prefix (id, "gstreamer");
 	return FALSE;
 }
@@ -895,7 +895,7 @@ appdata_text_fn (GMarkupParseContext *context,
 		return;
 
 	switch (helper->section) {
-	case APPDATA_SECTION_ID:
+	case AS_TAG_ID:
 		helper->id = g_strstrip (g_strndup (text, text_len));
 		ret = appdata_check_id_for_kind (helper->id, helper->kind);
 		if (!ret) {
@@ -904,7 +904,7 @@ appdata_text_fn (GMarkupParseContext *context,
 					     "<id> does not have correct extension for kind");
 		}
 		break;
-	case APPDATA_SECTION_LICENCE:
+	case AS_TAG_METADATA_LICENSE:
 		if (helper->metadata_license != NULL) {
 			g_free (helper->metadata_license);
 			appdata_add_problem (helper,
@@ -929,7 +929,7 @@ appdata_text_fn (GMarkupParseContext *context,
 					     "<metadata_license> is not valid");
 		}
 		break;
-	case APPDATA_SECTION_URL:
+	case AS_TAG_URL:
 		if (helper->url != NULL) {
 			g_free (helper->url);
 			appdata_add_problem (helper,
@@ -943,7 +943,7 @@ appdata_text_fn (GMarkupParseContext *context,
 					     APPDATA_PROBLEM_KIND_TAG_INVALID,
 					     "<url> does not start with 'http://'");
 		break;
-	case APPDATA_SECTION_UPDATECONTACT:
+	case AS_TAG_UPDATE_CONTACT:
 		if (helper->updatecontact != NULL) {
 			g_free (helper->updatecontact);
 			appdata_add_problem (helper,
@@ -966,7 +966,7 @@ appdata_text_fn (GMarkupParseContext *context,
 					     "<updatecontact> is too short");
 		}
 		break;
-	case APPDATA_SECTION_PROJECT_GROUP:
+	case AS_TAG_PROJECT_GROUP:
 		if (helper->project_group != NULL) {
 			g_free (helper->project_group);
 			appdata_add_problem (helper,
@@ -975,7 +975,7 @@ appdata_text_fn (GMarkupParseContext *context,
 		}
 		helper->project_group = g_strstrip (g_strndup (text, text_len));
 		break;
-	case APPDATA_SECTION_NAME:
+	case AS_TAG_NAME:
 		if (helper->name != NULL) {
 			g_free (helper->name);
 			appdata_add_problem (helper,
@@ -1006,7 +1006,7 @@ appdata_text_fn (GMarkupParseContext *context,
 					     "<name> cannot end in '.'");
 		}
 		break;
-	case APPDATA_SECTION_SUMMARY:
+	case AS_TAG_SUMMARY:
 		if (helper->summary != NULL) {
 			g_free (helper->summary);
 			appdata_add_problem (helper,
@@ -1037,7 +1037,7 @@ appdata_text_fn (GMarkupParseContext *context,
 					     "<summary> cannot end in '.'");
 		}
 		break;
-	case APPDATA_SECTION_DESCRIPTION_PARA:
+	case AS_TAG_DESCRIPTION_PARA:
 		temp = g_strstrip (g_strndup (text, text_len));
 		len = g_key_file_get_integer (helper->config,
 					      APPDATA_TOOLS_VALIDATE_GROUP_NAME,
@@ -1072,7 +1072,7 @@ appdata_text_fn (GMarkupParseContext *context,
 		helper->number_paragraphs++;
 		helper->para_chars_before_list += text_len;
 		break;
-	case APPDATA_SECTION_DESCRIPTION_UL_LI:
+	case AS_TAG_DESCRIPTION_UL_LI:
 		temp = g_strstrip (g_strndup (text, text_len));
 		len = g_key_file_get_integer (helper->config,
 					      APPDATA_TOOLS_VALIDATE_GROUP_NAME,
@@ -1098,7 +1098,7 @@ appdata_text_fn (GMarkupParseContext *context,
 		}
 		g_free (temp);
 		break;
-	case APPDATA_SECTION_SCREENSHOT:
+	case AS_TAG_SCREENSHOT:
 		temp = g_strstrip (g_strndup (text, text_len));
 		if (strlen (temp) == 0) {
 			appdata_add_problem (helper,
@@ -1203,7 +1203,7 @@ appdata_check_file_for_problems (GKeyFile *config,
 	/* parse */
 	helper = g_new0 (AppdataHelper, 1);
 	helper->problems = problems;
-	helper->section = APPDATA_SECTION_UNKNOWN;
+	helper->section = AS_TAG_UNKNOWN;
 	helper->config = config;
 	helper->screenshots = g_ptr_array_new_with_free_func (g_free);
 	helper->got_network = g_key_file_get_boolean (helper->config,

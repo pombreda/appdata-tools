@@ -80,7 +80,7 @@ out:
 static void
 appdata_validate_format_html (const gchar *filename, GList *problems)
 {
-	AppdataProblem *problem;
+	AsProblem *problem;
 	GList *l;
 	GString *tmp;
 
@@ -128,7 +128,7 @@ appdata_validate_format_html (const gchar *filename, GList *problems)
 static void
 appdata_validate_format_xml (const gchar *filename, GList *problems)
 {
-	AppdataProblem *problem;
+	AsProblem *problem;
 	GList *l;
 	GString *tmp;
 
@@ -144,12 +144,12 @@ appdata_validate_format_xml (const gchar *filename, GList *problems)
 			gs_string_replace (tmp, ">", "");
 			if (problem->line_number > 0) {
 				g_print ("    <problem type=\"%s\" line=\"%i\">%s</problem>\n",
-					 appdata_problem_kind_to_string (problem->kind),
+					 as_problem_kind_to_string (problem->kind),
 					 problem->line_number,
 					 tmp->str);
 			} else {
 				g_print ("    <problem type=\"%s\">%s</problem>\n",
-					 appdata_problem_kind_to_string (problem->kind),
+					 as_problem_kind_to_string (problem->kind),
 					 tmp->str);
 			}
 			g_string_free (tmp, TRUE);
@@ -165,7 +165,7 @@ appdata_validate_format_xml (const gchar *filename, GList *problems)
 static void
 appdata_validate_format_text (const gchar *filename, GList *problems)
 {
-	AppdataProblem *problem;
+	AsProblem *problem;
 	GList *l;
 	const gchar *tmp;
 	guint i;
@@ -182,7 +182,7 @@ appdata_validate_format_text (const gchar *filename, GList *problems)
 		 _("problems detected:"));
 	for (l = problems; l != NULL; l = l->next) {
 		problem = l->data;
-		tmp = appdata_problem_kind_to_string (problem->kind);
+		tmp = as_problem_kind_to_string (problem->kind);
 		g_print ("• %s ", tmp);
 		for (i = strlen (tmp); i < 20; i++)
 			g_print (" ");
@@ -229,7 +229,7 @@ appdata_validate_and_show_results (GKeyFile *config,
 	}
 
 	g_free (original_filename);
-	g_list_free_full (problems, (GDestroyNotify) appdata_problem_free);
+	g_list_free_full (problems, (GDestroyNotify) as_problem_free);
 	return retval;
 }
 

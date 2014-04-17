@@ -64,7 +64,7 @@ out:
 static void
 print_failures (GList *failures)
 {
-	AppdataProblem *p;
+	AsProblem *p;
 	GList *l;
 
 	for (l = failures; l != NULL; l = l->next) {
@@ -76,7 +76,7 @@ print_failures (GList *failures)
 static gboolean
 ensure_failure (GList *failures, const gchar *description)
 {
-	AppdataProblem *p;
+	AsProblem *p;
 	GList *l;
 
 	for (l = failures; l != NULL; l = l->next) {
@@ -158,7 +158,7 @@ appdata_success_func (void)
 	print_failures (list);
 	g_assert_cmpint (g_list_length (list), ==, 0);
 
-	g_list_free_full (list, (GDestroyNotify) appdata_problem_free);
+	g_list_free_full (list, (GDestroyNotify) as_problem_free);
 	g_free (filename);
 	g_key_file_free (config);
 }
@@ -180,7 +180,7 @@ appdata_wrong_extension_func (void)
 	g_assert (ensure_failure (list, "<metadata_license> is not present"));
 	g_assert_cmpint (g_list_length (list), >, 0);
 
-	g_list_free_full (list, (GDestroyNotify) appdata_problem_free);
+	g_list_free_full (list, (GDestroyNotify) as_problem_free);
 	g_free (filename);
 	g_key_file_free (config);
 }
@@ -217,7 +217,7 @@ appdata_broken_func (void)
 	g_assert (ensure_failure (list, "<!-- Copyright [year] [name] --> is not present"));
 	g_assert_cmpint (g_list_length (list), >, 0);
 
-	g_list_free_full (list, (GDestroyNotify) appdata_problem_free);
+	g_list_free_full (list, (GDestroyNotify) as_problem_free);
 	g_free (filename);
 	g_key_file_free (config);
 }
@@ -235,7 +235,7 @@ appdata_short_para_before_list_func (void)
 	g_assert (ensure_failure (list, "Not enough <p> content before <ul>"));
 	g_assert_cmpint (g_list_length (list), >, 0);
 
-	g_list_free_full (list, (GDestroyNotify) appdata_problem_free);
+	g_list_free_full (list, (GDestroyNotify) as_problem_free);
 	g_free (filename);
 	g_key_file_free (config);
 }
@@ -272,7 +272,7 @@ appdata_screenshots_func (void)
 	g_assert (ensure_failure (list, "<screenshot> width was too small"));
 	g_assert_cmpint (g_list_length (list), >, 0);
 
-	g_list_free_full (list, (GDestroyNotify) appdata_problem_free);
+	g_list_free_full (list, (GDestroyNotify) as_problem_free);
 	g_free (filename);
 	g_key_file_free (config);
 }
@@ -296,7 +296,7 @@ appdata_translated_func (void)
 	g_assert (!ensure_failure (list, "<description> has no translations"));
 	g_assert_cmpint (g_list_length (list), >, 0);
 
-	g_list_free_full (list, (GDestroyNotify) appdata_problem_free);
+	g_list_free_full (list, (GDestroyNotify) as_problem_free);
 	g_free (filename);
 	g_key_file_free (config);
 }
@@ -314,7 +314,7 @@ appdata_metadata_func (void)
 	g_assert_cmpint (g_list_length (list), ==, 5);
 	g_assert (ensure_failure (list, "Not enough <p> tags for a good description"));
 
-	g_list_free_full (list, (GDestroyNotify) appdata_problem_free);
+	g_list_free_full (list, (GDestroyNotify) as_problem_free);
 	g_free (filename);
 	g_key_file_free (config);
 }

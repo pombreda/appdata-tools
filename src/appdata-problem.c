@@ -24,93 +24,61 @@
 #include "appdata-problem.h"
 
 /**
- * appdata_problem_new:
+ * as_problem_new:
  */
-AppdataProblem *
-appdata_problem_new (AppdataProblemKind kind)
+AsProblem *
+as_problem_new (AsProblemKind kind)
 {
-	AppdataProblem *problem;
-	problem = g_slice_new0 (AppdataProblem);
+	AsProblem *problem;
+	problem = g_slice_new0 (AsProblem);
 	problem->kind = kind;
 	return problem;
 }
 
 /**
- * appdata_problem_free:
+ * as_problem_free:
  */
 void
-appdata_problem_free (AppdataProblem *problem)
+as_problem_free (AsProblem *problem)
 {
-	g_slice_free (AppdataProblem, problem);
+	g_slice_free (AsProblem, problem);
 }
 
 /**
- * appdata_problem_kind_to_string:
+ * as_problem_kind_to_string:
  */
 const gchar *
-appdata_problem_kind_to_string (AppdataProblemKind kind)
+as_problem_kind_to_string (AsProblemKind kind)
 {
-	if (kind == APPDATA_PROBLEM_KIND_TAG_DUPLICATED) {
-		/* TRANSLATORS: file contains two tags the same */
-		return _("tag duplicated");
-	}
-	if (kind == APPDATA_PROBLEM_KIND_TAG_MISSING) {
-		/* TRANSLATORS: file does not contain a required tag */
-		return _("tag missing");
-	}
-	if (kind == APPDATA_PROBLEM_KIND_TAG_INVALID) {
-		/* TRANSLATORS: file contains a tag that is invalid */
-		return _("tag invalid");
-	}
-	if (kind == APPDATA_PROBLEM_KIND_ATTRIBUTE_MISSING) {
-		/* TRANSLATORS: tag exists with missing attribute */
-		return _("attribute missing");
-	}
-	if (kind == APPDATA_PROBLEM_KIND_ATTRIBUTE_INVALID) {
-		/* TRANSLATORS: attribute value isn't allowed */
-		return _("attribute invalid");
-	}
-	if (kind == APPDATA_PROBLEM_KIND_MARKUP_INVALID) {
-		/* TRANSLATORS: the file isn't well formed */
-		return _("markup invalid");
-	}
-	if (kind == APPDATA_PROBLEM_KIND_STYLE_INCORRECT) {
-		/* TRANSLATORS: the description didn't meet the style guide */
-		return _("style invalid");
-	}
-	if (kind == APPDATA_PROBLEM_KIND_FILENAME_INVALID) {
-		/* TRANSLATORS: the filename did not have the correct suffix */
-		return _("filename invalid");
-	}
-	if (kind == APPDATA_PROBLEM_KIND_FAILED_TO_OPEN) {
-		/* TRANSLATORS: the file was not readable */
-		return _("failed to open");
-	}
-	if (kind == APPDATA_PROBLEM_KIND_TRANSLATIONS_REQUIRED) {
-		/* TRANSLATORS: there were no translations in the file */
-		return _("translations required");
-	}
-	if (kind == APPDATA_PROBLEM_KIND_DUPLICATE_DATA) {
-		/* TRANSLATORS: there was duplicate data in the file */
-		return _("duplicate data");
-	}
-	if (kind == APPDATA_PROBLEM_KIND_VALUE_MISSING) {
-		/* TRANSLATORS: there was no data specified in the tag */
-		return _("value missing");
-	}
-	if (kind == APPDATA_PROBLEM_KIND_FILE_INVALID) {
-		/* TRANSLATORS: the file specified was invalid */
-		return _("file invalid");
-	}
-	if (kind == APPDATA_PROBLEM_KIND_ASPECT_RATIO_INCORRECT) {
-		/* TRANSLATORS: the file specified was invalid */
-		return _("aspect ratio invalid");
-	}
-	if (kind == APPDATA_PROBLEM_KIND_RESOLUTION_INCORRECT) {
-		/* TRANSLATORS: the file specified was invalid */
-		return _("resolution invalid");
-	}
-
-	/* TRANSLATORS: if we get here, we have problems */
-	return _("unknown error");
+	if (kind == AS_PROBLEM_KIND_TAG_DUPLICATED)
+		return "tag-duplicated";
+	if (kind == AS_PROBLEM_KIND_TAG_MISSING)
+		return "tag-missing";
+	if (kind == AS_PROBLEM_KIND_TAG_INVALID)
+		return "tag-invalid";
+	if (kind == AS_PROBLEM_KIND_ATTRIBUTE_MISSING)
+		return "attribute-missing";
+	if (kind == AS_PROBLEM_KIND_ATTRIBUTE_INVALID)
+		return "attribute-invalid";
+	if (kind == AS_PROBLEM_KIND_MARKUP_INVALID)
+		return "markup-invalid";
+	if (kind == AS_PROBLEM_KIND_STYLE_INCORRECT)
+		return "style-invalid";
+	if (kind == AS_PROBLEM_KIND_FILENAME_INVALID)
+		return "filename-invalid";
+	if (kind == AS_PROBLEM_KIND_FAILED_TO_OPEN)
+		return "failed-to-open";
+	if (kind == AS_PROBLEM_KIND_TRANSLATIONS_REQUIRED)
+		return "translations-required";
+	if (kind == AS_PROBLEM_KIND_DUPLICATE_DATA)
+		return "duplicate-data";
+	if (kind == AS_PROBLEM_KIND_VALUE_MISSING)
+		return "value-missing";
+	if (kind == AS_PROBLEM_KIND_FILE_INVALID)
+		return "file-invalid";
+	if (kind == AS_PROBLEM_KIND_ASPECT_RATIO_INCORRECT)
+		return "aspect-ratio-invalid";
+	if (kind == AS_PROBLEM_KIND_RESOLUTION_INCORRECT)
+		return "resolution-invalid";
+	return "unknown";
 }

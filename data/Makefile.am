@@ -53,14 +53,7 @@ emacsinit_DATA = appdata-rng-init.el
 
 EXTRA_DIST =					\
 	appdata-rng-init.el.in			\
-	appdata-validate.xml			\
-	broken.appdata.xml			\
-	metadata.appdata.xml			\
-	screenshots.appdata.xml			\
-	success.appdata.xml			\
-	short-para-before-list.appdata.xml	\
-	translated.appdata.xml			\
-	wrong-extension.xml
+	appdata-validate.xml
 
 clean-local:
 	rm -f *~

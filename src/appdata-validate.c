@@ -1,6 +1,6 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*-
  *
- * Copyright (C) 2013 Richard Hughes <richard@hughsie.com>
+ * Copyright (C) 2013-2014 Richard Hughes <richard@hughsie.com>
  *
  * Licensed under the GNU General Public License Version 2
  *
@@ -27,12 +27,12 @@
 #include <stdio.h>
 #include <unistd.h>
 
-#include "appdata-common.h"
-#include "appdata-problem.h"
+#include <appstream-glib.h>
 
 #define EXIT_CODE_SUCCESS	0
 #define EXIT_CODE_USAGE		1
 #define EXIT_CODE_WARNINGS	2
+#define EXIT_CODE_FAILURE	3
 
 /**
  * gs_string_replace:
@@ -78,11 +78,11 @@ out:
  * appdata_validate_format_html:
  **/
 static void
-appdata_validate_format_html (const gchar *filename, GList *problems)
+appdata_validate_format_html (const gchar *filename, GPtrArray *probs)
 {
 	AsProblem *problem;
-	GList *l;
 	GString *tmp;
+	guint i;
 
 	g_print ("<html>\n");
 	g_print ("<head>\n");
@@ -93,25 +93,24 @@ appdata_validate_format_html (const gchar *filename, GList *problems)
 	g_print ("<title>AppData Validation Results for %s</title>\n", filename);
 	g_print ("</head>\n");
 	g_print ("<body>\n");
-	if (problems == NULL) {
+	if (probs->len == 0) {
 		g_print ("<h1>Success!</h1>\n");
 		g_print ("<p>%s validated successfully.</p>\n", filename);
 	} else {
 		g_print ("<h1>Validation failed!</h1>\n");
 		g_print ("<p>%s did not validate:</p>\n", filename);
 		g_print ("<ul>\n");
-		for (l = problems; l != NULL; l = l->next) {
-			problem = l->data;
-			tmp = g_string_new (problem->description);
+		for (i = 0; i < probs->len; i++) {
+			problem = g_ptr_array_index (probs, i);
+			tmp = g_string_new (as_problem_get_message (problem));
 			gs_string_replace (tmp, "&", "&amp;");
 			gs_string_replace (tmp, "<", "[");
 			gs_string_replace (tmp, ">", "]");
 			g_print ("<li>");
 			g_print ("%s\n", tmp->str);
-			if (problem->line_number > 0) {
-				g_print (" (line %i, char %i)",
-					 problem->line_number,
-					 problem->char_number);
+			if (as_problem_get_line_number (problem) > 0) {
+				g_print (" (line %i)",
+					 as_problem_get_line_number (problem));
 			}
 			g_print ("</li>\n");
 			g_string_free (tmp, TRUE);
@@ -126,30 +125,30 @@ appdata_validate_format_html (const gchar *filename, GList *problems)
  * appdata_validate_format_xml:
  **/
 static void
-appdata_validate_format_xml (const gchar *filename, GList *problems)
+appdata_validate_format_xml (const gchar *filename, GPtrArray *probs)
 {
 	AsProblem *problem;
-	GList *l;
 	GString *tmp;
+	guint i;
 
 	g_print ("<results version=\"1\">\n");
 	g_print ("  <filename>%s</filename>\n", filename);
-	if (problems != NULL) {
+	if (probs->len > 0) {
 		g_print ("  <problems>\n");
-		for (l = problems; l != NULL; l = l->next) {
-			problem = l->data;
-			tmp = g_string_new (problem->description);
+		for (i = 0; i < probs->len; i++) {
+			problem = g_ptr_array_index (probs, i);
+			tmp = g_string_new (as_problem_get_message (problem));
 			gs_string_replace (tmp, "&", "&amp;");
 			gs_string_replace (tmp, "<", "");
 			gs_string_replace (tmp, ">", "");
-			if (problem->line_number > 0) {
+			if (as_problem_get_line_number (problem) > 0) {
 				g_print ("    <problem type=\"%s\" line=\"%i\">%s</problem>\n",
-					 as_problem_kind_to_string (problem->kind),
-					 problem->line_number,
+					 as_problem_kind_to_string (as_problem_get_kind (problem)),
+					 as_problem_get_line_number (problem),
 					 tmp->str);
 			} else {
 				g_print ("    <problem type=\"%s\">%s</problem>\n",
-					 as_problem_kind_to_string (problem->kind),
+					 as_problem_kind_to_string (as_problem_get_kind (problem)),
 					 tmp->str);
 			}
 			g_string_free (tmp, TRUE);
@@ -163,36 +162,33 @@ appdata_validate_format_xml (const gchar *filename, GList *problems)
  * appdata_validate_format_text:
  **/
 static void
-appdata_validate_format_text (const gchar *filename, GList *problems)
+appdata_validate_format_text (const gchar *filename, GPtrArray *probs)
 {
 	AsProblem *problem;
-	GList *l;
 	const gchar *tmp;
 	guint i;
+	guint j;
 
-	if (problems == NULL) {
+	if (probs->len == 0) {
 		/* TRANSLATORS: the file is valid */
 		g_print (_("%s validated OK."), filename);
 		g_print ("\n");
 		return;
 	}
-	g_print ("%s %i %s\n",
-		 filename,
-		 g_list_length (problems),
+	g_print ("%s %i %s\n", filename, probs->len,
 		 _("problems detected:"));
-	for (l = problems; l != NULL; l = l->next) {
-		problem = l->data;
-		tmp = as_problem_kind_to_string (problem->kind);
+	for (i = 0; i < probs->len; i++) {
+		problem = g_ptr_array_index (probs, i);
+		tmp = as_problem_kind_to_string (as_problem_get_kind (problem));
 		g_print ("• %s ", tmp);
-		for (i = strlen (tmp); i < 20; i++)
+		for (j = strlen (tmp); j < 20; j++)
 			g_print (" ");
-		if (problem->line_number > 0) {
-			g_print (" : %s [ln:%i ch:%i]\n",
-				 problem->description,
-				 problem->line_number,
-				 problem->char_number);
+		if (as_problem_get_line_number (problem) > 0) {
+			g_print (" : %s [ln:%i]\n",
+				 as_problem_get_message (problem),
+				 as_problem_get_line_number (problem));
 		} else {
-			g_print (" : %s\n", problem->description);
+			g_print (" : %s\n", as_problem_get_message (problem));
 		}
 	}
 }
@@ -201,25 +197,41 @@ appdata_validate_format_text (const gchar *filename, GList *problems)
  * appdata_validate_and_show_results:
  **/
 static gint
-appdata_validate_and_show_results (GKeyFile *config,
+appdata_validate_and_show_results (const gchar *filename_original,
 				   const gchar *filename,
-				   const gchar *output_format)
+				   const gchar *output_format,
+				   AsAppValidateFlags flags)
 {
+	AsApp *app;
+	GError *error = NULL;
+	GPtrArray *problems = NULL;
 	const gchar *tmp;
-	gchar *original_filename = NULL;
+	gboolean ret;
 	gint retval = EXIT_CODE_SUCCESS;
-	GList *problems = NULL;
 
 	/* scan file for problems */
-	problems = appdata_check_file_for_problems (config, filename);
-	if (problems != NULL)
+	app = as_app_new ();
+	ret = as_app_parse_file (app, filename,
+				 AS_APP_PARSE_FLAG_NONE,
+				 &error);
+	if (!ret) {
+		retval = EXIT_CODE_FAILURE;
+		g_print ("Failed: %s\n", error->message);
+		g_error_free (error);
+		goto out;
+	}
+	problems = as_app_validate (app, flags, &error);
+	if (problems == NULL) {
+		retval = EXIT_CODE_FAILURE;
+		g_print ("Failed: %s\n", error->message);
+		g_error_free (error);
+		goto out;
+	}
+	if (problems->len > 0)
 		retval = EXIT_CODE_WARNINGS;
 
 	/* print problems */
-	original_filename = g_key_file_get_string (config,
-						   APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-						   "OriginalFilename", NULL);
-	tmp = original_filename != NULL ? original_filename : filename;
+	tmp = filename_original != NULL ? filename_original : filename;
 	if (g_strcmp0 (output_format, "html") == 0) {
 		appdata_validate_format_html (tmp, problems);
 	} else if (g_strcmp0 (output_format, "xml") == 0) {
@@ -227,9 +239,10 @@ appdata_validate_and_show_results (GKeyFile *config,
 	} else {
 		appdata_validate_format_text (tmp, problems);
 	}
-
-	g_free (original_filename);
-	g_list_free_full (problems, (GDestroyNotify) as_problem_free);
+out:
+	g_object_unref (app);
+	if (problems)
+		g_ptr_array_unref (problems);
 	return retval;
 }
 
@@ -272,23 +285,20 @@ appdata_validate_log_handler_cb (const gchar *log_domain, GLogLevelFlags log_lev
 int
 main (int argc, char *argv[])
 {
+	AsAppValidateFlags validate_flags = 0;
 	gboolean nonet = FALSE;
 	gboolean relax = FALSE;
 	gboolean ret;
 	gboolean strict = FALSE;
 	gboolean verbose = FALSE;
 	gboolean version = FALSE;
-	gchar *config_dump = NULL;
 	gchar *filename = NULL;
 	gchar *output_format = NULL;
 	GError *error = NULL;
+	gint i;
 	gint retval = EXIT_CODE_SUCCESS;
 	gint retval_tmp;
-	GKeyFile *config = NULL;
 	GOptionContext *context;
-	gint i;
-	const gchar * const licenses[] = {
-		"CC0", "CC-BY", "CC-BY-SA", "GFDL", NULL};
 	const GOptionEntry options[] = {
 		{ "relax", 'r', 0, G_OPTION_ARG_NONE, &relax,
 			/* TRANSLATORS: this is the --relax argument */
@@ -363,138 +373,26 @@ main (int argc, char *argv[])
 		goto out;
 	}
 
-	/* set some config values */
-	config = g_key_file_new ();
-	g_key_file_set_string_list (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-				    "AcceptableLicenses", licenses,
-				    g_strv_length ((gchar **) licenses));
-	g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-				"LengthUpdatecontactMin", 6);
-	g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-				"LengthNameMin", 3);
-	g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-				"LengthNameMax", 30);
-	g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-				"LengthSummaryMin", 8);
-	g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-				"LengthSummaryMax", 100);
-	g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-				"LengthParaMin", 50);
-	g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-				"LengthParaMax", 600);
-	g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-				"LengthListItemMin", 20);
-	g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-				"LengthListItemMax", 100);
-	g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-				"LengthParaCharsBeforeList", 300);
-	g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-				"NumberParaMin", 2);
-	g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-				"NumberParaMax", 4);
-	g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-				"NumberScreenshotsMin", 1);
-	g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-				"ScreenshotSizeWidthMin", 624);
-	g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-				"ScreenshotSizeHeightMin", 351);
-	g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-				"ScreenshotSizeWidthMax", 1600);
-	g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-				"ScreenshotSizeHeightMax", 900);
-	g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-				"NumberScreenshotsMax", 5);
-	g_key_file_set_boolean (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-				"RequireContactdetails", TRUE);
-	g_key_file_set_boolean (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-				"RequireUrl", TRUE);
-	g_key_file_set_boolean (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-				"HasNetworkAccess", TRUE);
-	g_key_file_set_boolean (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-				"RequireCopyright", FALSE);
-	g_key_file_set_boolean (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-				"RequireCorrectAspectRatio", FALSE);
-	g_key_file_set_double (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-			       "DesiredAspectRatio", 1.777777777);
-
-	/* relax the requirements a bit */
-	if (relax) {
-		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-					"LengthNameMax", 100);
-		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-					"LengthSummaryMax", 200);
-		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-					"LengthParaMin", 10);
-		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-					"LengthParaMax", 1000);
-		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-					"LengthListItemMin", 4);
-		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-					"LengthListItemMax", 1000);
-		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-					"LengthParaCharsBeforeList", 100);
-		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-					"NumberParaMin", 1);
-		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-					"NumberParaMax", 10);
-		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-					"NumberScreenshotsMin", 0);
-		g_key_file_set_boolean (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-					"RequireContactdetails", FALSE);
-		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-					"NumberScreenshotsMax", 10);
-		g_key_file_set_boolean (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-					"RequireUrl", FALSE);
-		g_key_file_set_boolean (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-					"HasNetworkAccess", FALSE);
-		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-					"ScreenshotSizeWidthMin", 300);
-		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-					"ScreenshotSizeHeightMin", 150);
-		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-					"ScreenshotSizeWidthMax", 3200);
-		g_key_file_set_integer (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-					"ScreenshotSizeHeightMax", 1800);
-	}
-
-	/* make the requirements more strict */
-	if (strict) {
-		g_key_file_set_boolean (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-					"RequireTranslations", TRUE);
-		g_key_file_set_boolean (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-					"RequireCopyright", TRUE);
-		g_key_file_set_boolean (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-					"RequireCorrectAspectRatio", TRUE);
-		g_key_file_set_boolean (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-					"DeprecatedFailure", TRUE);
-	}
-
-	/* we're using a temporary file */
-	if (filename != NULL) {
-		g_key_file_set_string (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-				       "OriginalFilename", filename);
-	}
+	/* make more strict or relaxed */
+	if (strict)
+		validate_flags |= AS_APP_VALIDATE_FLAG_STRICT;
+	else if (relax)
+		validate_flags |= AS_APP_VALIDATE_FLAG_RELAX;
 
 	/* the user has forced no network mode */
-	if (nonet) {
-		g_key_file_set_boolean (config, APPDATA_TOOLS_VALIDATE_GROUP_NAME,
-					"HasNetworkAccess", FALSE);
-	}
-	config_dump = g_key_file_to_data (config, NULL, &error);
-	g_debug ("%s", config_dump);
+	if (nonet)
+		validate_flags |= AS_APP_VALIDATE_FLAG_NO_NETWORK;
 
 	/* validate each file */
 	for (i = 1; i < argc; i++) {
-		retval_tmp = appdata_validate_and_show_results (config,
+		retval_tmp = appdata_validate_and_show_results (filename,
 								argv[i],
-								output_format);
+								output_format,
+								validate_flags);
 		if (retval_tmp != EXIT_CODE_SUCCESS)
 			retval = retval_tmp;
 	}
 out:
-	if (config != NULL)
-		g_key_file_free (config);
-	g_free (config_dump);
 	g_free (filename);
 	g_free (output_format);
 	g_option_context_free (context);

@@ -45,7 +45,8 @@ The file should contain something like this:
 &lt;!-- Copyright 2013 First Lastname &lt;your@email.com&gt; --&gt;
 &lt;application&gt;
  &lt;id type="desktop"&gt;gnome-power-statistics.desktop&lt;/id&gt;
- &lt;metadata_license&gt;CC0&lt;/metadata_license&gt;
+ &lt;metadata_license&gt;CC0-1.0&lt;/metadata_license&gt;
+ &lt;project_license&gt;GPL-2.0+ and GFDL-1.3&lt;/project_license&gt;
  &lt;name&gt;Power Statistics&lt;/name&gt;
  &lt;summary&gt;Observe power management&lt;/summary&gt;
  &lt;description&gt;
@@ -90,22 +91,31 @@ incorporated into the distribution metadata.
 Permissible license codes include:
 </p>
 <ul>
-<li><code>CC0</code></li>
-<li><code>CC-BY</code></li>
-<li><code>CC-BY-SA</code></li>
-<li><code>GFDL</code></li>
+<li><code>CC0-1.0</code></li>
+<li><code>CC-BY-3.0</code></li>
+<li><code>CC-BY-SA-3.0</code></li>
+<li><code>GFDL-1.3</code></li>
 </ul>
 <p>
-  The license codes correspond to the full license texts as given by the
-  list of free content licenses according to <a href="https://fedoraproject.org/wiki/Licensing:Main?rd=Licensing">Fedora</a>.
-  For instance, <code>CC-BY-SA</code> corresponds to <code>
-  http://creativecommons.org/licenses/by-sa/3.0/</code>
+  The license codes correspond to the <a href="http://spdx.org/licenses/">SPDX License IDs</a>
+  although the previously defined Fedora IDs will work as well.
 </p>
 <p>
   The old name for this tag was <code>&lt;licence/&gt</code> and was changed
   for two reasons. It used the British English spelling, and also that it wasn't
   clear that the license given wasn't the project license, but rather the license
   for the metadata only.
+</p>
+
+<a name="project_license"/><h2><code>&lt;project_license/&gt</code></h2>
+<p>
+The <code>&lt;project_license&gt;</code> tag is indicating the licenses that you
+used for the application and any data or media files used.
+<b>This is not typically the same as the metadata license.</b>
+<p>
+The license codes correspond to the <a href="http://spdx.org/licenses/">SPDX License IDs</a>
+as a string, e.g. <code>GPL-2.0+ and GFDL-1.3</code> or
+<code>GPL-2.0+ and (GFDL-1.3 or LGPL-2.1)</code>.
 </p>
 
 <a name="name"/><h2><code>&lt;name/&gt</code></h2>

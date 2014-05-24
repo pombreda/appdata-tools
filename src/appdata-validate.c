@@ -211,6 +211,7 @@ appdata_validate_and_show_results (const gchar *filename_original,
 
 	/* scan file for problems */
 	app = as_app_new ();
+	as_app_set_source_kind (app, AS_APP_SOURCE_KIND_APPDATA);
 	ret = as_app_parse_file (app, filename,
 				 AS_APP_PARSE_FLAG_NONE,
 				 &error);

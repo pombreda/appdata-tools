@@ -1,3 +1,16 @@
+Version 0.1.8
+~~~~~~~~~~~~~
+Released: 2014-05-28
+
+New Features:
+ - Rename <licence> to <metadata_license> (Richard Hughes)
+ - Use as_app_validate() from libappstream-glib (Richard Hughes)
+
+Bugfixes:
+ - Add a copyright header to appdata.its (Richard Hughes)
+ - Allow processing files with the wrong filename (Richard Hughes)
+ - Correctly specify minimum version requirements (David King)
+
 Version 0.1.7
 ~~~~~~~~~~~~~
 Released: 2014-01-24

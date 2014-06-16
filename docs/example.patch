@@ -14,11 +14,11 @@ diff --git a/data/Makefile.am b/data/Makefile.am
 index fbc5768..a6b59b3 100644
 --- a/data/Makefile.am
 +++ b/data/Makefile.am
-@@ -5,6 +5,9 @@ desktopdir = $(datadir)/applications
+@@ -5,6 +5,9 @@ desktopdir = $(datarootdir)/applications
  desktop_in_files = gnome-power-statistics.desktop.in
  desktop_DATA = $(desktop_in_files:.desktop.in=.desktop)
  
-+appdatadir = $(datadir)/appdata
++appdatadir = $(datarootdir)/appdata
 +dist_appdata_DATA = gnome-power-statistics.appdata.xml
 +
  @GSETTINGS_RULES@

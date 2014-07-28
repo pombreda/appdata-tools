@@ -32,9 +32,10 @@ id =
 
 # Other licenses?  Worth restricting this at all, or use free content?
 metadata_license =  element metadata_license { 
-  string "CC0" 
-  | string "CC BY" 
-  | string "CC BY-SA" 
+  string "CC0-1.0" 
+  | string "CC-BY-3.0" 
+  | string "CC-BY-SA-3.0" 
+  | string "GFDL-1.3" 
 }
 
 name =  element name {

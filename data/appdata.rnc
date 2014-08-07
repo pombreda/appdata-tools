@@ -21,6 +21,7 @@ application =
     & screenshots? 
     & url* 
     & updatecontact?
+    & project_group?
   }
 
 id = 
@@ -119,5 +120,7 @@ url = element url
   }
 
 updatecontact =  element updatecontact { text }
+
+project_group = element project_group { text }
 
 XmlLang = attribute xml:lang { text }

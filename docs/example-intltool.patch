@@ -55,7 +55,7 @@ index 0000000..58d88f5
 +    </_p>
 +  </description>
 +  <screenshots>
-+    <screenshot type="default" width="1033" height="452">https://projects.gnome.org/gnome-color-manager/images/gcm-viewer-cie.png</screenshot>
++    <screenshot type="default">https://projects.gnome.org/gnome-color-manager/images/gcm-viewer-cie.png</screenshot>
 +  </screenshots>
 +  <url type="homepage">https://projects.gnome.org/gnome-color-manager/</url>
 +  <updatecontact>richard_at_hughsie.com</updatecontact>

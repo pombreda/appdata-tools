@@ -344,6 +344,10 @@ main (int argc, char *argv[])
 		goto out;
 	}
 
+	/* big fat warning */
+	g_print ("THIS TOOL IS *DEPRECATED* AND WILL BE REMOVED SOON.\n");
+	g_print ("Please use 'apstream-util validate' in appstream-glib.\n\n");
+
 	/* just show the version */
 	if (version) {
 		g_print ("%s\n", PACKAGE_VERSION);

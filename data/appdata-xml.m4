@@ -22,6 +22,9 @@ AC_DEFUN([APPDATA_XML],
                 [AS_HELP_STRING([--disable-appdata-validate],
                                 [Disable validating AppData XML files during check phase])])
 
+  # big fat warning
+  AC_MSG_WARN([APPDATA_XML is deprecated, use APPSTREAM_XML instead.])
+
   AS_IF([test "x$enable_appdata_validate" != "xno"],
         [AC_PATH_PROG([APPDATA_VALIDATE], [appdata-validate])
          AS_IF([test "x$APPDATA_VALIDATE" = "x"],

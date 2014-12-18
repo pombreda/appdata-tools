@@ -37,11 +37,11 @@ new file mode 100644
 index 0000000..58d88f5
 --- /dev/null
 +++ b/data/gcm-viewer.appdata.xml.in
-@@ -0,0 +1,22 @@
+@@ -0,0 +1,25 @@
 +<?xml version="1.0" encoding="UTF-8"?>
 +<!-- Copyright 2013 First Lastname <your@email.com> -->
-+<application>
-+  <id type="desktop">gcm-viewer.desktop</id>
++<component type="desktop">
++  <id>gcm-viewer.desktop</id>
 +  <metadata_license>CC0</metadata_license>
 +  <description>
 +    <_p>
@@ -55,11 +55,14 @@ index 0000000..58d88f5
 +    </_p>
 +  </description>
 +  <screenshots>
-+    <screenshot type="default">https://projects.gnome.org/gnome-color-manager/images/gcm-viewer-cie.png</screenshot>
++    <screenshot type="default">
++     <image>https://projects.gnome.org/gnome-color-manager/images/gcm-viewer-cie.png</image>
++     <_caption>Showing an ICC profile</_caption>
++    </screenshot>
 +  </screenshots>
 +  <url type="homepage">https://projects.gnome.org/gnome-color-manager/</url>
 +  <updatecontact>richard_at_hughsie.com</updatecontact>
-+</application>
++</component>
 diff --git a/po/POTFILES.in b/po/POTFILES.in
 index 3c617c0..21474ef 100644
 --- a/po/POTFILES.in

@@ -15,36 +15,36 @@
 
 <h1>Introduction:</h1>
 <p>
-Every software center that exists allows the user to look at screenshots
-and a long description of the application before it is installed.
-For most users it allows them to answer the question <i>Do I want to install this application?</i>
+ Every software center that exists allows the user to look at screenshots
+ and a long description of the application before it is installed.
+ For most users it allows them to answer the question <i>Do I want to install this application?</i>
 </p>
 <p>
-Traditionally in Linux distributions, we have <b>none</b> of this data for the
-vast majority of our desktop user-installable applications.
-To solve this, we have defined a new data file, which the upstream project can
-optionally translate using the same technique as GSetting schemas or
-<a href="http://standards.freedesktop.org/desktop-entry-spec/latest/">Desktop files</a>.
-Rather than create a new schema from scratch, we'll be using a subset of the
-<a href="http://www.freedesktop.org/wiki/Distributions/AppStream/">AppStream</a>
-metadata proposal.
+ Traditionally in Linux distributions, we have <b>none</b> of this data for the
+ vast majority of our desktop user-installable applications.
+ To solve this, we have defined a new data file, which the upstream project can
+ optionally translate using the same technique as GSetting schemas or
+ <a href="http://standards.freedesktop.org/desktop-entry-spec/latest/">Desktop files</a>.
+ Rather than create a new schema from scratch, we'll be using a subset of the
+ <a href="http://www.freedesktop.org/wiki/Distributions/AppStream/">AppStream</a>
+ metadata proposal.
 </p>
 
 <p>
-Applications wishing to have long descriptions, screenshots and other useful things
-are required to ship one or more files in <code>/usr/share/appdata/%{id}.appdata.xml</code>.
+ Applications wishing to have long descriptions, screenshots and other useful things
+ are required to ship one or more files in <code>/usr/share/appdata/%{id}.appdata.xml</code>.
 </p>
 
 <h1>File specification</h1>
 <h2>Sample file</h2>
 <p>
-The file should contain something like this:
+ The file should contain something like this:
 </p>
 <pre>
 &lt;?xml version="1.0" encoding="UTF-8"?&gt;
 &lt;!-- Copyright 2013 First Lastname &lt;your@email.com&gt; --&gt;
-&lt;application&gt;
- &lt;id type="desktop"&gt;gnome-power-statistics.desktop&lt;/id&gt;
+&lt;component type="desktop"&gt;
+ &lt;id&gt;gnome-power-statistics.desktop&lt;/id&gt;
  &lt;metadata_license&gt;CC0-1.0&lt;/metadata_license&gt;
  &lt;project_license&gt;GPL-2.0+ and GFDL-1.3&lt;/project_license&gt;
  &lt;name&gt;Power Statistics&lt;/name&gt;
@@ -66,35 +66,41 @@ The file should contain something like this:
   &lt;/p&gt;
  &lt;/description&gt;
  &lt;screenshots&gt;
-  &lt;screenshot type="default"&gt;http://www.hughsie.com/en_US/main.png&lt;/screenshot&gt;
-  &lt;screenshot&gt;http://www.hughsie.com/en_US/preferences.png&lt;/screenshot&gt;
+  &lt;screenshot type="default"&gt;
+   &lt;image&gt;http://www.hughsie.com/en_US/main.png&lt;/image&gt;
+   &lt;caption&gt;The main window showing the application in action&lt;/caption&gt;
+  &lt;/screenshot&gt;
+  &lt;screenshot&gt;
+   &lt;image&gt;http://www.hughsie.com/en_US/preferences.png&lt;/image&gt;
+   &lt;caption&gt;The preferences window where you can change the defaults&lt;/caption&gt;
+  &lt;/screenshot&gt;
  &lt;/screenshots&gt;
  &lt;url type="homepage"&gt;http://www.gnome.org/projects/en_US/gnome-power-manager&lt;/url&gt;
  &lt;updatecontact&gt;gnome-power-manager-list@gnome.org&lt;/updatecontact&gt;
  &lt;project_group&gt;GNOME&lt;/project_group&gt;
-&lt;/application&gt;
+&lt;/component&gt;
 </pre>
 
 <a name="id"/><h2><code>&lt;id/&gt</code></h2>
 <p>
-The <code>%{id}</code> is the same name as the installed .desktop file for the
-application.
+ The <code>%{id}</code> is the same name as the installed .desktop file for the
+ application.
 </p>
 
 <a name="metadata_license"/><h2><code>&lt;metadata_license/&gt</code></h2>
 <p>
-The <code>&lt;metadata_license&gt;</code> tag is indicating the content license that you
-are releasing the AppData text file and screenshots as.
-<b>This is not typically the same as the project license.</b>
-By ommitting the metadata_license value would probably mean your data would not be
-incorporated into the distribution metadata.
-Permissible license codes include:
+ The <code>&lt;metadata_license&gt;</code> tag is indicating the content license that you
+ are releasing the AppData text file and screenshots as.
+ <b>This is not typically the same as the project license.</b>
+ By ommitting the metadata_license value would probably mean your data would not be
+ incorporated into the distribution metadata.
+ Permissible license codes include:
 </p>
 <ul>
-<li><code>CC0-1.0</code></li>
-<li><code>CC-BY-3.0</code></li>
-<li><code>CC-BY-SA-3.0</code></li>
-<li><code>GFDL-1.3</code></li>
+ <li><code>CC0-1.0</code></li>
+ <li><code>CC-BY-3.0</code></li>
+ <li><code>CC-BY-SA-3.0</code></li>
+ <li><code>GFDL-1.3</code></li>
 </ul>
 <p>
   The license codes correspond to the <a href="http://spdx.org/licenses/">SPDX License IDs</a>
@@ -109,71 +115,69 @@ Permissible license codes include:
 
 <a name="project_license"/><h2><code>&lt;project_license/&gt</code></h2>
 <p>
-The <code>&lt;project_license&gt;</code> tag is indicating the licenses that you
-used for the application and any data or media files used.
-<b>This is not typically the same as the metadata license.</b>
+ The <code>&lt;project_license&gt;</code> tag is indicating the licenses that you
+ used for the application and any data or media files used.
+ <b>This is not typically the same as the metadata license.</b>
 <p>
-The license codes correspond to the <a href="http://spdx.org/licenses/">SPDX License IDs</a>
-as a string, e.g. <code>GPL-2.0+ and GFDL-1.3</code> or
-<code>GPL-2.0+ and (GFDL-1.3 or LGPL-2.1)</code>.
+ The license codes correspond to the <a href="http://spdx.org/licenses/">SPDX License IDs</a>
+ as a string, e.g. <code>GPL-2.0+ and GFDL-1.3</code> or
+ <code>GPL-2.0+ and (GFDL-1.3 or LGPL-2.1)</code>.
 </p>
 
 <a name="name"/><h2><code>&lt;name/&gt</code></h2>
 <p>
-You can omit this tag if you want the software center to have the same strings
-as the desktop menu.
-In some cases it might be required to have a different name in the app-store,
-but most <code>appdata.xml</code> files will not need this.
+ This is the project name, usually the same as the <code>Name</code> value in
+ the desktop file.
+ It's important to choose a good name here; A generic name like <i>Color</i>
+ is suitable for the desktop file but something like <i>GNOME Color Manager</i>
+ that describes the project is more appropriate for a software center.
 </p>
-
 
 <a name="summary"/><h2><code>&lt;summary/&gt</code></h2>
 <p>
-You can omit this tag if you want the software center to have the same strings
-as the desktop menu.
-In some cases it might be required to have a different name in the app-store,
-but most <code>appdata.xml</code> files will not need this.
+ This is the project one line tagline, usually the same as the <code>Comment</code>
+ value in the desktop file. Don't include a trailing fullstop.
 </p>
-
 
 <a name="description"/><h2><code>&lt;description/&gt</code></h2>
 <p>
-The long description is an important part of the file.
-Important things to consider when writing the application description:
+ The long description is an important part of the file.
+ Important things to consider when writing the application description:
 </p>
 <ul>
-<li>Include 2-3 paragraphs of interesting easy to read prose.</li>
-<li>Ensure you provide a description of what the application actually does.</li>
-<li>Describe any important features.</li>
-<li>Do not use possily trademarked product names when refering to competitors.</li>
-<li>Break down each paragraph into easily translated paragraphs.</li>
-<li>Use lists sparingly.</li>
-<li>Never refer to installable items as packages.</li>
-<li>Never start the first sentance with <i>This application...</i></li>
-<li>Try not use more than 100 words.</li>
-<li>Do not be too geeky. Aim for an intelligent semi-technical reader.</li>
-<li>Don't mention what language an application is written in, users don't care</li>
-<li>Only mention what the application can do now, rather than what is planned</li>
+ <li>Include 2-3 paragraphs of interesting easy to read prose.</li>
+ <li>Ensure you provide a description of what the application actually does.</li>
+ <li>Describe any important features.</li>
+ <li>Do not use possily trademarked product names when refering to competitors.</li>
+ <li>Break down each paragraph into easily translated paragraphs.</li>
+ <li>Use lists sparingly.</li>
+ <li>Never refer to installable items as packages.</li>
+ <li>Never start the first sentance with <i>This application...</i></li>
+ <li>Try not use more than 100 words.</li>
+ <li>Do not be too geeky. Aim for an intelligent semi-technical reader.</li>
+ <li>Don't mention what language an application is written in, users don't care</li>
+ <li>Only mention what the application can do now, rather than what is planned</li>
 </ul>
 <p>
-Do not assume the format is HTML. Only paragraph, ordered list and unordered list are supported at this time.
+ Do not assume the format is HTML.
+ Only paragraph, ordered list and unordered list are supported at this time.
 </p>
 
 <a name="screenshots"/><h2><code>&lt;screenshots/&gt</code></h2>
 <p>
-A screenshot presents your application to the outside world, and could be seen
-by hundreds or thousands of people.
+ A screenshot presents your application to the outside world, and could be seen
+ by hundreds or thousands of people.
 </p>
 <p>
-Screenshots are an important part of how people choose which
-applications to install, so it's important to get them right.
-Consistent, good looking screenshots will make your application look more
-attractive and will expand your userbase.
-Consistent screenshots also provide a more predictable experience for people
-using the software center.
+ Screenshots are an important part of how people choose which
+ applications to install, so it's important to get them right.
+ Consistent, good looking screenshots will make your application look more
+ attractive and will expand your userbase.
+ Consistent screenshots also provide a more predictable experience for people
+ using the software center.
 </p>
 <p>
-Screenshot size, shape and format:
+ Screenshot size, shape and format:
 </p>
 <ul>
   <li>
@@ -233,13 +237,13 @@ Basic guidelines for things to include (and not include) in your screenshots:
 </ul>
 
 <p>
-Additional advice on how to take effective screenshots:
+ Additional advice on how to take effective screenshots:
 </p>
 <ul>
   <li>
     Each of your screenshots should focus on one thing and one thing only. Screenshot
     one window at a time, and avoid having overlapping windows or user interface elements.
-    This will make it much easier of people to understand what you are showing them.
+    This will make it much easier for people to understand what you are showing them.
   </li>
   <li>
     If a screenshot is demonstrating a single feature or aspect of the application,
@@ -257,41 +261,40 @@ Additional advice on how to take effective screenshots:
 
 <a name="url"/><h2><code>&lt;url/&gt</code></h2>
 <p>
-Links of type <code>homepage</code> should be a link to the upstream homepage
-for the application.
+ Links of type <code>homepage</code> should be a link to the upstream homepage
+ for the application.
 </p>
 
 <a name="updatecontact"/><h2><code>&lt;updatecontact/&gt</code></h2>
 <p>
-AppData is a new standard, and we'll likely be adding extra metadata in the
-future.
-If you include the <code>&lt;updatecontact&gt;</code> tag then someone
-will send an email when the standard is updated, detailing the new fields that
-you may or may not want to add to your <code>appdata.xml</code> file.
-We're not expecting to do this more than 4 times a year, so don't expect a
-deluge of email.
+ AppData is a new standard, and we'll likely be adding extra metadata in the
+ future.
+ If you include the <code>&lt;updatecontact&gt;</code> tag then someone
+ will send an email when the standard is updated, detailing the new fields that
+ you may or may not want to add to your <code>appdata.xml</code> file.
+ We're not expecting to do this more than 2 times a year, so don't expect a
+ deluge of email.
 </p>
 <p>
-<b>TIP:</b>Use <code>_at_</code> rather than <code>@</code> if you're worried
-about the email address being harvested by spammers.
+ <b>TIP:</b>Use <code>_at_</code> rather than <code>@</code> if you're worried
+ about the email address being harvested by spammers.
 </p>
 
 <a name="project_group"/><h2><code>&lt;project_group/&gt</code></h2>
 <p>
-If you include the <code>&lt;project_group&gt;</code> tag then this identifies
-your project with a specific upstream umbrella project.
-Known values include <code>GNOME</code>, <code>KDE</code>, <code>XFCE</code>,
-<code>MATE</code> and <code>LXDE</code>, although other umbrella projects like
-<code>Yorba</code> would make sense too.
+ If you include the <code>&lt;project_group&gt;</code> tag then this identifies
+ your project with a specific upstream umbrella project.
+ Known values include <code>GNOME</code>, <code>KDE</code>, <code>XFCE</code>,
+ <code>MATE</code> and <code>LXDE</code>, although other umbrella projects like
+ <code>Yorba</code> would make sense too.
 </p>
 <p>
-<b>NOTE:</b>You should only identify with an umbrella project if you use all
-their infrastructure and policies, for instance string freezes dates, bugtracker
-and source control instance.
+ <b>NOTE:</b>You should only identify with an umbrella project if you use all
+ their infrastructure and policies, for instance string freezes dates, bugtracker
+ and source control instance.
 </p>
 
 <h1>Questions:</h1>
-</ul>
 
 <a name="translation"/><h3>How do I translate this data?</h3>
 <p>
@@ -325,7 +328,7 @@ and source control instance.
 </p>
 <p>
  The upstream project is in a much better place to describe itself, and the
- upstream project is able to use it's existing localization and translation teams.
+ upstream project is able to use its existing localization and translation teams.
  Also, things like the screenshot will change as the project is updated, and
  not all distros ship the same version of an application.
  We also want the long description to come up immediately, and be searchable,
@@ -335,20 +338,9 @@ and source control instance.
 
 <a name="how-about-no"/><h3>What happens if I don't ship this file?</h3>
 <p>
- The GNOME Software Center currently shows a nag message that the upstream project
- doesn't ship the additional data.
- Additionally, we will penalize apps that do not ship the extra metadata by showing
- them lower in the search results.
-</p>
-
-<a name="other-data"/><h3>What other data should I include in the file?</h3>
-<p>
- At this moment we're trying to do the bare minimum for a software center technical
- preview.
- In the future I can totally see this file being used to express what portals
- are required (i.e. <i>Firefox needs access to your addressbook</i>) and other
- useful things.
- I'll update this page when we've got some more concrete use-cases.
+ We will penalize apps that do not ship the extra metadata by showing them lower
+ in the search results.
+ Applications without icons, names or short descriptions will not be shown at all.
 </p>
 
 <a name="why-xml"/><h3>Why XML and not JSON/other?</h3>
@@ -359,9 +351,7 @@ and source control instance.
 
 <a name="use"/><h3>Where will this data be used?</h3>
 <p>
- We will scrape this data when building and composing distributions, and depending
- on the implementation will either use an OCS server or directly copy the AppData
- data into the AppStream metadata.
+ We will scrape this data when building and composing metadata for distributions.
 </p>
 
 <a name="screenshot-resolution"/><h3>What resolution screenshots should I aim to take?</h3>
@@ -382,34 +372,36 @@ and source control instance.
 <tr><td>784x441</td><td>944x531</td><td>1104x621</td><td>1264x711</td><td>1424x801</td><td>1584x891</td></tr>
 </table>
 <p>
-The native size for most software centers is 624x351 and so screenshots taken
-or cropped to this size will not be resized and will look pixel perfect.
-The largest resolution screenshot supported is 1600x900.
+ The native size for most software centers is 624x351 and so screenshots taken
+ or cropped to this size will not be resized and will look pixel perfect.
+ The largest resolution screenshot supported is 1600x900.
+</p>
+
+<a name="pre06"/><h3>My AppData file has &lt;application&gt; rather than &lt;component&gt;?</h3>
+<p>
+ This is the old AppStream schema, before it was standardized on freedesktop.
+ You can continue to use the old format, all the software centers and metadata
+ extractors in common use understand both types.
+</p>
+<p>
+ If you want to upgrade to the 0.6+ format, just use <code>appstream-util upgrade</code>
+ on your AppData files.
 </p>
 
 <a name="validate"/><h3>How do I know if my appdata XML is correct?</h3>
 <p>
-You can validate the AppData file using this web helper.
-Just upload the file you wish to validate:
+ The best way to validate the data is by using the <code>appstream-util validate</code>
+ tool available in the <a href="https://github.com/hughsie/appstream-glib">appstream-glib</a> project.
+</p>
+<p>
+ You can also validate the AppData file using this web helper:
 </p>
 <form action="http://hughsient.no-ip.biz/validate.php" method="post" enctype="multipart/form-data">
-<fieldset>
-<input type="file" name="upload" id="file">
-<input type="submit" name="submit" value="Validate">
-</fieldset>
+ <fieldset>
+ <input type="file" name="upload" id="file">
+ <input type="submit" name="submit" value="Validate">
+ </fieldset>
 </form>
-<p>
-There are several other ways to validate the data:
-</p>
-<ul>
-<li>Using the appdata-validate command available in <a href="https://github.com/hughsie/appdata-tools">appdata-tools</a>.</li>
-<li>Using an <a href="https://raw.github.com/hughsie/appdata-tools/master/data/appdata.xsd">XSD
-schema</a> available online.</li>
-<li>Using a RELAX NG schema in <a href="https://raw.github.com/hughsie/appdata-tools/master/data/appdata.rnc">compact syntax</a> form.</li>
-<li>Using a RELAX NG schema in XML syntax, included with appdata-tools.</li>
-</ul>
-<p>These schemas are installed in <code>/usr/share/appdata/schema</code> when is
-appdata-tools is installed.</p>
 
 <a name="example"/><h3>Have you got a real world example?</h3>
 <p>

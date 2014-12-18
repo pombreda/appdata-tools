@@ -32,8 +32,8 @@ index 0000000..5f3d47c
 @@ -0,0 +1,22 @@
 +<?xml version="1.0" encoding="UTF-8"?>
 +<!-- Copyright 2013 First Lastname <your@email.com> -->
-+<application>
-+  <id type="desktop">gnome-power-statistics.desktop</id>
++<component type="desktop">
++  <id>gnome-power-statistics.desktop</id>
 +  <metadata_license>CC0</metadata_license>
 +  <description>
 +    <p>
@@ -47,8 +47,11 @@ index 0000000..5f3d47c
 +    </p>
 +  </description>
 +  <screenshots>
-+    <screenshot type="default">https://projects.gnome.org/gnome-power-manager/images/gpm-low-batt.png</screenshot>
++    <screenshot type="default">
++     <image>https://projects.gnome.org/gnome-color-manager/images/gcm-viewer-cie.png</image>
++     <caption>Showing an ICC profile</caption>
++    </screenshot>
 +  </screenshots>
 +  <url type="homepage">http://www.gnome.org/projects/gnome-power-manager/</url>
 +  <updatecontact>richard_at_hughsie.com</updatecontact>
-+</application>
++</component>
